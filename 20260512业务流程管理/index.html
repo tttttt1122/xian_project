@@ -3486,7 +3486,7 @@
                 </div>
             </div>
 
-            <!-- 业务流转记录表格设置弹窗 -->
+            <!-- 主列表表格设置弹窗 -->
             <div id="recordTableSettingsModal" class="modal">
                 <div class="modal-content" style="width: 700px;">
                     <div class="modal-header">
@@ -3519,6 +3519,11 @@
                                 <label><input type="checkbox">应用名称</label>
                                 <label><input type="checkbox">执行状态</label>
                                 <label><input type="checkbox">执行时长</label>
+                                <label><input type="checkbox">当前停滞节点</label>
+                                <label><input type="checkbox">停滞时长</label>
+                                <label><input type="checkbox">执行错误信息</label>
+                                <label><input type="checkbox">执行开始时间</label>
+                                <label><input type="checkbox">执行结束时间</label>
                             </div>
                         </div>
                         <div style="margin-bottom: 20px;">
@@ -3762,7 +3767,7 @@
                 </div>
             </div>
 
-            <!-- 表格设置弹窗 -->
+            <!-- 业务流程清单表格设置弹窗 -->
             <div id="tableSettingsModal" class="modal">
                 <div class="modal-content" style="width: 700px;">
                     <div class="modal-header">
@@ -3770,39 +3775,34 @@
                         <button class="modal-close" onclick="closeModal('tableSettingsModal')">×</button>
                     </div>
                     <div class="modal-body">
-                        <!-- 列显隐设置 -->
                         <div style="margin-bottom: 20px;">
                             <h4 style="margin-bottom: 12px; color: #1890ff; font-size: 14px;">列显隐</h4>
                             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-                                <label><input type="checkbox" checked onclick="toggleColumn('col-name')">流程名称</label>
-                                <label><input type="checkbox" checked onclick="toggleColumn('col-status')">状态</label>
-                                <label><input type="checkbox" checked onclick="toggleColumn('col-time')">执行时间</label>
-                                <label><input type="checkbox" checked onclick="toggleColumn('col-serial')">流水号</label>
-                                <label><input type="checkbox" checked onclick="toggleColumn('col-person')">姓名</label>
-                                <label><input type="checkbox" checked onclick="toggleColumn('col-idcard')">身份证号</label>
-                                <label><input type="checkbox" checked onclick="toggleColumn('col-domain')">业务域</label>
-                                <label><input type="checkbox" checked onclick="toggleColumn('col-app')">应用归属</label>
-                                <label><input type="checkbox" checked onclick="toggleColumn('col-pubapp')">发布应用</label>
+                                <label><input type="checkbox" checked>流程名称</label>
+                                <label><input type="checkbox" checked>状态</label>
+                                <label><input type="checkbox" checked>执行时间</label>
+                                <label><input type="checkbox" checked>流水号</label>
+                                <label><input type="checkbox" checked>姓名</label>
+                                <label><input type="checkbox" checked>身份证号</label>
+                                <label><input type="checkbox" checked>业务域</label>
+                                <label><input type="checkbox" checked>应用归属</label>
+                                <label><input type="checkbox" checked>发布应用名称</label>
                             </div>
                         </div>
-
-                        <!-- 列冻结设置 -->
                         <div style="margin-bottom: 20px;">
                             <h4 style="margin-bottom: 12px; color: #1890ff; font-size: 14px;">列冻结</h4>
                             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-                                <label><input type="checkbox" onclick="freezeColumn('col-name')">流程名称</label>
-                                <label><input type="checkbox" onclick="freezeColumn('col-status')">状态</label>
-                                <label><input type="checkbox" onclick="freezeColumn('col-time')">执行时间</label>
-                                <label><input type="checkbox" onclick="freezeColumn('col-serial')">流水号</label>
-                                <label><input type="checkbox" onclick="freezeColumn('col-person')">姓名</label>
-                                <label><input type="checkbox" onclick="freezeColumn('col-idcard')">身份证号</label>
-                                <label><input type="checkbox" onclick="freezeColumn('col-domain')">业务域</label>
-                                <label><input type="checkbox" onclick="freezeColumn('col-app')">应用归属</label>
-                                <label><input type="checkbox" onclick="freezeColumn('col-pubapp')">发布应用</label>
+                                <label><input type="checkbox">流程名称</label>
+                                <label><input type="checkbox">状态</label>
+                                <label><input type="checkbox">执行时间</label>
+                                <label><input type="checkbox">流水号</label>
+                                <label><input type="checkbox">姓名</label>
+                                <label><input type="checkbox">身份证号</label>
+                                <label><input type="checkbox">业务域</label>
+                                <label><input type="checkbox">应用归属</label>
+                                <label><input type="checkbox">发布应用名称</label>
                             </div>
                         </div>
-
-                        <!-- 列过滤设置 -->
                         <div style="margin-bottom: 20px;">
                             <h4 style="margin-bottom: 12px; color: #1890ff; font-size: 14px;">状态过滤</h4>
                             <div style="display: flex; gap: 16px;">
@@ -3811,8 +3811,6 @@
                                 <label><input type="checkbox" checked><span class="tag tag-running" style="display: inline-block; margin-right: 4px;">执行中</span></label>
                             </div>
                         </div>
-
-                        <!-- 列排序设置 -->
                         <div>
                             <h4 style="margin-bottom: 12px; color: #1890ff; font-size: 14px;">默认排序</h4>
                             <div style="display: flex; gap: 12px; align-items: center;">
