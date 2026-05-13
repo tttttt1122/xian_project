@@ -454,6 +454,24 @@
             border: 1px solid #ffe58f;
         }
 
+        .tag-pending {
+            background: #f5f5f5;
+            color: #8c8c8c;
+            border: 1px dashed #d9d9d9;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 12px rgba(250, 173, 20, 0.6);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(250, 173, 20, 0.8);
+            }
+            100% {
+                box-shadow: 0 0 12px rgba(250, 173, 20, 0.6);
+            }
+        }
+
         /* 选项卡 */
         .tabs {
             display: flex;
@@ -3586,9 +3604,9 @@
                         </div>
                         <div style="margin-bottom: 20px;">
                             <h4 style="margin-bottom: 12px; color: #1890ff;">流程图</h4>
-                            <div style="padding: 16px; background: #f5f5f5; border-radius: 4px; min-height: 150px;">
+                            <div id="flowChartContainer" style="padding: 16px; background: #f5f5f5; border-radius: 4px; min-height: 150px;">
                                 <div style="text-align: center;">
-                                    <div style="display: flex; justify-content: center; align-items: center; gap: 16px;">
+                                    <div id="flowChartContent" style="display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap;">
                                         <span class="tag tag-success" style="padding: 8px 16px;">开始</span>
                                         <span>→</span>
                                         <span class="tag tag-success" style="padding: 8px 16px;">数据校验</span>
@@ -4294,8 +4312,188 @@
             document.getElementById('recordTableSettingsModal').classList.add('show');
         }
 
+        // 业务流转记录数据
+        var recordData = {
+            'LSH202401150001': {
+                name: '检查检验结果互认流程',
+                app归属: '卫生健康智慧大脑',
+                app名称: '全民健康信息平台',
+                status: 'success',
+                statusText: '成功',
+                duration: '28ms',
+                stagnantNode: '-',
+                stagnantDuration: '-',
+                errorMsg: '-',
+                startTime: '2024-01-15 10:30:25',
+                endTime: '2024-01-15 10:30:25',
+                currentNode: '结束'
+            },
+            'LSH202401150002': {
+                name: '电子健康档案调阅流程',
+                app归属: '公共卫生系统',
+                app名称: '政务服务平台',
+                status: 'running',
+                statusText: '执行中',
+                duration: '156ms',
+                stagnantNode: '数据校验节点',
+                stagnantDuration: '-',
+                errorMsg: '-',
+                startTime: '2024-01-15 10:32:10',
+                endTime: '-',
+                currentNode: '数据校验'
+            },
+            'LSH202401150003': {
+                name: '疫苗接种登记流程',
+                app归属: '公共卫生系统',
+                app名称: '全民健康信息平台',
+                status: 'stagnant',
+                statusText: '停滞中',
+                duration: '320ms',
+                stagnantNode: '审批节点',
+                stagnantDuration: '2小时35分',
+                errorMsg: '-',
+                startTime: '2024-01-15 09:00:00',
+                endTime: '-',
+                currentNode: '审批节点'
+            },
+            'LSH202401150004': {
+                name: '慢病管理随访流程',
+                app归属: '卫生健康智慧大脑',
+                app名称: '公共卫生系统',
+                status: 'failed',
+                statusText: '失败',
+                duration: '45ms',
+                stagnantNode: '-',
+                stagnantDuration: '-',
+                errorMsg: '接口超时：慢病管理接口超30秒未返回结果',
+                startTime: '2024-01-15 10:28:00',
+                endTime: '2024-01-15 10:28:00',
+                currentNode: '接口调用'
+            },
+            'LSH202401150005': {
+                name: '健康教育推送流程',
+                app归属: '政务服务平台',
+                app名称: '全民健康信息平台',
+                status: 'success',
+                statusText: '成功',
+                duration: '18ms',
+                stagnantNode: '-',
+                stagnantDuration: '-',
+                errorMsg: '-',
+                startTime: '2024-01-15 10:15:30',
+                endTime: '2024-01-15 10:15:30',
+                currentNode: '结束'
+            },
+            'LSH202401150006': {
+                name: '预约挂号流程',
+                app归属: '卫生健康智慧大脑',
+                app名称: '政务服务平台',
+                status: 'failed',
+                statusText: '失败',
+                duration: '12ms',
+                stagnantNode: '-',
+                stagnantDuration: '-',
+                errorMsg: '数据校验失败：患者身份证号格式不正确',
+                startTime: '2024-01-15 10:10:00',
+                endTime: '2024-01-15 10:10:00',
+                currentNode: '数据校验'
+            }
+        };
+
+        // 流程节点定义
+        var flowNodes = ['开始', '数据校验', '接口调用', '审批节点', '结果处理', '结束'];
+
         function showRecordDetail(serialNo) {
+            var record = recordData[serialNo];
+            if (!record) {
+                alert('未找到对应的流转记录');
+                return;
+            }
+
+            // 更新基本信息
+            document.querySelectorAll('#recordDetailModal .form-input')[0].value = record.name;
+            document.querySelectorAll('#recordDetailModal .form-input')[1].value = serialNo;
+            document.querySelectorAll('#recordDetailModal .form-input')[2].value = record.app归属;
+            document.querySelectorAll('#recordDetailModal .form-input')[3].value = record.app名称;
+            document.querySelectorAll('#recordDetailModal .form-input')[4].value = record.statusText;
+            document.querySelectorAll('#recordDetailModal .form-input')[5].value = record.duration;
+            document.querySelectorAll('#recordDetailModal .form-input')[6].value = record.startTime;
+            document.querySelectorAll('#recordDetailModal .form-input')[7].value = record.endTime;
+
+            // 生成流程图
+            renderFlowChart(record);
+
             document.getElementById('recordDetailModal').classList.add('show');
+        }
+
+        // 根据记录状态渲染流程图
+        function renderFlowChart(record) {
+            var container = document.getElementById('flowChartContent');
+            var currentNode = record.currentNode;
+            var status = record.status;
+            
+            // 确定每个节点的状态
+            var nodeStatuses = {};
+            flowNodes.forEach(function(node) {
+                if (node === '开始') {
+                    // 开始节点始终成功，除非流程还未开始（但实际流程肯定已经开始）
+                    nodeStatuses[node] = 'success';
+                } else if (node === currentNode) {
+                    // 当前节点根据整体状态显示
+                    if (status === 'success') {
+                        nodeStatuses[node] = 'success';
+                    } else if (status === 'failed') {
+                        nodeStatuses[node] = 'failed';
+                    } else if (status === 'running') {
+                        nodeStatuses[node] = 'running';
+                    } else if (status === 'stagnant') {
+                        nodeStatuses[node] = 'stagnant';
+                    }
+                } else {
+                    // 判断节点在当前节点之前还是之后
+                    var currentIndex = flowNodes.indexOf(currentNode);
+                    var nodeIndex = flowNodes.indexOf(node);
+                    
+                    if (nodeIndex < currentIndex) {
+                        // 当前节点之前的节点应该是已完成的
+                        nodeStatuses[node] = 'success';
+                    } else if (nodeIndex > currentIndex) {
+                        // 当前节点之后的节点应该是未开始的
+                        nodeStatuses[node] = 'pending';
+                    } else {
+                        nodeStatuses[node] = 'pending';
+                    }
+                }
+            });
+
+            // 生成流程图HTML
+            var html = '';
+            flowNodes.forEach(function(node, index) {
+                var tagClass = 'tag tag-' + nodeStatuses[node];
+                var extraStyle = '';
+                
+                // 如果是当前停滞节点，添加高亮效果
+                if (status === 'stagnant' && node === currentNode) {
+                    extraStyle = '; box-shadow: 0 0 12px rgba(250, 173, 20, 0.6); animation: pulse 1.5s infinite;';
+                }
+                
+                html += '<span class="' + tagClass + '" style="padding: 8px 16px;' + extraStyle + '">' + node + '</span>';
+                
+                if (index < flowNodes.length - 1) {
+                    // 判断是否应该显示箭头
+                    var currentStatus = nodeStatuses[node];
+                    var nextStatus = nodeStatuses[flowNodes[index + 1]];
+                    
+                    // 如果当前节点未完成，后面的箭头应该是虚线或不显示
+                    if (currentStatus === 'success' || currentStatus === 'running') {
+                        html += '<span style="color: #52c41a;">→</span>';
+                    } else {
+                        html += '<span style="color: #d9d9d9; text-decoration: line-through;">→</span>';
+                    }
+                }
+            });
+
+            container.innerHTML = html;
         }
 
         function refreshRecordDetail() {
