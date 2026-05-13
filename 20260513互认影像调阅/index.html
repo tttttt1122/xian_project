@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>互认服务应用 - 互认影像调阅</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* 顶部导航栏 */
+        .header {
+            height: 64px;
+            background: url('./header-bg.png') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .header-logo {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            font-size: 28px;
+            color: #fff;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .header-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            color: #fff;
+        }
+
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .header-user:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1890ff;
+            font-weight: bold;
+        }
+
+        /* 主体布局 */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 64px);
+            margin-top: 64px;
+        }
+
+        /* 左侧菜单 */
+        .sidebar {
+            width: 220px;
+            background: #fff;
+            overflow-y: auto;
+            overflow-x: hidden;
+            transition: width 0.3s;
+            border-right: 1px solid #e8e8e8;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
+        }
+
+        .sidebar-menu {
+            padding: 8px 0;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .menu-item:hover {
+            color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .menu-item.active {
+            color: #1890ff;
+            background: #e6f7ff;
+            border-left: 3px solid #1890ff;
+        }
+
+        .menu-item .icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .menu-item:hover .icon,
+        .menu-item.active .icon {
+            color: #1890ff;
+        }
+
+        /* 右侧主内容区 */
+        .main-content {
+            flex: 1;
+            overflow: auto;
+            padding: 24px;
+            background: #f0f2f5;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        /* 查询区域 */
+        .search-panel {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            margin-bottom: 20px;
+        }
+
+        .search-panel h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .search-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 24px;
+            background: #fafafa;
+            border-radius: 8px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .form-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            color: #595959;
+            white-space: nowrap;
+        }
+
+        .form-input,
+        .form-select {
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 180px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1);
+        }
+
+        .date-range {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .date-range span {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+        }
+
+        .btn-default {
+            background: #fff;
+            color: #595959;
+            border: 1px solid #d9d9d9;
+        }
+
+        .btn-default:hover {
+            color: #40a9ff;
+            border-color: #40a9ff;
+        }
+
+        /* 统计卡片 */
+        .stats-cards {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stat-icon.blue {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .stat-icon.green {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .stat-icon.orange {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .stat-icon.purple {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        /* 列表表格样式 */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .data-table th {
+            background: #fafafa;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .data-table tr:hover {
+            background: #f0f2f5;
+        }
+
+        .data-table .actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 12px;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .tag-success {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+
+        .tag-blue {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .tag-purple {
+            background: #f9f0ff;
+            color: #722ed1;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .page-btn {
+            padding: 4px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            background: #fff;
+            color: #595959;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        .page-btn.active {
+            background: #1890ff;
+            color: #fff;
+            border-color: #1890ff;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            margin-left: 16px;
+            font-size: 13px;
+            color: #8c8c8c;
+        }
+
+        /* 查看影像弹窗样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content-large {
+            background: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 1200px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.show .modal-content-large {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background: #fff;
+            color: #262626;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body-large {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e8e8e8;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .modal-btn-cancel {
+            padding: 8px 24px;
+            background: #fff;
+            color: #595959;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .modal-btn-cancel:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        /* 弹窗内的患者信息 */
+        .patient-info-modal {
+            background: #fff;
+            padding: 16px 24px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .patient-details-modal {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            font-size: 14px;
+        }
+
+        .patient-details-modal label {
+            color: #8c8c8c;
+        }
+
+        .patient-details-modal value {
+            color: #262626;
+            font-weight: 500;
+        }
+
+        /* 弹窗底部布局 */
+        .modal-bottom {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* 弹窗内的影像信息 */
+        .viewer-meta-modal {
+            width: 350px;
+            padding: 20px;
+            border-right: 1px solid #f0f0f0;
+            overflow-y: auto;
+            background: #fafafa;
+        }
+
+        .viewer-meta-modal h4 {
+            margin: 0 0 16px 0;
+            font-size: 14px;
+            color: #262626;
+            font-weight: 600;
+        }
+
+        .meta-grid-modal {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .meta-item-modal {
+            padding: 10px;
+            background: #fff;
+            border-radius: 6px;
+        }
+
+        .meta-item-modal label {
+            display: block;
+            font-size: 12px;
+            color: #8c8c8c;
+            margin-bottom: 4px;
+        }
+
+        .meta-item-modal value {
+            display: block;
+            font-size: 13px;
+            color: #262626;
+            font-weight: 500;
+        }
+
+        .viewer-description-modal {
+            margin-top: 16px;
+            padding: 12px;
+            background: #fff;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* 弹窗内的查看器 */
+        .viewer-modal-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .viewer-toolbar-modal {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            background: #f5f5f5;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .zoom-display-modal {
+            margin-left: auto;
+            font-size: 13px;
+            color: #8c8c8c;
+            line-height: 32px;
+        }
+
+        .toolbar-btn-modal {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border: none;
+            border-radius: 4px;
+            background: white;
+            color: #333;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #e8e8e8;
+        }
+
+        .toolbar-btn-modal:hover {
+            background: #e6f7ff;
+            border-color: #4fc3f7;
+        }
+
+        .toolbar-btn-modal.primary {
+            background: #4fc3f7;
+            color: white;
+            border-color: #4fc3f7;
+        }
+
+        .toolbar-btn-modal.primary:hover {
+            background: #29b6f6;
+        }
+
+        .viewer-main-modal {
+            flex: 1;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .image-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 14px;
+            gap: 12px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #333;
+            border-top-color: #1890ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .viewer-main-modal img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .status-badge.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        /* 响应式适配 */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 60px;
+            }
+
+            .menu-item span:not(.icon) {
+                display: none;
+            }
+
+            .search-form {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .search-btn, .reset-btn {
+                margin-left: 0;
+            }
+
+            .stats-cards {
+                flex-direction: column;
+            }
+
+            .meta-grid-modal {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header class="header">
+        <div class="header-title">全民健康信息平台</div>
+        <div class="header-right">
+            <div class="header-user">
+                <div class="user-avatar">管</div>
+                <span>管理员</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- 左侧导航栏 -->
+        <aside class="sidebar">
+            <nav class="sidebar-menu">
+                <div class="menu-item" data-menu="lab-report">
+                    <span class="icon">☰</span>
+                    <span>检验报告调阅</span>
+                </div>
+                <div class="menu-item" data-menu="exam-report">
+                    <span class="icon">☰</span>
+                    <span>检查报告调阅</span>
+                </div>
+                <div class="menu-item active" data-menu="image-view">
+                    <span class="icon">☰</span>
+                    <span>互认影像调阅</span>
+                </div>
+                <div class="menu-item" data-menu="report-download">
+                    <span class="icon">☰</span>
+                    <span>报告下载服务</span>
+                </div>
+                <div class="menu-item" data-menu="cross-province-list">
+                    <span class="icon">☰</span>
+                    <span>跨省列表管理</span>
+                </div>
+                <div class="menu-item" data-menu="cross-province-lab">
+                    <span class="icon">☰</span>
+                    <span>跨省检验报告调阅</span>
+                </div>
+                <div class="menu-item" data-menu="cross-province-exam">
+                    <span class="icon">☰</span>
+                    <span>跨省检查报告调阅</span>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 内容区域 -->
+        <div class="main-content">
+            <div class="card">
+                <!-- 查询区域 -->
+                <div class="search-form" id="searchForm">
+                    <div class="form-item">
+                        <span class="form-label">患者姓名：</span>
+                        <input type="text" class="form-input" id="patientName" placeholder="请输入患者姓名">
+                    </div>
+                    <div class="form-item">
+                        <span class="form-label">病历号：</span>
+                        <input type="text" class="form-input" id="patientId" placeholder="请输入病历号">
+                    </div>
+                    <div class="form-item">
+                        <span class="form-label">检查类型：</span>
+                        <select class="form-select" id="examType">
+                            <option value="">全部</option>
+                            <option value="CT">CT</option>
+                            <option value="MRI">MRI</option>
+                            <option value="DR">DR</option>
+                            <option value="X线">X线</option>
+                            <option value="B超">B超</option>
+                        </select>
+                    </div>
+                    <div class="form-item date-range">
+                        <span class="form-label">检查日期：</span>
+                        <input type="date" class="form-input" id="startDate" placeholder="开始日期" style="min-width: 140px;">
+                        <span>至</span>
+                        <input type="date" class="form-input" id="endDate" placeholder="结束日期" style="min-width: 140px;">
+                    </div>
+                    <div class="form-item">
+                        <span class="form-label">检查机构：</span>
+                        <select class="form-select" id="institution">
+                            <option value="">全部</option>
+                            <option value="市第一人民医院">市第一人民医院</option>
+                            <option value="中心医院">中心医院</option>
+                            <option value="骨科专科医院">骨科专科医院</option>
+                            <option value="中医院">中医院</option>
+                        </select>
+                    </div>
+                    <div class="form-item">
+                        <span class="form-label">互认状态：</span>
+                        <select class="form-select" id="mutualStatus">
+                            <option value="">全部</option>
+                            <option value="yes">已互认</option>
+                            <option value="no">未互认</option>
+                        </select>
+                    </div>
+                    <div class="form-item" style="margin-left: auto;">
+                        <button type="button" class="btn btn-primary" onclick="searchExams()">查询</button>
+                        <button type="button" class="btn btn-default" onclick="resetSearch()">重置</button>
+                    </div>
+                </div>
+
+                <!-- 检查项目列表 -->
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>患者姓名</th>
+                                <th>病历号</th>
+                                <th>项目名称</th>
+                                <th>检查类型</th>
+                                <th>检查日期</th>
+                                <th>检查机构</th>
+                                <th>互认状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <tr data-exam="0">
+                            <td>李明华</td>
+                            <td>MZ-2389102</td>
+                            <td>胸部CT平扫</td>
+                            <td><span class="tag tag-blue">CT</span></td>
+                            <td>2025-02-10</td>
+                            <td>市第一人民医院</td>
+                            <td><span class="tag tag-success">已互认</span></td>
+                            <td class="actions"><button class="btn btn-sm btn-primary" onclick="openViewModal(0)">查看</button></td>
+                        </tr>
+                        <tr data-exam="1">
+                            <td>李明华</td>
+                            <td>MZ-2389102</td>
+                            <td>头颅MRI</td>
+                            <td><span class="tag tag-purple">MRI</span></td>
+                            <td>2025-02-05</td>
+                            <td>中心医院</td>
+                            <td><span class="tag tag-success">已互认</span></td>
+                            <td class="actions"><button class="btn btn-sm btn-primary" onclick="openViewModal(1)">查看</button></td>
+                        </tr>
+                        <tr data-exam="2">
+                            <td>李明华</td>
+                            <td>MZ-2389102</td>
+                            <td>膝关节X线</td>
+                            <td><span class="tag tag-green">DR</span></td>
+                            <td>2025-02-01</td>
+                            <td>骨科专科医院</td>
+                            <td><span class="tag tag-success">已互认</span></td>
+                            <td class="actions"><button class="btn btn-sm btn-primary" onclick="openViewModal(2)">查看</button></td>
+                        </tr>
+                        <tr data-exam="3">
+                            <td>王芳</td>
+                            <td>MZ-2389103</td>
+                            <td>腹部B超</td>
+                            <td><span class="tag tag-green">B超</span></td>
+                            <td>2025-02-15</td>
+                            <td>中医院</td>
+                            <td><span class="tag tag-success">已互认</span></td>
+                            <td class="actions"><button class="btn btn-sm btn-primary" onclick="openViewModal(3)">查看</button></td>
+                        </tr>
+                        <tr data-exam="4">
+                            <td>张伟</td>
+                            <td>MZ-2389104</td>
+                            <td>颈椎CT</td>
+                            <td><span class="tag tag-blue">CT</span></td>
+                            <td>2025-02-18</td>
+                            <td>市第一人民医院</td>
+                            <td><span class="tag tag-success">已互认</span></td>
+                            <td class="actions"><button class="btn btn-sm btn-primary" onclick="openViewModal(4)">查看</button></td>
+                        </tr>
+                        <tr data-exam="5">
+                            <td>刘洋</td>
+                            <td>MZ-2389105</td>
+                            <td>心脏彩超</td>
+                            <td><span class="tag tag-green">B超</span></td>
+                            <td>2025-02-20</td>
+                            <td>中心医院</td>
+                            <td><span class="tag tag-success">已互认</span></td>
+                            <td class="actions"><button class="btn btn-sm btn-primary" onclick="openViewModal(5)">查看</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <button class="page-btn" disabled>上一页</button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn" disabled>下一页</button>
+                    <span class="page-info">显示 1-6 条，共 6 条</span>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查看影像弹窗 -->
+    <div class="modal-overlay" id="viewModal">
+        <div class="modal-content-large">
+            <div class="modal-header">
+                <h3 id="modal-exam-title">影像详情</h3>
+                <button class="modal-close-btn" onclick="closeViewModal()">&times;</button>
+            </div>
+            <div class="modal-body-large">
+                <!-- 上方：患者基本信息 -->
+                <div class="patient-info-modal">
+                    <div class="patient-details-modal">
+                        <span><label>姓名：</label><value>李明华</value></span>
+                        <span><label>性别：</label><value>男</value></span>
+                        <span><label>年龄：</label><value>62岁</value></span>
+                        <span><label>病历号：</label><value>MZ-2389102</value></span>
+                        <span><label>就诊日期：</label><value>2025-02-18</value></span>
+                        <span><label>科室：</label><value>呼吸内科</value></span>
+                    </div>
+                </div>
+
+                <!-- 下方：左侧影像信息，右侧影像图片 -->
+                <div class="modal-bottom">
+                    <!-- 左下：影像信息 -->
+                    <div class="viewer-meta-modal">
+                        <h4>影像信息</h4>
+                        <div class="meta-grid-modal">
+                            <div class="meta-item-modal">
+                                <label>影像来源机构</label>
+                                <value id="meta-institution-modal">市第一人民医院</value>
+                            </div>
+                            <div class="meta-item-modal">
+                                <label>检查名称</label>
+                                <value id="meta-exam-modal">胸部CT平扫</value>
+                            </div>
+                            <div class="meta-item-modal">
+                                <label>检查日期</label>
+                                <value id="meta-date-modal">2025-02-10</value>
+                            </div>
+                            <div class="meta-item-modal">
+                                <label>互认生效日期</label>
+                                <value>2025-02-10</value>
+                            </div>
+                            <div class="meta-item-modal">
+                                <label>影像云链接状态</label>
+                                <value><span class="tag tag-success">已授权调阅</span></value>
+                            </div>
+                            <div class="meta-item-modal">
+                                <label>检查模态</label>
+                                <value id="meta-modality-modal">CT</value>
+                            </div>
+                            <div class="meta-item-modal">
+                                <label>影像数量</label>
+                                <value>128 张</value>
+                            </div>
+                            <div class="meta-item-modal">
+                                <label>报告状态</label>
+                                <value><span class="tag tag-success">已完成</span></value>
+                            </div>
+                        </div>
+                        <div class="viewer-description-modal">
+                            <strong>调阅说明：</strong>本影像支持DICOM标准格式，已通过互认认证，可在全省范围内跨院调阅。如需进一步处理或获取原始数据，请联系影像科获取授权。
+                        </div>
+                    </div>
+
+                    <!-- 右下：影像图片 -->
+                    <div class="viewer-modal-section">
+                        <div class="viewer-toolbar-modal">
+                            <button class="toolbar-btn-modal" id="zoom-in-modal" onclick="zoomIn()">
+                                + 放大
+                            </button>
+                            <button class="toolbar-btn-modal" id="zoom-out-modal" onclick="zoomOut()">
+                                - 缩小
+                            </button>
+                            <button class="toolbar-btn-modal" id="zoom-reset-modal" onclick="resetZoom()">
+                                 重置
+                            </button>
+                            <button class="toolbar-btn-modal primary" id="fullscreen-modal">
+                                ⛶ 全屏
+                            </button>
+                            <button class="toolbar-btn-modal" id="download-modal">
+                                 下载快照
+                            </button>
+                            <span class="zoom-display-modal">缩放: <span id="zoom-value-modal">100%</span></span>
+                        </div>
+                        <div class="viewer-main-modal">
+                            <img id="viewer-image-modal" src="chestCT.png" alt="医学影像">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn-cancel" onclick="closeViewModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 检查数据
+        const examData = [
+            {
+                id: 0,
+                patientName: '李明华',
+                patientId: 'MZ-2389102',
+                examName: '胸部CT平扫',
+                examType: 'CT',
+                examDate: '2025-02-10',
+                institution: '市第一人民医院',
+                modality: 'CT',
+                imageUrl: 'chestCT.png'
+            },
+            {
+                id: 1,
+                patientName: '李明华',
+                patientId: 'MZ-2389102',
+                examName: '头颅MRI',
+                examType: 'MRI',
+                examDate: '2025-02-05',
+                institution: '中心医院',
+                modality: 'MRI',
+                imageUrl: 'chestCT.png'
+            },
+            {
+                id: 2,
+                patientName: '李明华',
+                patientId: 'MZ-2389102',
+                examName: '膝关节X线',
+                examType: 'DR',
+                examDate: '2025-02-01',
+                institution: '骨科专科医院',
+                modality: 'DR',
+                imageUrl: 'chestCT.png'
+            },
+            {
+                id: 3,
+                patientName: '王芳',
+                patientId: 'MZ-2389103',
+                examName: '腹部B超',
+                examType: 'B超',
+                examDate: '2025-02-15',
+                institution: '中医院',
+                modality: 'US',
+                imageUrl: 'chestCT.png'
+            },
+            {
+                id: 4,
+                patientName: '张伟',
+                patientId: 'MZ-2389104',
+                examName: '颈椎CT',
+                examType: 'CT',
+                examDate: '2025-02-18',
+                institution: '市第一人民医院',
+                modality: 'CT',
+                imageUrl: 'chestCT.png'
+            },
+            {
+                id: 5,
+                patientName: '刘洋',
+                patientId: 'MZ-2389105',
+                examName: '心脏彩超',
+                examType: 'B超',
+                examDate: '2025-02-20',
+                institution: '中心医院',
+                modality: 'US',
+                imageUrl: 'chestCT.png'
+            }
+        ];
+
+        let currentZoom = 1;
+
+        // 打开查看弹窗
+        function openViewModal(index) {
+            const exam = examData[index];
+            if (!exam) return;
+
+            // 更新弹窗标题
+            document.getElementById('modal-exam-title').textContent = exam.examName + ' - 影像详情';
+
+            // 更新影像
+            document.getElementById('viewer-image-modal').src = exam.imageUrl;
+
+            // 更新元信息
+            document.getElementById('meta-institution-modal').textContent = exam.institution;
+            document.getElementById('meta-exam-modal').textContent = exam.examName;
+            document.getElementById('meta-date-modal').textContent = exam.examDate;
+            document.getElementById('meta-modality-modal').textContent = exam.modality;
+
+            // 重置缩放
+            currentZoom = 1;
+            document.getElementById('zoom-value-modal').textContent = '100%';
+            document.getElementById('viewer-image-modal').style.transform = 'scale(1)';
+
+            // 显示弹窗
+            document.getElementById('viewModal').classList.add('show');
+        }
+
+        // 关闭查看弹窗
+        function closeViewModal() {
+            document.getElementById('viewModal').classList.remove('show');
+        }
+
+        // 放大
+        function zoomIn() {
+            currentZoom = Math.min(currentZoom + 0.25, 3);
+            updateZoom();
+        }
+
+        // 缩小
+        function zoomOut() {
+            currentZoom = Math.max(currentZoom - 0.25, 0.5);
+            updateZoom();
+        }
+
+        // 重置缩放
+        function resetZoom() {
+            currentZoom = 1;
+            updateZoom();
+        }
+
+        // 更新缩放显示
+        function updateZoom() {
+            const zoomPercent = Math.round(currentZoom * 100);
+            document.getElementById('zoom-value-modal').textContent = zoomPercent + '%';
+            document.getElementById('viewer-image-modal').style.transform = `scale(${currentZoom})`;
+        }
+
+        // 查询
+        function searchExams() {
+            const patientName = document.getElementById('patientName').value;
+            const patientId = document.getElementById('patientId').value;
+            const examType = document.getElementById('examType').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const institution = document.getElementById('institution').value;
+            const mutualStatus = document.getElementById('mutualStatus').value;
+
+            alert('查询条件已提交：\n' +
+                '患者姓名: ' + patientName + '\n' +
+                '病历号: ' + patientId + '\n' +
+                '检查类型: ' + examType + '\n' +
+                '开始日期: ' + startDate + '\n' +
+                '结束日期: ' + endDate + '\n' +
+                '检查机构: ' + institution + '\n' +
+                '互认状态: ' + mutualStatus);
+        }
+
+        // 重置查询
+        function resetSearch() {
+            document.getElementById('searchForm').reset();
+        }
+
+        // 点击弹窗外部关闭
+        document.getElementById('viewModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeViewModal();
+            }
+        });
+    </script>
+</body>
+</html>
