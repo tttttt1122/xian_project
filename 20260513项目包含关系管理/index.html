@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目包含关系管理 - 全民健康信息平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: #f0f2f5;
+            color: #262626;
+            overflow: hidden;
+        }
+
+        .header {
+            height: 64px;
+            background: url('./header-bg.png') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .header-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            color: #fff;
+        }
+
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .header-user:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1890ff;
+            font-weight: 600;
+        }
+
+        .main-container {
+            display: flex;
+            height: calc(100vh - 64px);
+            margin-top: 64px;
+        }
+
+        .sidebar {
+            width: 220px;
+            background: #fff;
+            overflow-y: auto;
+            overflow-x: hidden;
+            transition: width 0.3s;
+            border-right: 1px solid #e8e8e8;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
+        }
+
+        .menu {
+            padding: 8px 0;
+        }
+
+        .menu-item {
+            position: relative;
+        }
+
+        .menu-parent {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: #595959;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .menu-parent:hover {
+            color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .menu-parent.active {
+            color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .menu-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            color: #8c8c8c;
+        }
+
+        .menu-parent:hover .menu-icon,
+        .menu-parent.active .menu-icon {
+            color: #1890ff;
+        }
+
+        .menu-arrow {
+            margin-left: auto;
+            transition: transform 0.3s;
+            font-size: 12px;
+            color: #8c8c8c;
+        }
+
+        .menu-parent.expanded .menu-arrow {
+            transform: rotate(90deg);
+        }
+
+        .submenu {
+            background: #fff;
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.3s ease;
+        }
+
+        .submenu.expanded {
+            max-height: 500px;
+        }
+
+        .submenu-item {
+            padding: 10px 16px 10px 42px;
+            color: #595959;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+            position: relative;
+        }
+
+        .submenu-item:hover {
+            color: #1890ff;
+            background: #f0f2f5;
+        }
+
+        .submenu-item.active {
+            color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .submenu-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #1890ff;
+        }
+
+        .content {
+            flex: 1;
+            overflow: auto;
+            padding: 24px;
+            background: #f0f2f5;
+        }
+
+        .content-header {
+            background: #fff;
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .content-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 8px;
+        }
+
+        .content-subtitle {
+            font-size: 14px;
+            color: #8c8c8c;
+        }
+
+        .content-body {
+            background: #fff;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .search-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 24px;
+            background: #fafafa;
+            border-radius: 8px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .form-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            color: #595959;
+            white-space: nowrap;
+        }
+
+        .form-input,
+        .form-select {
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 180px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+        }
+
+        .btn-success {
+            background: #52c41a;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #73d13d;
+        }
+
+        .btn-danger {
+            background: #ff4d4f;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #ff7875;
+        }
+
+        .btn-default {
+            background: #fff;
+            color: #595959;
+            border: 1px solid #d9d9d9;
+        }
+
+        .btn-default:hover {
+            color: #40a9ff;
+            border-color: #40a9ff;
+        }
+
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 12px;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .toolbar-left {
+            display: flex;
+            gap: 16px;
+        }
+
+        .toolbar-right {
+            color: #8c8c8c;
+            font-size: 13px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .data-table th {
+            background: #fafafa;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .data-table tr:hover {
+            background: #f0f2f5;
+        }
+
+        .data-table .actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid;
+        }
+
+        .tag-enabled {
+            background: #f6ffed;
+            color: #52c41a;
+            border-color: #b7eb8f;
+        }
+
+        .tag-disabled {
+            background: #fff1f0;
+            color: #ff4d4f;
+            border-color: #ffa39e;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .page-btn {
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #595959;
+            transition: all 0.3s;
+        }
+
+        .page-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        .page-btn.active {
+            background: #1890ff;
+            color: #fff;
+            border-color: #1890ff;
+        }
+
+        .page-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .page-info {
+            font-size: 13px;
+            color: #595959;
+            margin-right: 8px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .modal-close {
+            font-size: 20px;
+            color: #8c8c8c;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: #262626;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #262626;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .switch-toggle {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+
+        .switch-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .switch-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 22px;
+        }
+
+        .switch-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .switch-slider {
+            background-color: #52c41a;
+        }
+
+        input:checked + .switch-slider:before {
+            transform: translateX(22px);
+        }
+
+        .comparison-section {
+            margin-top: 24px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .comparison-box {
+            background: #fafafa;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .comparison-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 12px;
+        }
+
+        .comparison-list {
+            max-height: 192px;
+            overflow-y: auto;
+        }
+
+        .comparison-item {
+            padding: 8px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+            color: #595959;
+        }
+
+        .comparison-item:last-child {
+            border-bottom: none;
+        }
+
+        .validation-result {
+            margin-top: 16px;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .validation-success {
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+            color: #52c41a;
+        }
+
+        .validation-error {
+            background: #fff1f0;
+            border: 1px solid #ffa39e;
+            color: #ff4d4f;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-title">全民健康信息平台</div>
+        <div class="header-right">
+            <div class="header-user">
+                <div class="user-avatar">管</div>
+                <span>管理员</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <nav class="menu">
+                <div class="menu-item">
+                    <div class="menu-parent expanded" onclick="toggleMenu(this)">
+                        <span class="menu-icon">⊞</span>
+                        <span>互认规则管理</span>
+                        <span class="menu-arrow">▶</span>
+                    </div>
+                    <div class="submenu expanded">
+                        <div class="submenu-item" onclick="switchMenu(this)">医疗机构互认项目对照</div>
+                        <div class="submenu-item" onclick="switchMenu(this)">医疗机构科室信息对照</div>
+                        <div class="submenu-item" onclick="switchMenu(this)">不互认原因管理</div>
+                        <div class="submenu-item active" onclick="switchMenu(this)">项目包含关系管理</div>
+                        <div class="submenu-item" onclick="switchMenu(this)">互认规则设置</div>
+                        <div class="submenu-item" onclick="switchMenu(this)">医疗机构自定义配置</div>
+                        <div class="submenu-item" onclick="switchMenu(this)">医疗机构科室自定义配置</div>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <div class="content-body">
+                <div class="search-form">
+                    <div class="form-item">
+                        <span class="form-label">父套餐：</span>
+                        <input type="text" id="filterParent" class="form-input" placeholder="请输入父套餐名称或编码">
+                    </div>
+                    <div class="form-item">
+                        <span class="form-label">子套餐：</span>
+                        <input type="text" id="filterChild" class="form-input" placeholder="请输入子套餐名称或编码">
+                    </div>
+                    <div class="form-item">
+                        <span class="form-label">状态：</span>
+                        <select id="filterStatus" class="form-select">
+                            <option value="">全部</option>
+                            <option value="enabled">启用</option>
+                            <option value="disabled">停用</option>
+                        </select>
+                    </div>
+                    <div class="form-item" style="margin-left: auto;">
+                        <button onclick="applyFilter()" class="btn btn-primary">查询</button>
+                        <button onclick="resetFilter()" class="btn btn-default">重置</button>
+                    </div>
+                </div>
+
+                <div class="toolbar">
+                    <div class="toolbar-left">
+                        <button onclick="openModal()" class="btn btn-success">
+                            <span>+</span> 新增关系
+                        </button>
+                    </div>
+                    <div class="toolbar-right">
+                        共 <span id="totalCount">0</span> 条记录
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>父套餐</th>
+                                <th>子套餐</th>
+                                <th style="text-align: center;">状态</th>
+                                <th>备注说明</th>
+                                <th>最后修改时间</th>
+                                <th style="text-align: center; width: 180px;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                    </table>
+
+                    <div class="pagination">
+                        <span class="page-info">
+                            第 <span id="currentPage">1</span> / <span id="totalPages">1</span> 页
+                        </span>
+                        <button class="page-btn" onclick="prevPage()" id="prevBtn" disabled>上一页</button>
+                        <button class="page-btn" onclick="nextPage()" id="nextBtn">下一页</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">新增包含关系</h3>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="relationForm" onsubmit="handleSubmit(event)">
+                    <input type="hidden" id="editId">
+
+                    <div class="form-group">
+                        <label>父套餐 <span style="color: #ff4d4f;">*</span></label>
+                        <select id="parentPackage" required onchange="handlePackageChange()" class="form-input">
+                            <option value="">请选择父套餐</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>子套餐 <span style="color: #ff4d4f;">*</span></label>
+                        <select id="childPackage" required onchange="handlePackageChange()" class="form-input">
+                            <option value="">请选择子套餐</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>备注说明</label>
+                        <textarea id="remark" rows="3" placeholder="请输入备注说明（可选）" class="form-input"></textarea>
+                    </div>
+
+                    <div id="comparisonSection" class="comparison-section hidden">
+                        <div class="comparison-grid">
+                            <div class="comparison-box">
+                                <h4 class="comparison-title">父套餐项目明细</h4>
+                                <div id="parentItems" class="comparison-list">
+                                </div>
+                            </div>
+                            <div class="comparison-box">
+                                <h4 class="comparison-title">子套餐项目明细</h4>
+                                <div id="childItems" class="comparison-list">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="validationResult" class="validation-result hidden">
+                        </div>
+                    </div>
+
+                    <div id="statusSection" class="form-group hidden">
+                        <label>状态</label>
+                        <div class="form-item" style="gap: 12px;">
+                            <label class="switch-toggle">
+                                <input type="checkbox" id="statusSwitch" onchange="updateStatusText()">
+                                <span class="switch-slider"></span>
+                            </label>
+                            <span id="statusText">启用</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeModal()" class="btn btn-default">取消</button>
+                <button onclick="document.getElementById('relationForm').requestSubmit()" id="submitBtn" class="btn btn-primary">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="deleteConfirm" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-body" style="text-align: center;">
+                <div style="width: 64px; height: 64px; background: #fff1f0; border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 32px; color: #ff4d4f;">
+                    ⚠
+                </div>
+                <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">确认删除</h3>
+                <p style="color: #595959; font-size: 14px;">确定要删除这条包含关系吗？此操作不可恢复。</p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeDeleteConfirm()" class="btn btn-default">取消</button>
+                <button onclick="confirmDelete()" class="btn btn-danger">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const mockPackages = [
+            { id: 'P001', name: '常规体检套餐A', items: ['血常规', '尿常规', '肝功能', '肾功能', '心电图'] },
+            { id: 'P002', name: '常规体检套餐B', items: ['血常规', '尿常规', '肝功能'] },
+            { id: 'P003', name: '全面体检套餐', items: ['血常规', '尿常规', '肝功能', '肾功能', '心电图', '胸部X光', 'B超'] },
+            { id: 'P004', name: '基础检查套餐', items: ['血常规', '尿常规'] },
+            { id: 'P005', name: '专项检查套餐', items: ['肝功能', '肾功能'] },
+            { id: 'P006', name: '老年体检套餐', items: ['血常规', '尿常规', '肝功能', '肾功能', '心电图', '骨密度', '眼底检查'] }
+        ];
+
+        const mockRelations = [
+            { id: 1, parentId: 'P001', childId: 'P002', status: 'enabled', remark: 'B套餐是A套餐的简化版', updateTime: '2024-01-15 10:30:00' },
+            { id: 2, parentId: 'P003', childId: 'P001', status: 'enabled', remark: 'A套餐包含在全面套餐中', updateTime: '2024-01-14 15:20:00' },
+            { id: 3, parentId: 'P001', childId: 'P004', status: 'enabled', remark: '基础套餐是A套餐的子集', updateTime: '2024-01-13 09:15:00' },
+            { id: 4, parentId: 'P001', childId: 'P005', status: 'disabled', remark: '专项套餐已停用', updateTime: '2024-01-12 14:45:00' },
+            { id: 5, parentId: 'P006', childId: 'P001', status: 'enabled', remark: '老年套餐包含常规A套餐', updateTime: '2024-01-11 11:00:00' },
+            { id: 6, parentId: 'P003', childId: 'P002', status: 'enabled', remark: '全面套餐包含B套餐', updateTime: '2024-01-10 16:30:00' }
+        ];
+
+        let currentPage = 1;
+        const pageSize = 10;
+        let filteredRelations = [...mockRelations];
+        let editingId = null;
+        let deleteId = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initPackages();
+            renderTable();
+        });
+
+        function initPackages() {
+            const parentSelect = document.getElementById('parentPackage');
+            const childSelect = document.getElementById('childPackage');
+
+            mockPackages.forEach(function(pkg) {
+                const parentOption = document.createElement('option');
+                parentOption.value = pkg.id;
+                parentOption.textContent = pkg.name + ' (' + pkg.id + ')';
+                parentSelect.appendChild(parentOption);
+
+                const childOption = document.createElement('option');
+                childOption.value = pkg.id;
+                childOption.textContent = pkg.name + ' (' + pkg.id + ')';
+                childSelect.appendChild(childOption);
+            });
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            const start = (currentPage - 1) * pageSize;
+            const end = start + pageSize;
+            const pageData = filteredRelations.slice(start, end);
+
+            tbody.innerHTML = pageData.map(function(relation) {
+                const parent = mockPackages.find(function(p) { return p.id === relation.parentId; });
+                const child = mockPackages.find(function(p) { return p.id === relation.childId; });
+                return '<tr>' +
+                    '<td>' + (parent ? parent.name : relation.parentId) + '</td>' +
+                    '<td>' + (child ? child.name : relation.childId) + '</td>' +
+                    '<td style="text-align: center;">' +
+                        '<span class="tag tag-' + relation.status + '">' + (relation.status === 'enabled' ? '启用' : '停用') + '</span>' +
+                    '</td>' +
+                    '<td>' + (relation.remark || '-') + '</td>' +
+                    '<td>' + relation.updateTime + '</td>' +
+                    '<td class="actions">' +
+                        '<button class="btn btn-sm btn-primary" onclick="editRelation(' + relation.id + ')">编辑</button>' +
+                        '<button class="btn btn-sm btn-danger" onclick="openDeleteConfirm(' + relation.id + ')">删除</button>' +
+                    '</td>' +
+                '</tr>';
+            }).join('');
+
+            updatePagination();
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredRelations.length / pageSize);
+            document.getElementById('totalCount').textContent = filteredRelations.length;
+            document.getElementById('currentPage').textContent = currentPage;
+            document.getElementById('totalPages').textContent = totalPages;
+            document.getElementById('prevBtn').disabled = currentPage <= 1;
+            document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable();
+            }
+        }
+
+        function nextPage() {
+            const totalPages = Math.ceil(filteredRelations.length / pageSize);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderTable();
+            }
+        }
+
+        function applyFilter() {
+            const parentFilter = document.getElementById('filterParent').value.toLowerCase();
+            const childFilter = document.getElementById('filterChild').value.toLowerCase();
+            const statusFilter = document.getElementById('filterStatus').value;
+
+            filteredRelations = mockRelations.filter(function(r) {
+                const parent = mockPackages.find(function(p) { return p.id === r.parentId; });
+                const child = mockPackages.find(function(p) { return p.id === r.childId; });
+                const parentMatch = !parentFilter || 
+                    (parent && parent.name.toLowerCase().includes(parentFilter)) || r.parentId.toLowerCase().includes(parentFilter);
+                const childMatch = !childFilter || 
+                    (child && child.name.toLowerCase().includes(childFilter)) || r.childId.toLowerCase().includes(childFilter);
+                const statusMatch = !statusFilter || r.status === statusFilter;
+                return parentMatch && childMatch && statusMatch;
+            });
+
+            currentPage = 1;
+            renderTable();
+        }
+
+        function resetFilter() {
+            document.getElementById('filterParent').value = '';
+            document.getElementById('filterChild').value = '';
+            document.getElementById('filterStatus').value = '';
+            filteredRelations = [...mockRelations];
+            currentPage = 1;
+            renderTable();
+        }
+
+        function openModal() {
+            document.getElementById('modalTitle').textContent = '新增包含关系';
+            document.getElementById('relationForm').reset();
+            document.getElementById('editId').value = '';
+            document.getElementById('comparisonSection').classList.add('hidden');
+            document.getElementById('statusSection').classList.add('hidden');
+            document.getElementById('modal').classList.add('show');
+            editingId = null;
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+        }
+
+        function editRelation(id) {
+            const relation = mockRelations.find(function(r) { return r.id === id; });
+            if (!relation) return;
+
+            editingId = id;
+            document.getElementById('modalTitle').textContent = '编辑包含关系';
+            document.getElementById('editId').value = id;
+            document.getElementById('parentPackage').value = relation.parentId;
+            document.getElementById('childPackage').value = relation.childId;
+            document.getElementById('remark').value = relation.remark || '';
+
+            document.getElementById('statusSwitch').checked = relation.status === 'enabled';
+            document.getElementById('statusText').textContent = relation.status === 'enabled' ? '启用' : '停用';
+            document.getElementById('statusSection').classList.remove('hidden');
+
+            handlePackageChange();
+            document.getElementById('modal').classList.add('show');
+        }
+
+        function handlePackageChange() {
+            const parentId = document.getElementById('parentPackage').value;
+            const childId = document.getElementById('childPackage').value;
+
+            if (parentId && childId) {
+                document.getElementById('comparisonSection').classList.remove('hidden');
+                renderPackageItems(parentId, 'parentItems');
+                renderPackageItems(childId, 'childItems');
+                validateRelation(parentId, childId);
+            } else {
+                document.getElementById('comparisonSection').classList.add('hidden');
+            }
+        }
+
+        function renderPackageItems(packageId, containerId) {
+            const pkg = mockPackages.find(function(p) { return p.id === packageId; });
+            const container = document.getElementById(containerId);
+
+            if (pkg) {
+                container.innerHTML = pkg.items.map(function(item) {
+                    return '<div class="comparison-item">' + item + '</div>';
+                }).join('');
+            } else {
+                container.innerHTML = '';
+            }
+        }
+
+        function validateRelation(parentId, childId) {
+            const parent = mockPackages.find(function(p) { return p.id === parentId; });
+            const child = mockPackages.find(function(p) { return p.id === childId; });
+            const resultDiv = document.getElementById('validationResult');
+
+            if (!parent || !child) {
+                resultDiv.classList.add('hidden');
+                return;
+            }
+
+            const allChildItemsInParent = child.items.every(function(item) {
+                return parent.items.includes(item);
+            });
+
+            if (allChildItemsInParent) {
+                resultDiv.innerHTML = '✓ 子套餐项目完全包含于父套餐中，校验通过';
+                resultDiv.className = 'validation-result validation-success';
+                resultDiv.classList.remove('hidden');
+            } else {
+                const missingItems = child.items.filter(function(item) {
+                    return !parent.items.includes(item);
+                });
+                resultDiv.innerHTML = '✗ 子套餐中存在父套餐没有的项目：' + missingItems.join('、');
+                resultDiv.className = 'validation-result validation-error';
+                resultDiv.classList.remove('hidden');
+            }
+        }
+
+        function handleSubmit(event) {
+            event.preventDefault();
+
+            const parentId = document.getElementById('parentPackage').value;
+            const childId = document.getElementById('childPackage').value;
+            const remark = document.getElementById('remark').value;
+            const status = document.getElementById('statusSwitch').checked ? 'enabled' : 'disabled';
+
+            const parent = mockPackages.find(function(p) { return p.id === parentId; });
+            const child = mockPackages.find(function(p) { return p.id === childId; });
+
+            if (parent && child) {
+                const allChildItemsInParent = child.items.every(function(item) {
+                    return parent.items.includes(item);
+                });
+                if (!allChildItemsInParent) {
+                    alert('子套餐项目必须完全包含于父套餐中');
+                    return;
+                }
+            }
+
+            if (editingId) {
+                const index = mockRelations.findIndex(function(r) { return r.id === editingId; });
+                if (index !== -1) {
+                    mockRelations[index] = {
+                        ...mockRelations[index],
+                        parentId: parentId,
+                        childId: childId,
+                        remark: remark,
+                        status: status,
+                        updateTime: new Date().toLocaleString('zh-CN')
+                    };
+                }
+            } else {
+                mockRelations.push({
+                    id: Date.now(),
+                    parentId: parentId,
+                    childId: childId,
+                    remark: remark,
+                    status: 'enabled',
+                    updateTime: new Date().toLocaleString('zh-CN')
+                });
+            }
+
+            filteredRelations = [...mockRelations];
+            currentPage = 1;
+            renderTable();
+            closeModal();
+        }
+
+        function openDeleteConfirm(id) {
+            deleteId = id;
+            document.getElementById('deleteConfirm').classList.add('show');
+        }
+
+        function closeDeleteConfirm() {
+            document.getElementById('deleteConfirm').classList.remove('show');
+            deleteId = null;
+        }
+
+        function confirmDelete() {
+            if (deleteId) {
+                mockRelations = mockRelations.filter(function(r) { return r.id !== deleteId; });
+                filteredRelations = [...mockRelations];
+                currentPage = 1;
+                renderTable();
+                closeDeleteConfirm();
+            }
+        }
+
+        function toggleMenu(el) {
+            el.classList.toggle('expanded');
+            const submenu = el.nextElementSibling;
+            if (submenu) {
+                submenu.classList.toggle('expanded');
+            }
+        }
+
+        function switchMenu(el) {
+            document.querySelectorAll('.submenu-item').forEach(function(item) {
+                item.classList.remove('active');
+            });
+            el.classList.add('active');
+        }
+
+        function updateStatusText() {
+            const switchEl = document.getElementById('statusSwitch');
+            const textEl = document.getElementById('statusText');
+            textEl.textContent = switchEl.checked ? '启用' : '停用';
+        }
+    </script>
+</body>
+</html>
