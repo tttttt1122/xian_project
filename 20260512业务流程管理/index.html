@@ -3355,7 +3355,7 @@
                             </div>
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                            <button class="btn btn-sm btn-primary" onclick="showTableSettingsModal()">表格设置</button>
+                            <button class="btn btn-sm btn-primary" onclick="showTestRecordTableSettingsModal()">表格设置</button>
                             <button class="btn btn-sm btn-default" onclick="refreshTestRecords()">刷新</button>
                         </div>
                         <table class="data-table" style="width: 100%;">
@@ -3829,6 +3829,64 @@
                     <div class="modal-footer">
                         <button class="btn btn-default" onclick="closeModal('tableSettingsModal')">关闭</button>
                         <button class="btn btn-primary" onclick="closeModal('tableSettingsModal')">确定</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 测试记录表格设置弹窗 -->
+            <div id="testRecordTableSettingsModal" class="modal">
+                <div class="modal-content" style="width: 700px;">
+                    <div class="modal-header">
+                        <span class="modal-title">表格设置</span>
+                        <button class="modal-close" onclick="closeModal('testRecordTableSettingsModal')">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div style="margin-bottom: 20px;">
+                            <h4 style="margin-bottom: 12px; color: #1890ff; font-size: 14px;">列显隐</h4>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                                <label><input type="checkbox" checked>流程名称</label>
+                                <label><input type="checkbox" checked>流水号</label>
+                                <label><input type="checkbox" checked>执行状态</label>
+                                <label><input type="checkbox" checked>执行时间</label>
+                                <label><input type="checkbox" checked>耗时</label>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <h4 style="margin-bottom: 12px; color: #1890ff; font-size: 14px;">列冻结</h4>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                                <label><input type="checkbox">流程名称</label>
+                                <label><input type="checkbox">流水号</label>
+                                <label><input type="checkbox">执行状态</label>
+                                <label><input type="checkbox">执行时间</label>
+                                <label><input type="checkbox">耗时</label>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <h4 style="margin-bottom: 12px; color: #1890ff; font-size: 14px;">状态过滤</h4>
+                            <div style="display: flex; gap: 16px;">
+                                <label><input type="checkbox" checked><span class="tag tag-success" style="display: inline-block; margin-right: 4px;">成功</span></label>
+                                <label><input type="checkbox" checked><span class="tag tag-failed" style="display: inline-block; margin-right: 4px;">失败</span></label>
+                                <label><input type="checkbox" checked><span class="tag tag-running" style="display: inline-block; margin-right: 4px;">执行中</span></label>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 style="margin-bottom: 12px; color: #1890ff; font-size: 14px;">默认排序</h4>
+                            <div style="display: flex; gap: 12px; align-items: center;">
+                                <select class="form-select" style="width: auto;">
+                                    <option value="time">执行时间</option>
+                                    <option value="name">流程名称</option>
+                                    <option value="status">执行状态</option>
+                                </select>
+                                <select class="form-select" style="width: auto;">
+                                    <option value="desc">降序</option>
+                                    <option value="asc">升序</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" onclick="closeModal('testRecordTableSettingsModal')">关闭</button>
+                        <button class="btn btn-primary" onclick="closeModal('testRecordTableSettingsModal')">确定</button>
                     </div>
                 </div>
             </div>
@@ -5282,6 +5340,11 @@
         function showTestModal(code) {
             document.getElementById('testResult').style.display = 'none';
             document.getElementById('testModal').classList.add('show');
+        }
+
+        // 显示测试记录表格设置弹窗
+        function showTestRecordTableSettingsModal() {
+            document.getElementById('testRecordTableSettingsModal').classList.add('show');
         }
 
         // 发送测试请求
