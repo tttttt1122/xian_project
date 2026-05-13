@@ -1,0 +1,1430 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全民健康信息平台</title>
+    <style>
+        /* 全局样式重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            overflow: hidden;
+        }
+
+        /* 顶部导航 */
+        .header {
+            height: 64px;
+            background: url('./header-bg.png') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .header-logo {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            font-size: 28px;
+            color: #fff;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .header-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            color: #fff;
+        }
+
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .header-user:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1890ff;
+            font-weight: bold;
+        }
+
+        /* 主体布局 */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 64px);
+            margin-top: 64px;
+        }
+
+        /* 左侧菜单 */
+        .sidebar {
+            width: 220px;
+            background: #fff;
+            overflow-y: auto;
+            overflow-x: hidden;
+            transition: width 0.3s;
+            border-right: 1px solid #e8e8e8;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
+        }
+
+        /* 菜单样式 */
+        .menu {
+            padding: 8px 0;
+        }
+
+        .menu-item {
+            position: relative;
+        }
+
+        .menu-parent {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .menu-parent:hover {
+            color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .menu-parent.active {
+            color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .menu-arrow {
+            margin-left: auto;
+            font-size: 10px;
+            transition: transform 0.3s;
+            color: #999;
+        }
+
+        .menu-parent.active .menu-arrow {
+            transform: rotate(90deg);
+        }
+
+        .submenu {
+            background: #fafafa;
+            overflow: hidden;
+        }
+
+        .menu-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .menu-parent:hover .menu-icon,
+        .menu-parent.active .menu-icon {
+            color: #1890ff;
+        }
+
+        .submenu-item {
+            padding: 10px 16px 10px 42px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+            position: relative;
+        }
+
+        .submenu-item:hover {
+            color: #1890ff;
+            background: #f0faff;
+        }
+
+        .submenu-item.active {
+            color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .submenu-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #1890ff;
+        }
+
+        /* 右侧内容区域 */
+        .content {
+            flex: 1;
+            overflow: auto;
+            padding: 24px;
+            background: #f0f2f5;
+        }
+
+        .content-header {
+            background: #fff;
+            padding: 20px 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .content-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 8px;
+        }
+
+        .content-subtitle {
+            font-size: 14px;
+            color: #8c8c8c;
+        }
+
+        .content-body {
+            background: #fff;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        /* 搜索表单 */
+        .search-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 8px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .form-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            color: #595959;
+            white-space: nowrap;
+        }
+
+        .form-input,
+        .form-select {
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 180px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1);
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+        }
+
+        .btn-success {
+            background: #52c41a;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #73d13d;
+        }
+
+        .btn-danger {
+            background: #ff4d4f;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #ff7875;
+        }
+
+        .btn-info {
+            background: #13c2c2;
+            color: #fff;
+        }
+
+        .btn-info:hover {
+            background: #36cfc9;
+        }
+
+        .btn-default {
+            background: #fff;
+            color: #595959;
+            border: 1px solid #d9d9d9;
+        }
+
+        .btn-default:hover {
+            color: #40a9ff;
+            border-color: #40a9ff;
+        }
+
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 13px;
+        }
+
+        /* 工具栏 */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .toolbar-left {
+            display: flex;
+            gap: 12px;
+        }
+
+        .toolbar-right {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* 表格样式 */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .data-table th {
+            background: #fafafa;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .data-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .data-table .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: 16px;
+            gap: 8px;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 标签样式 */
+        .tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .tag-success {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+
+        .tag-failed {
+            background: #fff1f0;
+            color: #ff4d4f;
+            border: 1px solid #ffa39e;
+        }
+
+        .tag-warning {
+            background: #fff7e6;
+            color: #fa8c16;
+            border: 1px solid #ffd591;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #e8e8e8;
+            background: #fafafa;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .modal-close {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: #999;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .modal-body {
+            padding: 20px;
+            max-height: calc(80vh - 100px);
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 16px 20px;
+            border-top: 1px solid #e8e8e8;
+        }
+
+        /* 表单 */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            color: #595959;
+            margin-bottom: 8px;
+        }
+
+        .form-group .form-input,
+        .form-group .form-select {
+            width: 100%;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        /* 选项卡 */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 24px;
+        }
+
+        .tab-item {
+            padding: 12px 24px;
+            cursor: pointer;
+            color: #595959;
+            font-size: 14px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-item:hover {
+            color: #1890ff;
+        }
+
+        .tab-item.active {
+            color: #1890ff;
+            border-bottom-color: #1890ff;
+            font-weight: 500;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 复选框组 */
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* 提示信息 */
+        .tip {
+            font-size: 12px;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        .tip.warning {
+            color: #fa8c16;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 0;
+            color: #999;
+        }
+
+        .empty-state .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        /* 建设中页面 */
+        .under-construction {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 0;
+            color: #999;
+        }
+
+        .under-construction .icon {
+            font-size: 64px;
+            margin-bottom: 24px;
+            color: #d9d9d9;
+        }
+
+        .under-construction h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #666;
+        }
+
+        /* 隐藏类 */
+        .hidden {
+            display: none !important;
+        }
+
+        /* 选中行样式 */
+        .selected-row {
+            background: #e6f7ff !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <div class="header">
+        <div class="header-title">全民健康信息平台</div>
+        <div class="header-right">
+            <div class="header-user">
+                <div class="user-avatar">管</div>
+                <span>省级管理员</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主体内容 -->
+    <div class="main-container">
+        <!-- 左侧菜单 -->
+        <div class="sidebar">
+            <div class="menu">
+                <div class="menu-item">
+                    <div class="menu-parent active" data-page="access" onclick="switchPage(this)">
+                        <span class="menu-icon">≡</span>
+                        <span>接入管理</span>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-parent" data-page="institution" onclick="switchPage(this)">
+                        <span class="menu-icon">≡</span>
+                        <span>机构管理</span>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-parent" data-page="addressing" onclick="switchPage(this)">
+                        <span class="menu-icon">≡</span>
+                        <span>索引寻址管理</span>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-parent" data-page="service-address" onclick="switchPage(this)">
+                        <span class="menu-icon">≡</span>
+                        <span>索引服务地址管理</span>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-parent" data-page="aggregation" onclick="switchPage(this)">
+                        <span class="menu-icon">≡</span>
+                        <span>索引汇聚管理</span>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-parent" data-page="master-info" onclick="switchPage(this)">
+                        <span class="menu-icon">≡</span>
+                        <span>主索引信息管理</span>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-parent" data-page="merge" onclick="toggleSubMenu(this)">
+                        <span class="menu-icon">≡</span>
+                        <span>索引合并与拆分管理</span>
+                        <span class="menu-arrow">▶</span>
+                    </div>
+                    <div class="submenu" style="display: none;">
+                        <div class="submenu-item" data-page="merge-main" onclick="switchSubPage(this)">索引合并管理</div>
+                        <div class="submenu-item" data-page="split-main" onclick="switchSubPage(this)">索引拆分管理</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧内容区域 -->
+        <div class="content">
+            <!-- 接入管理 -->
+            <div id="page-access" class="page-content">
+                <div class="content-body">
+                    <div class="under-construction">
+                        <div class="icon">⚙️</div>
+                        <h3>建设中</h3>
+                        <p>该功能模块正在建设中，敬请期待</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 机构管理 -->
+            <div id="page-institution" class="page-content hidden">
+                <div class="content-body">
+                    <div class="under-construction">
+                        <div class="icon">🏥</div>
+                        <h3>建设中</h3>
+                        <p>该功能模块正在建设中，敬请期待</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 索引寻址管理 -->
+            <div id="page-addressing" class="page-content hidden">
+                <div class="content-body">
+                    <div class="under-construction">
+                        <div class="icon">📍</div>
+                        <h3>建设中</h3>
+                        <p>该功能模块正在建设中，敬请期待</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 索引服务地址管理 -->
+            <div id="page-service-address" class="page-content hidden">
+                <div class="content-body">
+                    <div class="under-construction">
+                        <div class="icon">🔗</div>
+                        <h3>建设中</h3>
+                        <p>该功能模块正在建设中，敬请期待</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 索引汇聚管理 -->
+            <div id="page-aggregation" class="page-content hidden">
+                <div class="content-body">
+                    <div class="under-construction">
+                        <div class="icon">🔄</div>
+                        <h3>建设中</h3>
+                        <p>该功能模块正在建设中，敬请期待</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 主索引信息管理 -->
+            <div id="page-master-info" class="page-content hidden">
+                <div class="content-body">
+                    <div class="under-construction">
+                        <div class="icon">👤</div>
+                        <h3>建设中</h3>
+                        <p>该功能模块正在建设中，敬请期待</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 索引合并管理 -->
+            <div id="page-merge-main" class="page-content hidden">
+                <div class="content-body">
+                    <!-- 选项卡 -->
+                    <div class="tabs">
+                        <div class="tab-item active" onclick="switchMergeTab(this, 'pending')">待合并</div>
+                        <div class="tab-item" onclick="switchMergeTab(this, 'merged')">已合并</div>
+                    </div>
+
+                    <!-- 待合并 -->
+                    <div id="merge-tab-pending" class="tab-content active">
+                        <!-- 查询区域 -->
+                        <div class="search-form">
+                            <div class="form-item">
+                                <span class="form-label">主索引ID</span>
+                                <input type="text" class="form-input" id="merge-master-id" placeholder="请输入主索引ID">
+                            </div>
+                            <div class="form-item">
+                                <span class="form-label">姓名</span>
+                                <input type="text" class="form-input" id="merge-name" placeholder="请输入姓名">
+                            </div>
+                            <div class="form-item">
+                                <span class="form-label">身份证号</span>
+                                <input type="text" class="form-input" id="merge-idcard" placeholder="请输入身份证号">
+                            </div>
+                            <div class="form-item">
+                                <button class="btn btn-primary" onclick="searchMergeList()">查询</button>
+                                <button class="btn btn-default" onclick="resetMergeSearch()">重置</button>
+                            </div>
+                        </div>
+
+                        <!-- 工具栏 -->
+                        <div class="toolbar">
+                            <div class="toolbar-left">
+                                <button class="btn btn-success" id="btn-merge-master" disabled onclick="openMergeModal()">合并主索引</button>
+                            </div>
+                            <div class="toolbar-right">
+                                <span style="font-size: 12px; color: #999;" id="merge-selected-count">已选择 0 条记录</span>
+                            </div>
+                        </div>
+                        <div class="tip warning">提示：至少选择 2 个主索引才能合并</div>
+
+                        <!-- 主索引列表 -->
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px;">
+                                            <input type="checkbox" onclick="toggleSelectAll(this, 'merge')">
+                                        </th>
+                                        <th>主索引ID</th>
+                                        <th>姓名</th>
+                                        <th>性别</th>
+                                        <th>出生日期</th>
+                                        <th>身份证号</th>
+                                        <th>所属机构</th>
+                                        <th>最后更新时间</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="merge-table-body">
+                                    <tr>
+                                        <td><input type="checkbox" class="merge-checkbox" data-id="MI20240001"></td>
+                                        <td>MI20240001</td>
+                                        <td>张建国</td>
+                                        <td>男</td>
+                                        <td>1965-08-20</td>
+                                        <td>610101196508201234</td>
+                                        <td>西安市第一医院</td>
+                                        <td>2024-01-15 10:30:25</td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="checkbox" class="merge-checkbox" data-id="MI20240002"></td>
+                                        <td>MI20240002</td>
+                                        <td>张建国</td>
+                                        <td>男</td>
+                                        <td>1965-08-20</td>
+                                        <td>610101196508201235</td>
+                                        <td>西安市中心医院</td>
+                                        <td>2024-01-14 15:20:30</td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="checkbox" class="merge-checkbox" data-id="MI20240003"></td>
+                                        <td>MI20240003</td>
+                                        <td>李秀英</td>
+                                        <td>女</td>
+                                        <td>1972-03-15</td>
+                                        <td>610302197203155678</td>
+                                        <td>宝鸡市人民医院</td>
+                                        <td>2024-01-13 09:15:00</td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="checkbox" class="merge-checkbox" data-id="MI20240004"></td>
+                                        <td>MI20240004</td>
+                                        <td>李秀英</td>
+                                        <td>女</td>
+                                        <td>1972-03-15</td>
+                                        <td>610302197203155679</td>
+                                        <td>宝鸡市中医医院</td>
+                                        <td>2024-01-12 14:45:30</td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="checkbox" class="merge-checkbox" data-id="MI20240005"></td>
+                                        <td>MI20240005</td>
+                                        <td>王志强</td>
+                                        <td>男</td>
+                                        <td>1980-11-05</td>
+                                        <td>610403198011059012</td>
+                                        <td>咸阳市第一人民医院</td>
+                                        <td>2024-01-11 11:20:00</td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="checkbox" class="merge-checkbox" data-id="MI20240006"></td>
+                                        <td>MI20240006</td>
+                                        <td>王志强</td>
+                                        <td>男</td>
+                                        <td>1980-11-05</td>
+                                        <td>610403198011059013</td>
+                                        <td>咸阳市中心医院</td>
+                                        <td>2024-01-10 08:30:15</td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="checkbox" class="merge-checkbox" data-id="MI20240007"></td>
+                                        <td>MI20240007</td>
+                                        <td>陈秀兰</td>
+                                        <td>女</td>
+                                        <td>1958-06-12</td>
+                                        <td>610201195806123456</td>
+                                        <td>铜川市人民医院</td>
+                                        <td>2024-01-09 16:45:00</td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="checkbox" class="merge-checkbox" data-id="MI20240008"></td>
+                                        <td>MI20240008</td>
+                                        <td>陈秀兰</td>
+                                        <td>女</td>
+                                        <td>1958-06-12</td>
+                                        <td>610201195806123457</td>
+                                        <td>铜川矿务局中心医院</td>
+                                        <td>2024-01-08 14:20:30</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 分页 -->
+                        <div class="pagination">
+                            <button class="btn btn-sm btn-default" disabled>上一页</button>
+                            <button class="btn btn-sm btn-primary">1</button>
+                            <button class="btn btn-sm btn-default">2</button>
+                            <button class="btn btn-sm btn-default">3</button>
+                            <button class="btn btn-sm btn-default">4</button>
+                            <button class="btn btn-sm btn-default">5</button>
+                            <button class="btn btn-sm btn-default">下一页</button>
+                            <span style="margin-left: 16px; font-size: 12px; color: #999;">共 50 条，每页 10 条</span>
+                        </div>
+                    </div>
+
+                    <!-- 已合并 -->
+                    <div id="merge-tab-merged" class="tab-content">
+                        <!-- 查询区域 -->
+                        <div class="search-form">
+                            <div class="form-item">
+                                <span class="form-label">合并后主索引ID</span>
+                                <input type="text" class="form-input" id="merged-master-id" placeholder="请输入合并后主索引ID">
+                            </div>
+                            <div class="form-item">
+                                <button class="btn btn-primary" onclick="searchMergedRecord()">查询</button>
+                                <button class="btn btn-default" onclick="resetMergedSearch()">重置</button>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>合并后主索引ID</th>
+                                        <th>被合并的原主索引ID列表</th>
+                                        <th>合并时间</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>MI20240001</td>
+                                        <td>MI20240002, MI20240009</td>
+                                        <td>2024-01-10 16:30:00</td>
+                                        <td><button class="btn btn-sm btn-default">查看</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>MI20240003</td>
+                                        <td>MI20240004</td>
+                                        <td>2024-01-08 09:15:00</td>
+                                        <td><button class="btn btn-sm btn-default">查看</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>MI20240005</td>
+                                        <td>MI20240006</td>
+                                        <td>2024-01-05 14:20:00</td>
+                                        <td><button class="btn btn-sm btn-default">查看</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 索引拆分管理 -->
+            <div id="page-split-main" class="page-content hidden">
+                <div class="content-body">
+                    <!-- 选项卡 -->
+                    <div class="tabs">
+                        <div class="tab-item active" onclick="switchSplitTab(this, 'pending')">待拆分</div>
+                        <div class="tab-item" onclick="switchSplitTab(this, 'split')">已拆分</div>
+                    </div>
+
+                    <!-- 待拆分 -->
+                    <div id="split-tab-pending" class="tab-content active">
+                        <!-- 查询区域 -->
+                        <div class="search-form">
+                            <div class="form-item">
+                                <span class="form-label">主索引ID</span>
+                                <input type="text" class="form-input" id="split-master-id" placeholder="请输入主索引ID">
+                            </div>
+                            <div class="form-item">
+                                <span class="form-label">姓名</span>
+                                <input type="text" class="form-input" id="split-name" placeholder="请输入姓名">
+                            </div>
+                            <div class="form-item">
+                                <span class="form-label">身份证号</span>
+                                <input type="text" class="form-input" id="split-idcard" placeholder="请输入身份证号">
+                            </div>
+                            <div class="form-item">
+                                <button class="btn btn-primary" onclick="searchSplitList()">查询</button>
+                                <button class="btn btn-default" onclick="resetSplitSearch()">重置</button>
+                            </div>
+                        </div>
+
+                        <!-- 工具栏 -->
+                        <div class="toolbar">
+                            <div class="toolbar-left">
+                                <button class="btn btn-success" id="btn-split-master" disabled onclick="openSplitModal()">拆分主索引</button>
+                            </div>
+                        </div>
+                        <div class="tip warning">提示：只有包含多个子索引或复合身份的主索引允许拆分</div>
+
+                        <!-- 主索引列表 -->
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px;">选择</th>
+                                        <th>主索引ID</th>
+                                        <th>姓名</th>
+                                        <th>关联子索引数量</th>
+                                        <th>最后更新时间</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="split-table-body">
+                                    <tr>
+                                        <td><input type="radio" name="split-radio" value="MI20240010"></td>
+                                        <td>MI20240010</td>
+                                        <td>赵晓华</td>
+                                        <td>4</td>
+                                        <td>2024-01-15 10:30:25</td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="radio" name="split-radio" value="MI20240011"></td>
+                                        <td>MI20240011</td>
+                                        <td>孙美玲</td>
+                                        <td>3</td>
+                                        <td>2024-01-13 09:15:00</td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="radio" name="split-radio" value="MI20240012"></td>
+                                        <td>MI20240012</td>
+                                        <td>刘海龙</td>
+                                        <td>2</td>
+                                        <td>2024-01-11 11:20:00</td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="radio" name="split-radio" value="MI20240013"></td>
+                                        <td>MI20240013</td>
+                                        <td>周雅琴</td>
+                                        <td>2</td>
+                                        <td>2024-01-09 14:45:30</td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="radio" name="split-radio" value="MI20240014"></td>
+                                        <td>MI20240014</td>
+                                        <td>吴建国</td>
+                                        <td>3</td>
+                                        <td>2024-01-07 16:20:00</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 分页 -->
+                        <div class="pagination">
+                            <button class="btn btn-sm btn-default" disabled>上一页</button>
+                            <button class="btn btn-sm btn-primary">1</button>
+                            <button class="btn btn-sm btn-default">2</button>
+                            <button class="btn btn-sm btn-default">3</button>
+                            <button class="btn btn-sm btn-default">下一页</button>
+                            <span style="margin-left: 16px; font-size: 12px; color: #999;">共 30 条，每页 10 条</span>
+                        </div>
+                    </div>
+
+                    <!-- 已拆分 -->
+                    <div id="split-tab-split" class="tab-content">
+                        <!-- 查询区域 -->
+                        <div class="search-form">
+                            <div class="form-item">
+                                <span class="form-label">原主索引ID</span>
+                                <input type="text" class="form-input" id="origin-master-id" placeholder="请输入原主索引ID">
+                            </div>
+                            <div class="form-item">
+                                <button class="btn btn-primary" onclick="searchSplitRecord()">查询</button>
+                                <button class="btn btn-default" onclick="resetSplitRecordSearch()">重置</button>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>原主索引ID</th>
+                                        <th>新生成的主索引ID列表</th>
+                                        <th>拆分时间</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>MI20240007</td>
+                                        <td>MI20240015, MI20240016, MI20240017</td>
+                                        <td>2024-01-05 14:20:00</td>
+                                        <td><button class="btn btn-sm btn-default">查看</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 合并配置弹窗 -->
+    <div id="mergeModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <span class="modal-title">合并主索引</span>
+                <button class="modal-close" onclick="closeModal('mergeModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>已选择的主索引（共 <span id="selected-count">2</span> 个）</label>
+                    <div id="selected-indexes" style="max-height: 150px; overflow-y: auto; border: 1px solid #e8e8e8; border-radius: 4px; padding: 12px;">
+                        <div style="padding: 8px; border-bottom: 1px solid #f0f0f0;">
+                            <div><strong>MI20240001</strong> - 张三 - 610101198505151234</div>
+                        </div>
+                        <div style="padding: 8px;">
+                            <div><strong>MI20240002</strong> - 张三 - 610101198505151235</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>合并规则：选择合并后保留的目标主索引</label>
+                    <select class="form-select" id="target-master-id">
+                        <option value="MI20240001">MI20240001 - 张三</option>
+                        <option value="MI20240002">MI20240002 - 张三</option>
+                    </select>
+                    <div class="tip">其余索引将合并到该索引下并注销</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('mergeModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmMerge()">确认合并</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 拆分配置弹窗 -->
+    <div id="splitModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <span class="modal-title">拆分主索引</span>
+                <button class="modal-close" onclick="closeModal('splitModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>当前主索引信息</label>
+                    <div style="border: 1px solid #e8e8e8; border-radius: 4px; padding: 12px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                            <div><strong>主索引ID：</strong>MI20240001</div>
+                            <div><strong>姓名：</strong>张三</div>
+                            <div><strong>身份证号：</strong>610101198505151234</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>子索引列表（勾选需要拆出去的子索引）</label>
+                    <div id="child-indexes" style="max-height: 200px; overflow-y: auto; border: 1px solid #e8e8e8; border-radius: 4px;">
+                        <div style="padding: 12px; border-bottom: 1px solid #f0f0f0;">
+                            <label>
+                                <input type="checkbox" name="child-index" value="SI001">
+                                <span style="margin-left: 8px;">SI001 - 健康档案数据 - 西安市第一医院</span>
+                            </label>
+                        </div>
+                        <div style="padding: 12px; border-bottom: 1px solid #f0f0f0;">
+                            <label>
+                                <input type="checkbox" name="child-index" value="SI002">
+                                <span style="margin-left: 8px;">SI002 - 诊疗记录数据 - 西安市第二医院</span>
+                            </label>
+                        </div>
+                        <div style="padding: 12px;">
+                            <label>
+                                <input type="checkbox" name="child-index" value="SI003">
+                                <span style="margin-left: 8px;">SI003 - 检验报告数据 - 西安市第三医院</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>新主索引基本信息</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <label>姓名</label>
+                            <input type="text" class="form-input" id="new-master-name" placeholder="请输入姓名">
+                        </div>
+                        <div>
+                            <label>身份证号</label>
+                            <input type="text" class="form-input" id="new-master-idcard" placeholder="请输入身份证号">
+                        </div>
+                    </div>
+                </div>
+                <div class="tip warning">拆分操作可将原索引拆分为 2 个或更多新索引</div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('splitModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmSplit()">确认拆分</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面切换
+        function switchPage(el) {
+            document.querySelectorAll('.menu-parent').forEach(item => {
+                item.classList.remove('active');
+                const submenu = item.nextElementSibling;
+                if (submenu && submenu.classList.contains('submenu')) {
+                    submenu.style.display = 'none';
+                }
+            });
+            document.querySelectorAll('.submenu-item').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll('.page-content').forEach(item => item.classList.add('hidden'));
+            
+            el.classList.add('active');
+            const pageId = el.getAttribute('data-page');
+            const page = document.getElementById('page-' + pageId);
+            if (page) {
+                page.classList.remove('hidden');
+            }
+        }
+
+        // 子菜单展开/收起
+        function toggleSubMenu(el) {
+            const isActive = el.classList.contains('active');
+            
+            document.querySelectorAll('.menu-parent').forEach(item => {
+                item.classList.remove('active');
+                const submenu = item.nextElementSibling;
+                if (submenu && submenu.classList.contains('submenu')) {
+                    submenu.style.display = 'none';
+                }
+            });
+            document.querySelectorAll('.submenu-item').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll('.page-content').forEach(item => item.classList.add('hidden'));
+            
+            if (!isActive) {
+                el.classList.add('active');
+                const submenu = el.nextElementSibling;
+                if (submenu && submenu.classList.contains('submenu')) {
+                    submenu.style.display = 'block';
+                }
+            }
+        }
+
+        // 子菜单页面切换
+        function switchSubPage(el) {
+            document.querySelectorAll('.submenu-item').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll('.page-content').forEach(item => item.classList.add('hidden'));
+            
+            el.classList.add('active');
+            el.parentElement.parentElement.querySelector('.menu-parent').classList.add('active');
+            
+            const pageId = el.getAttribute('data-page');
+            const page = document.getElementById('page-' + pageId);
+            if (page) {
+                page.classList.remove('hidden');
+            }
+        }
+
+        // 索引合并管理tab切换
+        function switchMergeTab(el, tabName) {
+            const tabs = el.parentElement.querySelectorAll('.tab-item');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            el.classList.add('active');
+            
+            const contents = document.querySelectorAll('[id^="merge-tab-"]');
+            contents.forEach(content => content.classList.remove('active'));
+            document.getElementById('merge-tab-' + tabName).classList.add('active');
+        }
+
+        // 索引拆分管理tab切换
+        function switchSplitTab(el, tabName) {
+            const tabs = el.parentElement.querySelectorAll('.tab-item');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            el.classList.add('active');
+            
+            const contents = document.querySelectorAll('[id^="split-tab-"]');
+            contents.forEach(content => content.classList.remove('active'));
+            document.getElementById('split-tab-' + tabName).classList.add('active');
+        }
+
+        // 全选/取消全选
+        function toggleSelectAll(el, type) {
+            const checkboxes = document.querySelectorAll('.' + type + '-checkbox');
+            checkboxes.forEach(cb => cb.checked = el.checked);
+            updateMergeButtonState();
+        }
+
+        // 更新合并按钮状态
+        function updateMergeButtonState() {
+            const checkedCount = document.querySelectorAll('.merge-checkbox:checked').length;
+            const btn = document.getElementById('btn-merge-master');
+            const countSpan = document.getElementById('merge-selected-count');
+            
+            countSpan.textContent = '已选择 ' + checkedCount + ' 条记录';
+            btn.disabled = checkedCount < 2;
+        }
+
+        // 监听合并复选框变化
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('merge-checkbox')) {
+                updateMergeButtonState();
+            } else if (e.target.name === 'split-radio') {
+                document.getElementById('btn-split-master').disabled = false;
+            }
+        });
+
+        // 搜索合并列表
+        function searchMergeList() {
+            alert('查询条件：\n主索引ID：' + document.getElementById('merge-master-id').value + '\n姓名：' + document.getElementById('merge-name').value + '\n身份证号：' + document.getElementById('merge-idcard').value + '\n合并状态：' + document.getElementById('merge-status').value);
+        }
+
+        // 重置合并搜索
+        function resetMergeSearch() {
+            document.getElementById('merge-master-id').value = '';
+            document.getElementById('merge-name').value = '';
+            document.getElementById('merge-idcard').value = '';
+            document.getElementById('merge-status').value = '';
+        }
+
+        // 打开合并弹窗
+        function openMergeModal() {
+            const checkedBoxes = document.querySelectorAll('.merge-checkbox:checked');
+            const count = checkedBoxes.length;
+            document.getElementById('selected-count').textContent = count;
+            
+            const indexesDiv = document.getElementById('selected-indexes');
+            let html = '';
+            checkedBoxes.forEach(cb => {
+                const id = cb.getAttribute('data-id');
+                html += '<div style="padding: 8px; border-bottom: 1px solid #f0f0f0;"><div><strong>' + id + '</strong> - 张三 - 61010119850515****</div></div>';
+            });
+            indexesDiv.innerHTML = html;
+            
+            document.getElementById('mergeModal').classList.add('show');
+        }
+
+        // 确认合并
+        function confirmMerge() {
+            if (confirm('合并操作不可逆，是否继续？')) {
+                alert('合并成功');
+                closeModal('mergeModal');
+            }
+        }
+
+        // 搜索拆分列表
+        function searchSplitList() {
+            alert('查询条件：\n主索引ID：' + document.getElementById('split-master-id').value + '\n姓名：' + document.getElementById('split-name').value + '\n身份证号：' + document.getElementById('split-idcard').value);
+        }
+
+        // 重置拆分搜索
+        function resetSplitSearch() {
+            document.getElementById('split-master-id').value = '';
+            document.getElementById('split-name').value = '';
+            document.getElementById('split-idcard').value = '';
+        }
+
+        // 打开拆分弹窗
+        function openSplitModal() {
+            const selectedRadio = document.querySelector('input[name="split-radio"]:checked');
+            if (selectedRadio) {
+                document.getElementById('splitModal').classList.add('show');
+            }
+        }
+
+        // 确认拆分
+        function confirmSplit() {
+            if (confirm('拆分操作不可逆，是否继续？')) {
+                alert('拆分成功');
+                closeModal('splitModal');
+            }
+        }
+
+        // 查询已合并记录
+        function searchMergedRecord() {
+            alert('查询合并记录：' + document.getElementById('merged-master-id').value);
+        }
+
+        // 重置已合并记录查询
+        function resetMergedSearch() {
+            document.getElementById('merged-master-id').value = '';
+        }
+
+        // 查询已拆分记录
+        function searchSplitRecord() {
+            alert('查询拆分记录：' + document.getElementById('origin-master-id').value);
+        }
+
+        // 重置已拆分记录查询
+        function resetSplitRecordSearch() {
+            document.getElementById('origin-master-id').value = '';
+        }
+
+        // 关闭弹窗
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+    </script>
+</body>
+</html>
