@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>功能开发中</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFangSC', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: #f5f7fa;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .placeholder-container {
+            text-align: center;
+            background: #fff;
+            padding: 60px 80px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .placeholder-icon {
+            font-size: 80px;
+            color: #ddd;
+            margin-bottom: 25px;
+        }
+
+        .placeholder-title {
+            font-size: 24px;
+            color: #999;
+            font-weight: 400;
+            margin-bottom: 10px;
+        }
+
+        .placeholder-desc {
+            font-size: 14px;
+            color: #bbb;
+        }
+
+        .placeholder-progress {
+            width: 200px;
+            height: 4px;
+            background: #f0f0f0;
+            border-radius: 2px;
+            margin: 30px auto 0;
+            overflow: hidden;
+        }
+
+        .placeholder-progress-bar {
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, #2d8cff, #52c41a);
+            border-radius: 2px;
+            animation: progress 2s ease-in-out infinite;
+        }
+
+        @keyframes progress {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(200%); }
+        }
+    </style>
+</head>
+<body>
+    <div class="placeholder-container">
+        <div class="placeholder-icon">
+            <i class="fas fa-tools"></i>
+        </div>
+        <h2 class="placeholder-title">功能开发中</h2>
+        <p class="placeholder-desc">该功能正在紧张开发中，敬请期待...</p>
+        <div class="placeholder-progress">
+            <div class="placeholder-progress-bar"></div>
+        </div>
+    </div>
+</body>
+</html>

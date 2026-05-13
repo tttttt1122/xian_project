@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户变更日志管理</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="page-container">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-user-edit"></i>
+                用户变更日志管理
+            </h1>
+        </div>
+
+        <!-- 搜索区域 -->
+        <div class="search-area">
+            <div class="search-form">
+                <div class="form-group">
+                    <label class="form-label">变更用户</label>
+                    <input type="text" class="form-input" id="userName" placeholder="请输入用户名">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">变更字段</label>
+                    <select class="form-select" id="fieldSelect">
+                        <option value="">全部字段</option>
+                        <option value="username">用户名</option>
+                        <option value="realname">真实姓名</option>
+                        <option value="phone">手机号</option>
+                        <option value="email">邮箱</option>
+                        <option value="role">角色</option>
+                        <option value="status">状态</option>
+                        <option value="org">所属机构</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">操作人</label>
+                    <input type="text" class="form-input" id="operatorName" placeholder="请输入操作人">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">变更时间</label>
+                    <div class="date-range">
+                        <input type="date" class="form-input" id="startDate">
+                        <span>至</span>
+                        <input type="date" class="form-input" id="endDate">
+                    </div>
+                </div>
+                <div class="form-group search-btns">
+                    <button class="btn btn-primary" onclick="handleSearch()">
+                        <i class="fas fa-search"></i> 查询
+                    </button>
+                    <button class="btn btn-default" onclick="handleReset()">
+                        <i class="fas fa-redo"></i> 重置
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">序号</th>
+                        <th>变更用户</th>
+                        <th>变更时间</th>
+                        <th>变更字段</th>
+                        <th>原值</th>
+                        <th>新值</th>
+                        <th>操作人</th>
+                        <th style="width: 100px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination-container" id="pagination"></div>
+    </div>
+
+    <!-- 变更详情模态框 -->
+    <div class="modal" id="detailModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title">用户变更详情</h3>
+                <button class="modal-close" onclick="Modal.close('detailModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
+                    <div class="detail-item">
+                        <label style="color: #64748b; font-size: 12px;">变更用户</label>
+                        <div style="font-weight: 500; margin-top: 5px;" id="detailUser">zhangsan</div>
+                    </div>
+                    <div class="detail-item">
+                        <label style="color: #64748b; font-size: 12px;">变更时间</label>
+                        <div style="font-weight: 500; margin-top: 5px;" id="detailTime">2024-01-15 10:30:25</div>
+                    </div>
+                    <div class="detail-item">
+                        <label style="color: #64748b; font-size: 12px;">变更字段</label>
+                        <div style="font-weight: 500; margin-top: 5px;" id="detailField">角色</div>
+                    </div>
+                    <div class="detail-item">
+                        <label style="color: #64748b; font-size: 12px;">操作人</label>
+                        <div style="font-weight: 500; margin-top: 5px;" id="detailOperator">admin</div>
+                    </div>
+                </div>
+                
+                <div style="background: #f8fafc; border-radius: 8px; padding: 20px;">
+                    <h4 style="margin-bottom: 15px; color: #1e293b;">变更内容对比</h4>
+                    <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: center;">
+                        <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 15px;">
+                            <div style="color: #dc2626; font-size: 12px; margin-bottom: 8px;">
+                                <i class="fas fa-times-circle"></i> 原值
+                            </div>
+                            <div style="font-size: 16px; font-weight: 500; color: #991b1b;" id="detailOldValue">医生</div>
+                        </div>
+                        <div style="color: #94a3b8;">
+                            <i class="fas fa-arrow-right" style="font-size: 24px;"></i>
+                        </div>
+                        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 15px;">
+                            <div style="color: #16a34a; font-size: 12px; margin-bottom: 8px;">
+                                <i class="fas fa-check-circle"></i> 新值
+                            </div>
+                            <div style="font-size: 16px; font-weight: 500; color: #166534;" id="detailNewValue">主任医师</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('detailModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        // 页面数据
+        const PageData = {
+            list: [
+                { id: 1, user: 'zhangsan', time: '2024-01-15 10:30:25', field: '角色', fieldCode: 'role', oldValue: '医生', newValue: '主任医师', operator: 'admin' },
+                { id: 2, user: 'lisi', time: '2024-01-15 09:45:18', field: '手机号', fieldCode: 'phone', oldValue: '13800138000', newValue: '13900139000', operator: 'admin' },
+                { id: 3, user: 'wangwu', time: '2024-01-14 16:20:30', field: '所属机构', fieldCode: 'org', oldValue: '市第一人民医院', newValue: '市中心医院', operator: 'operator1' },
+                { id: 4, user: 'zhaoliu', time: '2024-01-14 14:15:00', field: '状态', fieldCode: 'status', oldValue: '启用', newValue: '停用', operator: 'admin' },
+                { id: 5, user: 'zhangsan', time: '2024-01-14 11:30:45', field: '邮箱', fieldCode: 'email', oldValue: 'zhangsan@old.com', newValue: 'zhangsan@new.com', operator: 'admin' },
+                { id: 6, user: 'qianqi', time: '2024-01-13 15:45:20', field: '真实姓名', fieldCode: 'realname', oldValue: '张三', newValue: '张三丰', operator: 'operator2' },
+                { id: 7, user: 'sunba', time: '2024-01-13 10:20:00', field: '用户名', fieldCode: 'username', oldValue: 'sunba_old', newValue: 'sunba_new', operator: 'admin' },
+                { id: 8, user: 'zhoujiu', time: '2024-01-12 09:00:15', field: '角色', fieldCode: 'role', oldValue: '护士', newValue: '护士长', operator: 'admin' }
+            ]
+        };
+
+        // 字段标签样式
+        const fieldStyles = {
+            'username': { class: 'tag-blue', icon: 'fa-user' },
+            'realname': { class: 'tag-green', icon: 'fa-id-card' },
+            'phone': { class: 'tag-orange', icon: 'fa-phone' },
+            'email': { class: 'tag-purple', icon: 'fa-envelope' },
+            'role': { class: 'tag-cyan', icon: 'fa-user-tag' },
+            'status': { class: 'tag-red', icon: 'fa-toggle-on' },
+            'org': { class: 'tag-gray', icon: 'fa-hospital' }
+        };
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable(PageData.list);
+        });
+
+        // 渲染表格
+        function renderTable(data) {
+            Table.render({
+                containerId: 'tableBody',
+                data: data,
+                rowRenderer: (item, index) => {
+                    const style = fieldStyles[item.fieldCode] || { class: 'tag-gray', icon: 'fa-circle' };
+                    return `
+                        <td>${index + 1}</td>
+                        <td><i class="fas fa-user" style="color: #94a3b8; margin-right: 5px;"></i>${item.user}</td>
+                        <td>${item.time}</td>
+                        <td><span class="tag ${style.class}"><i class="fas ${style.icon}"></i> ${item.field}</span></td>
+                        <td style="color: #dc2626; text-decoration: line-through; background: #fef2f2; padding: 4px 8px; border-radius: 4px;">${item.oldValue}</td>
+                        <td style="color: #16a34a; background: #f0fdf4; padding: 4px 8px; border-radius: 4px;">${item.newValue}</td>
+                        <td><i class="fas fa-user-shield" style="color: #94a3b8; margin-right: 5px;"></i>${item.operator}</td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn action-btn-view" onclick="handleView(${item.id})">
+                                    <i class="fas fa-eye"></i> 明细
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                }
+            });
+        }
+
+        // 搜索
+        function handleSearch() {
+            const user = document.getElementById('userName').value;
+            const field = document.getElementById('fieldSelect').value;
+            const operator = document.getElementById('operatorName').value;
+            
+            let filtered = PageData.list.filter(item => {
+                if (user && !item.user.includes(user)) return false;
+                if (field && item.fieldCode !== field) return false;
+                if (operator && !item.operator.includes(operator)) return false;
+                return true;
+            });
+            
+            renderTable(filtered);
+        }
+
+        // 重置
+        function handleReset() {
+            document.getElementById('userName').value = '';
+            document.getElementById('fieldSelect').value = '';
+            document.getElementById('operatorName').value = '';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            renderTable(PageData.list);
+        }
+
+        // 查看详情
+        function handleView(id) {
+            const item = PageData.list.find(i => i.id === id);
+            if (item) {
+                document.getElementById('detailUser').textContent = item.user;
+                document.getElementById('detailTime').textContent = item.time;
+                document.getElementById('detailField').textContent = item.field;
+                document.getElementById('detailOperator').textContent = item.operator;
+                document.getElementById('detailOldValue').textContent = item.oldValue;
+                document.getElementById('detailNewValue').textContent = item.newValue;
+                Modal.open('detailModal');
+            }
+        }
+    </script>
+</body>
+</html>

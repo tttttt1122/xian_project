@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>机构代理群组管理</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="page-container">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-users-cog"></i>
+                机构代理群组管理
+            </h1>
+        </div>
+
+        <!-- 搜索区域 -->
+        <div class="search-area">
+            <div class="search-form">
+                <div class="form-group">
+                    <label class="form-label">群组名称</label>
+                    <input type="text" class="form-input" id="groupName" placeholder="请输入群组名称">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">代理权限</label>
+                    <select class="form-select" id="permissionSelect">
+                        <option value="">全部权限</option>
+                        <option value="read">只读</option>
+                        <option value="write">读写</option>
+                        <option value="admin">管理</option>
+                    </select>
+                </div>
+                <div class="form-group search-btns">
+                    <button class="btn btn-primary" onclick="handleSearch()">
+                        <i class="fas fa-search"></i> 查询
+                    </button>
+                    <button class="btn btn-default" onclick="handleReset()">
+                        <i class="fas fa-redo"></i> 重置
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="action-bar">
+            <button class="btn btn-success" onclick="handleAdd()">
+                <i class="fas fa-plus"></i> 新增
+            </button>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">序号</th>
+                        <th>群组名称</th>
+                        <th>成员机构数</th>
+                        <th>代理权限</th>
+                        <th>创建时间</th>
+                        <th>备注</th>
+                        <th style="width: 200px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination-container" id="pagination"></div>
+    </div>
+
+    <!-- 新增/编辑模态框 -->
+    <div class="modal" id="groupModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">新增代理群组</h3>
+                <button class="modal-close" onclick="Modal.close('groupModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="groupForm">
+                    <div class="form-group">
+                        <label class="form-label required">群组名称</label>
+                        <input type="text" class="form-input" id="modalName" placeholder="请输入群组名称">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">代理权限</label>
+                        <select class="form-select" id="modalPermission">
+                            <option value="">请选择代理权限</option>
+                            <option value="read">只读 - 仅可查看影像和报告</option>
+                            <option value="write">读写 - 可查看和上传影像/报告</option>
+                            <option value="admin">管理 - 拥有完整管理权限</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">选择成员机构</label>
+                        <select class="select-multiple" id="modalOrgs" multiple>
+                            <option value="1">市第一人民医院</option>
+                            <option value="2">市中心医院</option>
+                            <option value="3">市中医院</option>
+                            <option value="4">市妇幼保健院</option>
+                            <option value="5">市第二人民医院</option>
+                            <option value="6">市第三人民医院</option>
+                        </select>
+                        <span class="form-hint">按住Ctrl键可多选机构</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">备注</label>
+                        <textarea class="form-textarea" id="modalRemark" rows="2" placeholder="请输入备注信息"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('groupModal')">取消</button>
+                <button class="btn btn-primary" onclick="handleSave()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 成员详情模态框 -->
+    <div class="modal" id="memberModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="memberModalTitle">群组成员清单</h3>
+                <button class="modal-close" onclick="Modal.close('memberModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="member-list" id="memberList" style="max-height: 400px; overflow-y: auto;">
+                    <!-- 成员列表将动态生成 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('memberModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认模态框 -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3 class="modal-title">确认删除</h3>
+                <button class="modal-close" onclick="Modal.close('deleteModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="text-align: center; padding: 20px;">
+                    <i class="fas fa-exclamation-triangle" style="color: #f59e0b; font-size: 48px;"></i>
+                </p>
+                <p style="text-align: center;">确定要删除该代理群组吗？<br>删除后将无法恢复。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('deleteModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        // 页面数据
+        const PageData = {
+            list: [
+                { id: 1, name: '市级医院群组', members: 5, permission: 'read', permissionText: '只读', createTime: '2024-01-10 09:30:00', remark: '包含所有市级医疗机构', orgs: ['市第一人民医院', '市中心医院', '市中医院', '市妇幼保健院', '市第二人民医院'] },
+                { id: 2, name: '医联体A群组', members: 3, permission: 'write', permissionText: '读写', createTime: '2024-01-08 14:20:00', remark: '东部医联体成员机构', orgs: ['市第一人民医院', '市中医院', '社区卫生服务中心A'] },
+                { id: 3, name: '影像中心管理群', members: 4, permission: 'admin', permissionText: '管理', createTime: '2024-01-05 11:15:00', remark: '影像中心管理权限群组', orgs: ['市第一人民医院', '市中心医院', '市第三人民医院', '影像诊断中心'] },
+                { id: 4, name: '基层医疗机构群', members: 6, permission: 'read', permissionText: '只读', createTime: '2024-01-03 16:45:00', remark: '社区卫生服务中心及乡镇卫生院', orgs: ['社区卫生服务中心A', '社区卫生服务中心B', '乡镇卫生院A', '乡镇卫生院B', '乡镇卫生院C', '乡镇卫生院D'] }
+            ],
+            editId: null,
+            deleteId: null
+        };
+
+        // 权限样式
+        const permissionStyles = {
+            'read': { class: 'tag-blue', icon: 'fa-eye' },
+            'write': { class: 'tag-orange', icon: 'fa-edit' },
+            'admin': { class: 'tag-red', icon: 'fa-cog' }
+        };
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable(PageData.list);
+        });
+
+        // 渲染表格
+        function renderTable(data) {
+            Table.render({
+                containerId: 'tableBody',
+                data: data,
+                rowRenderer: (item, index) => {
+                    const style = permissionStyles[item.permission] || { class: 'tag-gray', icon: 'fa-circle' };
+                    return `
+                        <td>${index + 1}</td>
+                        <td><strong>${item.name}</strong></td>
+                        <td><span class="badge" style="background: #e0e7ff; color: #4338ca; padding: 4px 12px; border-radius: 12px; font-weight: 500;">${item.members} 家</span></td>
+                        <td><span class="tag ${style.class}"><i class="fas ${style.icon}"></i> ${item.permissionText}</span></td>
+                        <td>${item.createTime}</td>
+                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.remark}">${item.remark}</td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn action-btn-view" onclick="handleViewMembers(${item.id})">
+                                    <i class="fas fa-users"></i> 详情
+                                </button>
+                                <button class="action-btn action-btn-edit" onclick="handleEdit(${item.id})">
+                                    <i class="fas fa-edit"></i> 编辑
+                                </button>
+                                <button class="action-btn action-btn-delete" onclick="handleDelete(${item.id})">
+                                    <i class="fas fa-trash"></i> 删除
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                }
+            });
+        }
+
+        // 搜索
+        function handleSearch() {
+            const name = document.getElementById('groupName').value;
+            const permission = document.getElementById('permissionSelect').value;
+            
+            let filtered = PageData.list.filter(item => {
+                if (name && !item.name.includes(name)) return false;
+                if (permission && item.permission !== permission) return false;
+                return true;
+            });
+            
+            renderTable(filtered);
+        }
+
+        // 重置
+        function handleReset() {
+            document.getElementById('groupName').value = '';
+            document.getElementById('permissionSelect').value = '';
+            renderTable(PageData.list);
+        }
+
+        // 新增
+        function handleAdd() {
+            PageData.editId = null;
+            document.getElementById('modalTitle').textContent = '新增代理群组';
+            document.getElementById('groupForm').reset();
+            Modal.open('groupModal');
+        }
+
+        // 编辑
+        function handleEdit(id) {
+            PageData.editId = id;
+            const item = PageData.list.find(i => i.id === id);
+            if (item) {
+                document.getElementById('modalTitle').textContent = '编辑代理群组';
+                document.getElementById('modalName').value = item.name;
+                document.getElementById('modalPermission').value = item.permission;
+                document.getElementById('modalRemark').value = item.remark;
+                Modal.open('groupModal');
+            }
+        }
+
+        // 查看成员
+        function handleViewMembers(id) {
+            const item = PageData.list.find(i => i.id === id);
+            if (item) {
+                document.getElementById('memberModalTitle').textContent = `${item.name} - 成员清单`;
+                const memberList = document.getElementById('memberList');
+                memberList.innerHTML = item.orgs.map((org, index) => `
+                    <div style="display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #e2e8f0; ${index === item.orgs.length - 1 ? 'border-bottom: none;' : ''}">
+                        <div style="width: 32px; height: 32px; background: #e0e7ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                            <i class="fas fa-hospital" style="color: #4338ca;"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 500; color: #1e293b;">${org}</div>
+                            <div style="font-size: 12px; color: #64748b;">机构编码：ORG${String(index + 1).padStart(3, '0')}</div>
+                        </div>
+                        <span class="tag ${permissionStyles[item.permission].class}" style="font-size: 11px;">
+                            <i class="fas ${permissionStyles[item.permission].icon}"></i> ${item.permissionText}
+                        </span>
+                    </div>
+                `).join('');
+                Modal.open('memberModal');
+            }
+        }
+
+        // 保存
+        function handleSave() {
+            const name = document.getElementById('modalName');
+            const permission = document.getElementById('modalPermission');
+            
+            if (!name.value) {
+                alert('请输入群组名称');
+                return;
+            }
+            if (!permission.value) {
+                alert('请选择代理权限');
+                return;
+            }
+            
+            Modal.close('groupModal');
+            alert(PageData.editId ? '修改成功' : '新增成功');
+            renderTable(PageData.list);
+        }
+
+        // 删除
+        function handleDelete(id) {
+            PageData.deleteId = id;
+            Modal.open('deleteModal');
+        }
+
+        // 确认删除
+        function confirmDelete() {
+            Modal.close('deleteModal');
+            alert('删除成功');
+        }
+    </script>
+</body>
+</html>

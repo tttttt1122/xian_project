@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>质控规则库管理</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <style>
+        .rule-category {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-block;
+        }
+        .cat-format {
+            background: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+        }
+        .cat-complete {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+        .cat-logic {
+            background: #fff7e6;
+            color: #fa8c16;
+            border: 1px solid #ffd591;
+        }
+        .cat-range {
+            background: #fff2e8;
+            color: #fa541c;
+            border: 1px solid #ffbb96;
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <h1 class="page-title"><i class="fas fa-book"></i>质控规则库管理</h1>
+    </header>
+
+    <section class="search-area">
+        <div class="search-form">
+            <div class="form-group">
+                <label class="form-label">规则名称：</label>
+                <input type="text" class="form-input" id="searchName" placeholder="请输入规则名称">
+            </div>
+            <div class="form-group">
+                <label class="form-label">规则类别：</label>
+                <select class="form-select" id="searchCategory">
+                    <option value="">全部</option>
+                    <option value="format">格式校验</option>
+                    <option value="complete">完整性校验</option>
+                    <option value="logic">逻辑校验</option>
+                    <option value="range">范围校验</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">状态：</label>
+                <select class="form-select" id="searchStatus">
+                    <option value="">全部</option>
+                    <option value="normal">启用</option>
+                    <option value="disabled">停用</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-success" onclick="handleSearch()">
+                    <i class="fas fa-search"></i> 查询
+                </button>
+                <button class="btn btn-default" onclick="handleReset()">
+                    <i class="fas fa-redo"></i> 重置
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="table-container">
+        <div class="table-toolbar">
+            <div class="toolbar-left">
+                <span class="table-title">质控规则列表</span>
+                <span class="record-count">共 <strong id="totalCount">0</strong> 条记录</span>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn btn-primary" onclick="handleAdd()">
+                    <i class="fas fa-plus"></i> 新增
+                </button>
+                <button class="btn btn-warning" onclick="handleExport()">
+                    <i class="fas fa-download"></i> 导出
+                </button>
+            </div>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">序号</th>
+                    <th>规则名称</th>
+                    <th>规则类别</th>
+                    <th>规则描述</th>
+                    <th>状态</th>
+                    <th>最后修改时间</th>
+                    <th style="width: 220px;">操作</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <div class="pagination">
+            <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+            <span class="page-info">共 3 页</span>
+        </div>
+    </section>
+
+    <div class="modal" id="ruleModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">新增质控规则</h3>
+                <button class="modal-close" onclick="Modal.close('ruleModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="ruleForm">
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label required">规则名称</label>
+                                <input type="text" class="form-input" id="ruleName" placeholder="请输入规则名称">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label">规则类别</label>
+                                <select class="form-select" id="ruleCategory">
+                                    <option value="format">格式校验</option>
+                                    <option value="complete">完整性校验</option>
+                                    <option value="logic">逻辑校验</option>
+                                    <option value="range">范围校验</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">规则描述</label>
+                        <textarea class="form-textarea" id="ruleDesc" rows="3" placeholder="请输入规则描述"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">规则表达式</label>
+                        <textarea class="form-textarea" id="ruleExpression" rows="3" placeholder="请输入规则表达式，如：LENGTH(field) > 0"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label">错误提示信息</label>
+                                <input type="text" class="form-input" id="ruleErrorMsg" placeholder="请输入错误提示信息">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label">状态</label>
+                                <select class="form-select" id="ruleStatus">
+                                    <option value="normal">启用</option>
+                                    <option value="disabled">停用</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('ruleModal')">取消</button>
+                <button class="btn btn-primary" onclick="handleSave()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">规则明细</h3>
+                <button class="modal-close" onclick="Modal.close('detailModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="detailContent" style="line-height: 2;">
+                    <!-- 动态填充明细内容 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('detailModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="deleteModal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h3 class="modal-title">确认删除</h3>
+                <button class="modal-close" onclick="Modal.close('deleteModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="text-align: center; padding: 20px;">确定要删除该质控规则吗？此操作不可恢复。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('deleteModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        const PageData = {
+            list: [
+                { id: 1, name: '身份证号格式校验', category: 'format', desc: '验证身份证号是否为18位', expression: 'REGEXP_LIKE(id_card, "^[0-9]{17}[0-9X]$")', errorMsg: '身份证号格式不正确', status: 'normal', updateTime: '2024-01-15 10:30:00' },
+                { id: 2, name: '患者姓名非空校验', category: 'complete', desc: '验证患者姓名不能为空', expression: 'patient_name IS NOT NULL AND LENGTH(patient_name) > 0', errorMsg: '患者姓名不能为空', status: 'normal', updateTime: '2024-01-14 14:20:00' },
+                { id: 3, name: '检验结果范围校验', category: 'range', desc: '验证检验结果是否在正常范围内', expression: 'result_value BETWEEN min_value AND max_value', errorMsg: '检验结果超出正常范围', status: 'normal', updateTime: '2024-01-13 09:15:00' },
+                { id: 4, name: '就诊时间逻辑校验', category: 'logic', desc: '验证就诊时间不能晚于当前时间', expression: 'visit_time <= SYSDATE', errorMsg: '就诊时间不能晚于当前时间', status: 'disabled', updateTime: '2024-01-12 16:45:00' },
+                { id: 5, name: '手机号格式校验', category: 'format', desc: '验证手机号是否为11位数字', expression: 'REGEXP_LIKE(phone, "^[1][3-9][0-9]{9}$")', errorMsg: '手机号格式不正确', status: 'normal', updateTime: '2024-01-11 11:00:00' }
+            ],
+            currentEditId: null,
+            deleteId: null
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable(PageData.list);
+            Modal.initClickOutside('ruleModal');
+            Modal.initClickOutside('detailModal');
+            Modal.initClickOutside('deleteModal');
+        });
+
+        function renderTable(data) {
+            Table.render({
+                containerId: 'tableBody',
+                data: data,
+                rowRenderer: (item, index) => {
+                    const catMap = {
+                        format: { class: 'cat-format', text: '格式校验' },
+                        complete: { class: 'cat-complete', text: '完整性校验' },
+                        logic: { class: 'cat-logic', text: '逻辑校验' },
+                        range: { class: 'cat-range', text: '范围校验' }
+                    };
+                    const cat = catMap[item.category];
+                    return `
+                        <td>${index + 1}</td>
+                        <td>${item.name}</td>
+                        <td><span class="rule-category ${cat.class}">${cat.text}</span></td>
+                        <td>${item.desc}</td>
+                        <td>${StatusBadge.normal(item.status === 'normal')}</td>
+                        <td>${item.updateTime}</td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn action-btn-view" onclick="handleViewDetail(${item.id})">
+                                    <i class="fas fa-eye"></i> 明细
+                                </button>
+                                <button class="action-btn action-btn-edit" onclick="handleEdit(${item.id})">
+                                    <i class="fas fa-edit"></i> 编辑
+                                </button>
+                                <button class="action-btn action-btn-delete" onclick="handleDelete(${item.id})">
+                                    <i class="fas fa-trash"></i> 删除
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                }
+            });
+            Table.updateCount('totalCount', data.length);
+        }
+
+        function handleSearch() {
+            const name = document.getElementById('searchName').value.toLowerCase();
+            const category = document.getElementById('searchCategory').value;
+            const status = document.getElementById('searchStatus').value;
+            
+            const filtered = PageData.list.filter(item => {
+                return (!name || item.name.toLowerCase().includes(name)) &&
+                       (!category || item.category === category) &&
+                       (!status || item.status === status);
+            });
+            renderTable(filtered);
+        }
+
+        function handleReset() {
+            document.getElementById('searchName').value = '';
+            document.getElementById('searchCategory').value = '';
+            document.getElementById('searchStatus').value = '';
+            renderTable(PageData.list);
+        }
+
+        function handleAdd() {
+            PageData.currentEditId = null;
+            document.getElementById('modalTitle').textContent = '新增质控规则';
+            document.getElementById('ruleForm').reset();
+            Modal.open('ruleModal');
+        }
+
+        function handleEdit(id) {
+            PageData.currentEditId = id;
+            const item = PageData.list.find(i => i.id === id);
+            if (item) {
+                document.getElementById('modalTitle').textContent = '编辑质控规则';
+                document.getElementById('ruleName').value = item.name;
+                document.getElementById('ruleCategory').value = item.category;
+                document.getElementById('ruleDesc').value = item.desc;
+                document.getElementById('ruleExpression').value = item.expression;
+                document.getElementById('ruleErrorMsg').value = item.errorMsg;
+                document.getElementById('ruleStatus').value = item.status;
+                Modal.open('ruleModal');
+            }
+        }
+
+        function handleViewDetail(id) {
+            const item = PageData.list.find(i => i.id === id);
+            if (item) {
+                const catMap = { format: '格式校验', complete: '完整性校验', logic: '逻辑校验', range: '范围校验' };
+                document.getElementById('detailContent').innerHTML = `
+                    <p><strong>规则名称：</strong>${item.name}</p>
+                    <p><strong>规则类别：</strong>${catMap[item.category]}</p>
+                    <p><strong>规则描述：</strong>${item.desc}</p>
+                    <p><strong>规则表达式：</strong><code style="background:#f5f5f5;padding:2px 6px;border-radius:3px;">${item.expression}</code></p>
+                    <p><strong>错误提示：</strong>${item.errorMsg}</p>
+                    <p><strong>状态：</strong>${item.status === 'normal' ? '<span style="color:#52c41a;">启用</span>' : '<span style="color:#ff4d4f;">停用</span>'}</p>
+                    <p><strong>最后修改时间：</strong>${item.updateTime}</p>
+                `;
+                Modal.open('detailModal');
+            }
+        }
+
+        function handleSave() {
+            const name = document.getElementById('ruleName').value;
+            
+            if (!name) {
+                alert('请填写规则名称');
+                return;
+            }
+            
+            if (PageData.currentEditId) {
+                const index = PageData.list.findIndex(i => i.id === PageData.currentEditId);
+                if (index !== -1) {
+                    PageData.list[index] = {
+                        ...PageData.list[index],
+                        name,
+                        category: document.getElementById('ruleCategory').value,
+                        desc: document.getElementById('ruleDesc').value,
+                        expression: document.getElementById('ruleExpression').value,
+                        errorMsg: document.getElementById('ruleErrorMsg').value,
+                        status: document.getElementById('ruleStatus').value,
+                        updateTime: new Date().toLocaleString('zh-CN')
+                    };
+                }
+            } else {
+                const newId = Math.max(...PageData.list.map(i => i.id), 0) + 1;
+                PageData.list.push({
+                    id: newId,
+                    name,
+                    category: document.getElementById('ruleCategory').value,
+                    desc: document.getElementById('ruleDesc').value,
+                    expression: document.getElementById('ruleExpression').value,
+                    errorMsg: document.getElementById('ruleErrorMsg').value,
+                    status: document.getElementById('ruleStatus').value,
+                    updateTime: new Date().toLocaleString('zh-CN')
+                });
+            }
+            
+            Modal.close('ruleModal');
+            renderTable(PageData.list);
+        }
+
+        function handleDelete(id) {
+            PageData.deleteId = id;
+            Modal.open('deleteModal');
+        }
+
+        function confirmDelete() {
+            if (PageData.deleteId) {
+                PageData.list = PageData.list.filter(i => i.id !== PageData.deleteId);
+                renderTable(PageData.list);
+            }
+            Modal.close('deleteModal');
+        }
+
+        function handleExport() {
+            alert('导出功能开发中...');
+        }
+    </script>
+</body>
+</html>

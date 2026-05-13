@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目包含关系管理</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <style>
+        .relation-type {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-block;
+        }
+        .type-include {
+            background: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+        }
+        .type-extend {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+        .relation-arrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #999;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <h1 class="page-title"><i class="fas fa-sitemap"></i>项目包含关系管理</h1>
+    </header>
+
+    <section class="search-area">
+        <div class="search-form">
+            <div class="form-group">
+                <label class="form-label">父套餐名称：</label>
+                <input type="text" class="form-input" id="searchParent" placeholder="请输入父套餐名称">
+            </div>
+            <div class="form-group">
+                <label class="form-label">子套餐名称：</label>
+                <input type="text" class="form-input" id="searchChild" placeholder="请输入子套餐名称">
+            </div>
+            <div class="form-group">
+                <label class="form-label">关系类型：</label>
+                <select class="form-select" id="searchType">
+                    <option value="">全部</option>
+                    <option value="include">包含</option>
+                    <option value="extend">扩展</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-success" onclick="handleSearch()">
+                    <i class="fas fa-search"></i> 查询
+                </button>
+                <button class="btn btn-default" onclick="handleReset()">
+                    <i class="fas fa-redo"></i> 重置
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="table-container">
+        <div class="table-toolbar">
+            <div class="toolbar-left">
+                <span class="table-title">套餐包含关系列表</span>
+                <span class="record-count">共 <strong id="totalCount">0</strong> 条记录</span>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn btn-primary" onclick="handleAdd()">
+                    <i class="fas fa-plus"></i> 新增关系
+                </button>
+            </div>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">序号</th>
+                    <th>父套餐名称</th>
+                    <th>子套餐名称</th>
+                    <th>关系类型</th>
+                    <th style="width: 120px;">操作</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <div class="pagination">
+            <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+            <span class="page-info">共 2 页</span>
+        </div>
+    </section>
+
+    <div class="modal" id="relationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">新增包含关系</h3>
+                <button class="modal-close" onclick="Modal.close('relationModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="relationForm">
+                    <div class="form-group">
+                        <label class="form-label required">父套餐</label>
+                        <select class="form-select" id="relationParent">
+                            <option value="">请选择父套餐</option>
+                            <option value="健康体检套餐">健康体检套餐</option>
+                            <option value="入职体检套餐">入职体检套餐</option>
+                            <option value="婚前检查套餐">婚前检查套餐</option>
+                            <option value="老年人体检套餐">老年人体检套餐</option>
+                            <option value="血常规检查">血常规检查</option>
+                            <option value="肝功能检查">肝功能检查</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">子套餐</label>
+                        <select class="form-select" id="relationChild">
+                            <option value="">请选择子套餐</option>
+                            <option value="血常规检查">血常规检查</option>
+                            <option value="尿常规检查">尿常规检查</option>
+                            <option value="肝功能检查">肝功能检查</option>
+                            <option value="肾功能检查">肾功能检查</option>
+                            <option value="血脂检查">血脂检查</option>
+                            <option value="血糖检查">血糖检查</option>
+                            <option value="心电图检查">心电图检查</option>
+                            <option value="胸部X光检查">胸部X光检查</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">关系类型</label>
+                        <select class="form-select" id="relationType">
+                            <option value="include">包含</option>
+                            <option value="extend">扩展</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('relationModal')">取消</button>
+                <button class="btn btn-primary" onclick="handleSave()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="deleteModal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h3 class="modal-title">确认删除</h3>
+                <button class="modal-close" onclick="Modal.close('deleteModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="text-align: center; padding: 20px;">确定要删除该包含关系吗？</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('deleteModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        const PageData = {
+            list: [
+                { id: 1, parent: '健康体检套餐', child: '血常规检查', type: 'include' },
+                { id: 2, parent: '健康体检套餐', child: '尿常规检查', type: 'include' },
+                { id: 3, parent: '健康体检套餐', child: '肝功能检查', type: 'include' },
+                { id: 4, parent: '入职体检套餐', child: '血常规检查', type: 'include' },
+                { id: 5, parent: '入职体检套餐', child: '胸部X光检查', type: 'include' },
+                { id: 6, parent: '老年人体检套餐', child: '心电图检查', type: 'extend' }
+            ],
+            deleteId: null
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable(PageData.list);
+            Modal.initClickOutside('relationModal');
+            Modal.initClickOutside('deleteModal');
+        });
+
+        function renderTable(data) {
+            Table.render({
+                containerId: 'tableBody',
+                data: data,
+                rowRenderer: (item, index) => {
+                    const typeClass = item.type === 'include' ? 'type-include' : 'type-extend';
+                    const typeText = item.type === 'include' ? '包含' : '扩展';
+                    return `
+                        <td>${index + 1}</td>
+                        <td>${item.parent}</td>
+                        <td>${item.child}</td>
+                        <td><span class="relation-type ${typeClass}">${typeText}</span></td>
+                        <td>
+                            <button class="action-btn action-btn-delete" onclick="handleDelete(${item.id})">
+                                <i class="fas fa-trash"></i> 删除
+                            </button>
+                        </td>
+                    `;
+                }
+            });
+            Table.updateCount('totalCount', data.length);
+        }
+
+        function handleSearch() {
+            const parent = document.getElementById('searchParent').value.toLowerCase();
+            const child = document.getElementById('searchChild').value.toLowerCase();
+            const type = document.getElementById('searchType').value;
+            
+            const filtered = PageData.list.filter(item => {
+                return (!parent || item.parent.toLowerCase().includes(parent)) &&
+                       (!child || item.child.toLowerCase().includes(child)) &&
+                       (!type || item.type === type);
+            });
+            renderTable(filtered);
+        }
+
+        function handleReset() {
+            document.getElementById('searchParent').value = '';
+            document.getElementById('searchChild').value = '';
+            document.getElementById('searchType').value = '';
+            renderTable(PageData.list);
+        }
+
+        function handleAdd() {
+            document.getElementById('modalTitle').textContent = '新增包含关系';
+            document.getElementById('relationForm').reset();
+            Modal.open('relationModal');
+        }
+
+        function handleSave() {
+            const parent = document.getElementById('relationParent').value;
+            const child = document.getElementById('relationChild').value;
+            
+            if (!parent || !child) {
+                alert('请选择父套餐和子套餐');
+                return;
+            }
+            
+            if (parent === child) {
+                alert('父套餐和子套餐不能相同');
+                return;
+            }
+            
+            const newId = Math.max(...PageData.list.map(i => i.id), 0) + 1;
+            PageData.list.push({
+                id: newId,
+                parent,
+                child,
+                type: document.getElementById('relationType').value
+            });
+            
+            Modal.close('relationModal');
+            renderTable(PageData.list);
+        }
+
+        function handleDelete(id) {
+            PageData.deleteId = id;
+            Modal.open('deleteModal');
+        }
+
+        function confirmDelete() {
+            if (PageData.deleteId) {
+                PageData.list = PageData.list.filter(i => i.id !== PageData.deleteId);
+                renderTable(PageData.list);
+            }
+            Modal.close('deleteModal');
+        }
+    </script>
+</body>
+</html>

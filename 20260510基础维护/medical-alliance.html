@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>医联/共体基础信息维护</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <style>
+        .member-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            background: #e6f7ff;
+            color: #1890ff;
+            border-radius: 12px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <h1 class="page-title"><i class="fas fa-network-wired"></i>医联/共体基础信息维护</h1>
+    </header>
+
+    <section class="search-area">
+        <div class="search-form">
+            <div class="form-group">
+                <label class="form-label">共同体名称：</label>
+                <input type="text" class="form-input" id="searchName" placeholder="请输入共同体名称">
+            </div>
+            <div class="form-group">
+                <label class="form-label">共同体编码：</label>
+                <input type="text" class="form-input" id="searchCode" placeholder="请输入共同体编码">
+            </div>
+            <div class="form-group">
+                <label class="form-label">类型：</label>
+                <select class="form-select" id="searchType">
+                    <option value="">全部</option>
+                    <option value="alliance">医联体</option>
+                    <option value="community">医共体</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-success" onclick="handleSearch()">
+                    <i class="fas fa-search"></i> 查询
+                </button>
+                <button class="btn btn-default" onclick="handleReset()">
+                    <i class="fas fa-redo"></i> 重置
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="table-container">
+        <div class="table-toolbar">
+            <div class="toolbar-left">
+                <span class="table-title">医联体/医共体列表</span>
+                <span class="record-count">共 <strong id="totalCount">0</strong> 条记录</span>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn btn-primary" onclick="handleAdd()">
+                    <i class="fas fa-plus"></i> 新增
+                </button>
+                <button class="btn btn-warning" onclick="handleExport()">
+                    <i class="fas fa-download"></i> 导出
+                </button>
+            </div>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">序号</th>
+                    <th>共同体名称</th>
+                    <th>共同体编码</th>
+                    <th>类型</th>
+                    <th>成员机构数量</th>
+                    <th>创建时间</th>
+                    <th>状态</th>
+                    <th style="width: 200px;">操作</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <div class="pagination">
+            <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+            <span class="page-info">共 2 页</span>
+        </div>
+    </section>
+
+    <div class="modal" id="allianceModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">新增医联体/医共体</h3>
+                <button class="modal-close" onclick="Modal.close('allianceModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="allianceForm">
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label required">共同体名称</label>
+                                <input type="text" class="form-input" id="allianceName" placeholder="请输入共同体名称">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label required">共同体编码</label>
+                                <input type="text" class="form-input" id="allianceCode" placeholder="请输入共同体编码">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label">类型</label>
+                                <select class="form-select" id="allianceType">
+                                    <option value="alliance">医联体</option>
+                                    <option value="community">医共体</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label">牵头机构</label>
+                                <select class="form-select" id="allianceLeader">
+                                    <option value="市第一人民医院">市第一人民医院</option>
+                                    <option value="中心医院">中心医院</option>
+                                    <option value="中医院">中医院</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">成员机构</label>
+                        <div style="border: 1px solid #d9d9d9; border-radius: 6px; padding: 10px; max-height: 150px; overflow-y: auto;">
+                            <label style="display: block; margin: 5px 0;"><input type="checkbox"> 市第一人民医院</label>
+                            <label style="display: block; margin: 5px 0;"><input type="checkbox"> 中心医院</label>
+                            <label style="display: block; margin: 5px 0;"><input type="checkbox"> 中医院</label>
+                            <label style="display: block; margin: 5px 0;"><input type="checkbox"> 妇幼保健院</label>
+                            <label style="display: block; margin: 5px 0;"><input type="checkbox"> 第二人民医院</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">备注说明</label>
+                        <textarea class="form-textarea" id="allianceRemark" rows="3" placeholder="请输入备注说明"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('allianceModal')">取消</button>
+                <button class="btn btn-primary" onclick="handleSave()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="deleteModal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h3 class="modal-title">确认删除</h3>
+                <button class="modal-close" onclick="Modal.close('deleteModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="text-align: center; padding: 20px;">确定要删除该医联体/医共体吗？此操作不可恢复。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('deleteModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        const PageData = {
+            list: [
+                { id: 1, name: '市域医疗联合体', code: 'ALLIANCE001', type: 'alliance', members: 12, createTime: '2024-01-15', leader: '市第一人民医院', status: 'normal' },
+                { id: 2, name: '东部医共体', code: 'COMMUNITY001', type: 'community', members: 8, createTime: '2024-02-20', leader: '中心医院', status: 'normal' },
+                { id: 3, name: '西部医共体', code: 'COMMUNITY002', type: 'community', members: 6, createTime: '2024-03-10', leader: '中医院', status: 'normal' },
+                { id: 4, name: '专科联盟', code: 'ALLIANCE002', type: 'alliance', members: 5, createTime: '2024-04-05', leader: '妇幼保健院', status: 'disabled' }
+            ],
+            currentEditId: null,
+            deleteId: null
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable(PageData.list);
+            Modal.initClickOutside('allianceModal');
+            Modal.initClickOutside('deleteModal');
+        });
+
+        function renderTable(data) {
+            Table.render({
+                containerId: 'tableBody',
+                data: data,
+                rowRenderer: (item, index) => {
+                    const typeText = item.type === 'alliance' ? '医联体' : '医共体';
+                    return `
+                        <td>${index + 1}</td>
+                        <td>${item.name}</td>
+                        <td>${item.code}</td>
+                        <td>${typeText}</td>
+                        <td><span class="member-count"><i class="fas fa-hospital"></i> ${item.members} 家</span></td>
+                        <td>${item.createTime}</td>
+                        <td>${StatusBadge.normal(item.status === 'normal')}</td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn action-btn-view" onclick="handleView(${item.id})">
+                                    <i class="fas fa-eye"></i> 查看
+                                </button>
+                                <button class="action-btn action-btn-edit" onclick="handleEdit(${item.id})">
+                                    <i class="fas fa-edit"></i> 编辑
+                                </button>
+                                <button class="action-btn action-btn-delete" onclick="handleDelete(${item.id})">
+                                    <i class="fas fa-trash"></i> 删除
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                }
+            });
+            Table.updateCount('totalCount', data.length);
+        }
+
+        function handleSearch() {
+            const name = document.getElementById('searchName').value.toLowerCase();
+            const code = document.getElementById('searchCode').value.toLowerCase();
+            const type = document.getElementById('searchType').value;
+            
+            const filtered = PageData.list.filter(item => {
+                return (!name || item.name.toLowerCase().includes(name)) &&
+                       (!code || item.code.toLowerCase().includes(code)) &&
+                       (!type || item.type === type);
+            });
+            renderTable(filtered);
+        }
+
+        function handleReset() {
+            document.getElementById('searchName').value = '';
+            document.getElementById('searchCode').value = '';
+            document.getElementById('searchType').value = '';
+            renderTable(PageData.list);
+        }
+
+        function handleAdd() {
+            PageData.currentEditId = null;
+            document.getElementById('modalTitle').textContent = '新增医联体/医共体';
+            document.getElementById('allianceForm').reset();
+            Modal.open('allianceModal');
+        }
+
+        function handleEdit(id) {
+            PageData.currentEditId = id;
+            const item = PageData.list.find(i => i.id === id);
+            if (item) {
+                document.getElementById('modalTitle').textContent = '编辑医联体/医共体';
+                document.getElementById('allianceName').value = item.name;
+                document.getElementById('allianceCode').value = item.code;
+                document.getElementById('allianceType').value = item.type;
+                document.getElementById('allianceLeader').value = item.leader;
+                Modal.open('allianceModal');
+            }
+        }
+
+        function handleView(id) {
+            alert('查看成员机构清单功能开发中...');
+        }
+
+        function handleSave() {
+            const name = document.getElementById('allianceName').value;
+            const code = document.getElementById('allianceCode').value;
+            
+            if (!name || !code) {
+                alert('请填写必填项');
+                return;
+            }
+            
+            if (PageData.currentEditId) {
+                const index = PageData.list.findIndex(i => i.id === PageData.currentEditId);
+                if (index !== -1) {
+                    PageData.list[index] = {
+                        ...PageData.list[index],
+                        name,
+                        code,
+                        type: document.getElementById('allianceType').value,
+                        leader: document.getElementById('allianceLeader').value
+                    };
+                }
+            } else {
+                const newId = Math.max(...PageData.list.map(i => i.id), 0) + 1;
+                PageData.list.push({
+                    id: newId,
+                    name,
+                    code,
+                    type: document.getElementById('allianceType').value,
+                    leader: document.getElementById('allianceLeader').value,
+                    members: 0,
+                    createTime: new Date().toISOString().split('T')[0],
+                    status: 'normal'
+                });
+            }
+            
+            Modal.close('allianceModal');
+            renderTable(PageData.list);
+        }
+
+        function handleDelete(id) {
+            PageData.deleteId = id;
+            Modal.open('deleteModal');
+        }
+
+        function confirmDelete() {
+            if (PageData.deleteId) {
+                PageData.list = PageData.list.filter(i => i.id !== PageData.deleteId);
+                renderTable(PageData.list);
+            }
+            Modal.close('deleteModal');
+        }
+
+        function handleExport() {
+            alert('导出功能开发中...');
+        }
+    </script>
+</body>
+</html>

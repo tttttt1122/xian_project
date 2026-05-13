@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>检查项目信息维护</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <style>
+        /* 页面特有样式 */
+        .time-config {
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .time-config-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #52c41a;
+            margin-bottom: 10px;
+        }
+
+        .time-config-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .time-config-row .form-select {
+            width: 150px;
+        }
+
+        .time-config-row .form-input {
+            width: 100px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 页面头部 -->
+    <header class="page-header">
+        <h1 class="page-title"><i class="fas fa-stethoscope"></i>检查项目信息维护</h1>
+    </header>
+
+    <!-- 搜索区域 -->
+    <section class="search-area">
+        <div class="search-form">
+            <div class="form-group">
+                <label class="form-label">项目名称：</label>
+                <input type="text" class="form-input" id="searchName" placeholder="请输入项目名称">
+            </div>
+            <div class="form-group">
+                <label class="form-label">标准编码：</label>
+                <input type="text" class="form-input" id="searchCode" placeholder="请输入标准编码">
+            </div>
+            <div class="form-group">
+                <label class="form-label">状态：</label>
+                <select class="form-select" id="searchStatus">
+                    <option value="">全部</option>
+                    <option value="enabled">启用</option>
+                    <option value="disabled">禁用</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-success" onclick="handleSearch()">
+                    <i class="fas fa-search"></i> 查询
+                </button>
+                <button class="btn btn-default" onclick="handleReset()">
+                    <i class="fas fa-redo"></i> 重置
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 表格区域 -->
+    <section class="table-container">
+        <div class="table-toolbar">
+            <div class="toolbar-left">
+                <span class="table-title">项目列表</span>
+                <span class="record-count">共 <strong id="totalCount">0</strong> 条记录</span>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn btn-primary" onclick="handleAdd()">
+                    <i class="fas fa-plus"></i> 新增项目
+                </button>
+                <button class="btn btn-warning" onclick="handleExport()">
+                    <i class="fas fa-download"></i> 导出
+                </button>
+            </div>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">序号</th>
+                    <th>项目名称</th>
+                    <th>标准编码</th>
+                    <th>项目类别</th>
+                    <th>时间维度配置</th>
+                    <th>状态</th>
+                    <th>创建时间</th>
+                    <th style="width: 150px;">操作</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <div class="pagination">
+            <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+            <span class="page-info">共 3 页</span>
+        </div>
+    </section>
+
+    <!-- 新增/编辑弹窗 -->
+    <div class="modal" id="projectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">新增检查项目</h3>
+                <button class="modal-close" onclick="Modal.close('projectModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="projectForm">
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label><span class="required">*</span>项目名称</label>
+                            <input type="text" id="projectName" placeholder="请输入项目名称">
+                        </div>
+                        <div class="form-item">
+                            <label><span class="required">*</span>标准编码</label>
+                            <input type="text" id="projectCode" placeholder="请输入标准编码">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label><span class="required">*</span>项目类别</label>
+                            <select id="projectType">
+                                <option value="">请选择</option>
+                                <option value="影像检查">影像检查</option>
+                                <option value="超声检查">超声检查</option>
+                                <option value="内镜检查">内镜检查</option>
+                                <option value="功能检查">功能检查</option>
+                                <option value="病理检查">病理检查</option>
+                            </select>
+                        </div>
+                        <div class="form-item">
+                            <label>状态</label>
+                            <select id="projectStatus">
+                                <option value="enabled">启用</option>
+                                <option value="disabled">禁用</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label>项目说明</label>
+                            <textarea id="projectDesc" placeholder="请输入项目说明"></textarea>
+                        </div>
+                    </div>
+                    <div class="time-config">
+                        <div class="time-config-title"><i class="fas fa-clock"></i> 个性化时间维度配置</div>
+                        <div class="time-config-row">
+                            <select class="form-select" id="timeType">
+                                <option value="days">有效天数</option>
+                                <option value="months">有效月数</option>
+                                <option value="years">有效年数</option>
+                                <option value="date">起止日期</option>
+                            </select>
+                            <input type="number" class="form-input" id="timeValue" placeholder="数值" value="30">
+                            <span style="color: #666; font-size: 13px;">该项目结果在设定时间内可互认</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('projectModal')">取消</button>
+                <button class="btn btn-primary" onclick="handleSave()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认弹窗 -->
+    <div class="modal confirm-modal" id="deleteModal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h3 class="modal-title">确认删除</h3>
+                <button class="modal-close" onclick="Modal.close('deleteModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="confirm-body">
+                    <div class="confirm-icon warning"><i class="fas fa-exclamation-circle"></i></div>
+                    <p class="confirm-text">确定要删除该项目吗？删除后将无法恢复。</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('deleteModal')">取消</button>
+                <button class="btn btn-danger" onclick="handleConfirmDelete()">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        // 页面数据
+        const PageData = {
+            list: [
+                { id: 1, name: '颅脑CT平扫', code: 'CT001', type: '影像检查', timeConfig: '30天', status: 'enabled', createTime: '2024-01-15 10:30:00' },
+                { id: 2, name: '胸部X线摄影', code: 'XR001', type: '影像检查', timeConfig: '90天', status: 'enabled', createTime: '2024-01-15 11:00:00' },
+                { id: 3, name: '腹部超声检查', code: 'US001', type: '超声检查', timeConfig: '60天', status: 'enabled', createTime: '2024-01-16 09:15:00' },
+                { id: 4, name: '胃镜常规检查', code: 'EN001', type: '内镜检查', timeConfig: '7天', status: 'disabled', createTime: '2024-01-16 14:20:00' },
+                { id: 5, name: '心电图检查', code: 'ECG001', type: '功能检查', timeConfig: '30天', status: 'enabled', createTime: '2024-01-17 08:45:00' },
+                { id: 6, name: '病理活检', code: 'PA001', type: '病理检查', timeConfig: '180天', status: 'enabled', createTime: '2024-01-17 16:30:00' },
+                { id: 7, name: '乳腺钼靶检查', code: 'MG001', type: '影像检查', timeConfig: '365天', status: 'enabled', createTime: '2024-01-18 10:00:00' },
+                { id: 8, name: '肠镜常规检查', code: 'EN002', type: '内镜检查', timeConfig: '7天', status: 'enabled', createTime: '2024-01-18 15:45:00' }
+            ],
+            currentEditId: null,
+            deleteId: null
+        };
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable(PageData.list);
+            Modal.initClickOutside('projectModal');
+            Modal.initClickOutside('deleteModal');
+        });
+
+        // 渲染表格
+        function renderTable(data) {
+            Table.render({
+                containerId: 'tableBody',
+                data: data,
+                rowRenderer: (item, index) => `
+                    <td>${index + 1}</td>
+                    <td>${item.name}</td>
+                    <td>${item.code}</td>
+                    <td>${item.type}</td>
+                    <td>${item.timeConfig}</td>
+                    <td>${StatusBadge.enabled(item.status === 'enabled')}</td>
+                    <td>${item.createTime}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn action-btn-edit" onclick="handleEdit(${item.id})">
+                                <i class="fas fa-edit"></i> 编辑
+                            </button>
+                            <button class="action-btn action-btn-delete" onclick="handleDelete(${item.id})">
+                                <i class="fas fa-trash"></i> 删除
+                            </button>
+                        </div>
+                    </td>
+                `
+            });
+            Table.updateCount('totalCount', data.length);
+        }
+
+        // 搜索
+        function handleSearch() {
+            const conditions = Search.getConditions(['searchName', 'searchCode', 'searchStatus']);
+            const filtered = Search.filter(PageData.list, conditions, (item, cond) => {
+                const matchName = !cond.searchName || item.name.toLowerCase().includes(cond.searchName);
+                const matchCode = !cond.searchCode || item.code.toLowerCase().includes(cond.searchCode);
+                const matchStatus = !cond.searchStatus || item.status === cond.searchStatus;
+                return matchName && matchCode && matchStatus;
+            });
+            renderTable(filtered);
+        }
+
+        // 重置
+        function handleReset() {
+            Search.reset(['searchName', 'searchCode', 'searchStatus']);
+            renderTable(PageData.list);
+        }
+
+        // 新增
+        function handleAdd() {
+            PageData.currentEditId = null;
+            document.getElementById('modalTitle').textContent = '新增检查项目';
+            Form.reset('projectForm');
+            Modal.open('projectModal');
+        }
+
+        // 编辑
+        function handleEdit(id) {
+            PageData.currentEditId = id;
+            const item = PageData.list.find(p => p.id === id);
+            if (item) {
+                document.getElementById('modalTitle').textContent = '编辑检查项目';
+                Form.setData('projectForm', {
+                    projectName: item.name,
+                    projectCode: item.code,
+                    projectType: item.type,
+                    projectStatus: item.status
+                });
+                Modal.open('projectModal');
+            }
+        }
+
+        // 保存
+        function handleSave() {
+            const data = Form.getData('projectForm');
+            if (!Form.validate('projectForm', ['projectName', 'projectCode', 'projectType'])) {
+                alert('请填写必填项！');
+                return;
+            }
+
+            const timeValue = document.getElementById('timeValue').value;
+            const timeType = document.getElementById('timeType');
+            const timeConfig = timeValue + timeType.options[timeType.selectedIndex].text.replace('有效', '').replace('起止', '');
+
+            if (PageData.currentEditId) {
+                const index = PageData.list.findIndex(p => p.id === PageData.currentEditId);
+                if (index !== -1) {
+                    PageData.list[index] = { ...PageData.list[index], ...data, timeConfig };
+                }
+                alert('修改成功！');
+            } else {
+                PageData.list.push({
+                    id: PageData.list.length + 1,
+                    ...data,
+                    timeConfig,
+                    createTime: Utils.formatDate(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                });
+                alert('新增成功！');
+            }
+
+            Modal.close('projectModal');
+            renderTable(PageData.list);
+        }
+
+        // 删除
+        function handleDelete(id) {
+            PageData.deleteId = id;
+            Modal.open('deleteModal');
+        }
+
+        // 确认删除
+        function handleConfirmDelete() {
+            if (PageData.deleteId) {
+                PageData.list = PageData.list.filter(p => p.id !== PageData.deleteId);
+                renderTable(PageData.list);
+                Modal.close('deleteModal');
+                alert('删除成功！');
+            }
+        }
+
+        // 导出
+        function handleExport() {
+            ExportUtil.toJSON(PageData.list, '检查项目数据.json');
+        }
+    </script>
+</body>
+</html>

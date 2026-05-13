@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>医疗机构基础信息维护</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <style>
+        .org-level {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-block;
+        }
+        .level-3 {
+            background: #fff2e8;
+            color: #fa541c;
+            border: 1px solid #ffbb96;
+        }
+        .level-2 {
+            background: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+        }
+        .level-1 {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <h1 class="page-title"><i class="fas fa-hospital"></i>医疗机构基础信息维护</h1>
+    </header>
+
+    <section class="search-area">
+        <div class="search-form">
+            <div class="form-group">
+                <label class="form-label">机构名称：</label>
+                <input type="text" class="form-input" id="searchName" placeholder="请输入机构名称">
+            </div>
+            <div class="form-group">
+                <label class="form-label">机构编码：</label>
+                <input type="text" class="form-input" id="searchCode" placeholder="请输入机构编码">
+            </div>
+            <div class="form-group">
+                <label class="form-label">机构等级：</label>
+                <select class="form-select" id="searchLevel">
+                    <option value="">全部</option>
+                    <option value="3">三级医院</option>
+                    <option value="2">二级医院</option>
+                    <option value="1">一级医院</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">状态：</label>
+                <select class="form-select" id="searchStatus">
+                    <option value="">全部</option>
+                    <option value="normal">启用</option>
+                    <option value="disabled">停用</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-success" onclick="handleSearch()">
+                    <i class="fas fa-search"></i> 查询
+                </button>
+                <button class="btn btn-default" onclick="handleReset()">
+                    <i class="fas fa-redo"></i> 重置
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="table-container">
+        <div class="table-toolbar">
+            <div class="toolbar-left">
+                <span class="table-title">医疗机构台账</span>
+                <span class="record-count">共 <strong id="totalCount">0</strong> 条记录</span>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn btn-primary" onclick="handleAdd()">
+                    <i class="fas fa-plus"></i> 新增
+                </button>
+                <button class="btn btn-warning" onclick="handleExport()">
+                    <i class="fas fa-download"></i> 导出
+                </button>
+            </div>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">序号</th>
+                    <th>机构名称</th>
+                    <th>机构编码</th>
+                    <th>等级</th>
+                    <th>地址</th>
+                    <th>联系人</th>
+                    <th>状态</th>
+                    <th style="width: 200px;">操作</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <div class="pagination">
+            <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+            <span class="page-info">共 3 页</span>
+        </div>
+    </section>
+
+    <div class="modal" id="orgModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">新增医疗机构</h3>
+                <button class="modal-close" onclick="Modal.close('orgModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="orgForm">
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label required">机构名称</label>
+                                <input type="text" class="form-input" id="orgName" placeholder="请输入机构名称">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label required">机构编码</label>
+                                <input type="text" class="form-input" id="orgCode" placeholder="请输入机构编码">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label">机构等级</label>
+                                <select class="form-select" id="orgLevel">
+                                    <option value="3">三级医院</option>
+                                    <option value="2">二级医院</option>
+                                    <option value="1">一级医院</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label">状态</label>
+                                <select class="form-select" id="orgStatus">
+                                    <option value="normal">启用</option>
+                                    <option value="disabled">停用</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">机构地址</label>
+                        <input type="text" class="form-input" id="orgAddress" placeholder="请输入机构地址">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label">联系人</label>
+                                <input type="text" class="form-input" id="orgContact" placeholder="请输入联系人姓名">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label">联系电话</label>
+                                <input type="text" class="form-input" id="orgPhone" placeholder="请输入联系电话">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('orgModal')">取消</button>
+                <button class="btn btn-primary" onclick="handleSave()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="deleteModal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h3 class="modal-title">确认删除</h3>
+                <button class="modal-close" onclick="Modal.close('deleteModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="text-align: center; padding: 20px;">确定要删除该医疗机构吗？此操作不可恢复。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('deleteModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        const PageData = {
+            list: [
+                { id: 1, name: '市第一人民医院', code: 'H001', level: '3', address: '市中心路1号', contact: '张主任', phone: '0512-12345678', status: 'normal' },
+                { id: 2, name: '中心医院', code: 'H002', level: '3', address: '解放路88号', contact: '李院长', phone: '0512-87654321', status: 'normal' },
+                { id: 3, name: '中医院', code: 'H003', level: '2', address: '文化路66号', contact: '王主任', phone: '0512-11223344', status: 'normal' },
+                { id: 4, name: '妇幼保健院', code: 'H004', level: '2', address: '健康路99号', contact: '赵主任', phone: '0512-55667788', status: 'disabled' },
+                { id: 5, name: '社区卫生服务中心', code: 'H005', level: '1', address: '社区路10号', contact: '刘医生', phone: '0512-99001122', status: 'normal' }
+            ],
+            currentEditId: null,
+            deleteId: null
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable(PageData.list);
+            Modal.initClickOutside('orgModal');
+            Modal.initClickOutside('deleteModal');
+        });
+
+        function renderTable(data) {
+            Table.render({
+                containerId: 'tableBody',
+                data: data,
+                rowRenderer: (item, index) => {
+                    const levelClass = `level-${item.level}`;
+                    const levelText = { '3': '三级医院', '2': '二级医院', '1': '一级医院' }[item.level];
+                    return `
+                        <td>${index + 1}</td>
+                        <td>${item.name}</td>
+                        <td>${item.code}</td>
+                        <td><span class="org-level ${levelClass}">${levelText}</span></td>
+                        <td>${item.address}</td>
+                        <td>${item.contact}</td>
+                        <td>${StatusBadge.normal(item.status === 'normal')}</td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn action-btn-edit" onclick="handleEdit(${item.id})">
+                                    <i class="fas fa-edit"></i> 编辑
+                                </button>
+                                <button class="action-btn action-btn-delete" onclick="handleDelete(${item.id})">
+                                    <i class="fas fa-trash"></i> 删除
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                }
+            });
+            Table.updateCount('totalCount', data.length);
+        }
+
+        function handleSearch() {
+            const name = document.getElementById('searchName').value.toLowerCase();
+            const code = document.getElementById('searchCode').value.toLowerCase();
+            const level = document.getElementById('searchLevel').value;
+            const status = document.getElementById('searchStatus').value;
+            
+            const filtered = PageData.list.filter(item => {
+                return (!name || item.name.toLowerCase().includes(name)) &&
+                       (!code || item.code.toLowerCase().includes(code)) &&
+                       (!level || item.level === level) &&
+                       (!status || item.status === status);
+            });
+            renderTable(filtered);
+        }
+
+        function handleReset() {
+            document.getElementById('searchName').value = '';
+            document.getElementById('searchCode').value = '';
+            document.getElementById('searchLevel').value = '';
+            document.getElementById('searchStatus').value = '';
+            renderTable(PageData.list);
+        }
+
+        function handleAdd() {
+            PageData.currentEditId = null;
+            document.getElementById('modalTitle').textContent = '新增医疗机构';
+            document.getElementById('orgForm').reset();
+            Modal.open('orgModal');
+        }
+
+        function handleEdit(id) {
+            PageData.currentEditId = id;
+            const item = PageData.list.find(i => i.id === id);
+            if (item) {
+                document.getElementById('modalTitle').textContent = '编辑医疗机构';
+                document.getElementById('orgName').value = item.name;
+                document.getElementById('orgCode').value = item.code;
+                document.getElementById('orgLevel').value = item.level;
+                document.getElementById('orgStatus').value = item.status;
+                document.getElementById('orgAddress').value = item.address;
+                document.getElementById('orgContact').value = item.contact;
+                document.getElementById('orgPhone').value = item.phone;
+                Modal.open('orgModal');
+            }
+        }
+
+        function handleSave() {
+            const name = document.getElementById('orgName').value;
+            const code = document.getElementById('orgCode').value;
+            
+            if (!name || !code) {
+                alert('请填写必填项');
+                return;
+            }
+            
+            if (PageData.currentEditId) {
+                const index = PageData.list.findIndex(i => i.id === PageData.currentEditId);
+                if (index !== -1) {
+                    PageData.list[index] = {
+                        ...PageData.list[index],
+                        name,
+                        code,
+                        level: document.getElementById('orgLevel').value,
+                        status: document.getElementById('orgStatus').value,
+                        address: document.getElementById('orgAddress').value,
+                        contact: document.getElementById('orgContact').value,
+                        phone: document.getElementById('orgPhone').value
+                    };
+                }
+            } else {
+                const newId = Math.max(...PageData.list.map(i => i.id), 0) + 1;
+                PageData.list.push({
+                    id: newId,
+                    name,
+                    code,
+                    level: document.getElementById('orgLevel').value,
+                    status: document.getElementById('orgStatus').value,
+                    address: document.getElementById('orgAddress').value,
+                    contact: document.getElementById('orgContact').value,
+                    phone: document.getElementById('orgPhone').value
+                });
+            }
+            
+            Modal.close('orgModal');
+            renderTable(PageData.list);
+        }
+
+        function handleDelete(id) {
+            PageData.deleteId = id;
+            Modal.open('deleteModal');
+        }
+
+        function confirmDelete() {
+            if (PageData.deleteId) {
+                PageData.list = PageData.list.filter(i => i.id !== PageData.deleteId);
+                renderTable(PageData.list);
+            }
+            Modal.close('deleteModal');
+        }
+
+        function handleExport() {
+            alert('导出功能开发中...');
+        }
+    </script>
+</body>
+</html>

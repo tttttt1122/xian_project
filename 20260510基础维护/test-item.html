@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>检验项目信息维护</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <style>
+        .project-type {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-block;
+        }
+        .type-group {
+            background: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+        }
+        .type-single {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <h1 class="page-title"><i class="fas fa-flask"></i>检验项目信息维护</h1>
+    </header>
+
+    <section class="search-area">
+        <div class="search-form">
+            <div class="form-group">
+                <label class="form-label">项目名称：</label>
+                <input type="text" class="form-input" id="searchName" placeholder="请输入项目名称">
+            </div>
+            <div class="form-group">
+                <label class="form-label">标准编码：</label>
+                <input type="text" class="form-input" id="searchCode" placeholder="请输入标准编码">
+            </div>
+            <div class="form-group">
+                <label class="form-label">组套标识：</label>
+                <select class="form-select" id="searchGroup">
+                    <option value="">全部</option>
+                    <option value="group">组套</option>
+                    <option value="single">单项</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-success" onclick="handleSearch()">
+                    <i class="fas fa-search"></i> 查询
+                </button>
+                <button class="btn btn-default" onclick="handleReset()">
+                    <i class="fas fa-redo"></i> 重置
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="table-container">
+        <div class="table-toolbar">
+            <div class="toolbar-left">
+                <span class="table-title">检验项目列表</span>
+                <span class="record-count">共 <strong id="totalCount">0</strong> 条记录</span>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn btn-primary" onclick="handleAdd()">
+                    <i class="fas fa-plus"></i> 新增
+                </button>
+                <button class="btn btn-warning" onclick="handleExport()">
+                    <i class="fas fa-download"></i> 导出
+                </button>
+            </div>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">序号</th>
+                    <th>项目名称</th>
+                    <th>标准编码</th>
+                    <th>组套标识</th>
+                    <th>时间维度配置</th>
+                    <th>状态</th>
+                    <th style="width: 200px;">操作</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <div class="pagination">
+            <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+            <span class="page-info">共 3 页</span>
+        </div>
+    </section>
+
+    <div class="modal" id="itemModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">新增检验项目</h3>
+                <button class="modal-close" onclick="Modal.close('itemModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="itemForm">
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label required">项目名称</label>
+                                <input type="text" class="form-input" id="itemName" placeholder="请输入项目名称">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label required">标准编码</label>
+                                <input type="text" class="form-input" id="itemCode" placeholder="请输入标准编码">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label">组套标识</label>
+                                <select class="form-select" id="itemGroup">
+                                    <option value="group">组套</option>
+                                    <option value="single">单项</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label">时间维度配置</label>
+                                <select class="form-select" id="itemTimeConfig">
+                                    <option value="day">按日</option>
+                                    <option value="week">按周</option>
+                                    <option value="month">按月</option>
+                                    <option value="year">按年</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">备注说明</label>
+                        <textarea class="form-textarea" id="itemRemark" rows="3" placeholder="请输入备注说明"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('itemModal')">取消</button>
+                <button class="btn btn-primary" onclick="handleSave()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="deleteModal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h3 class="modal-title">确认删除</h3>
+                <button class="modal-close" onclick="Modal.close('deleteModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="text-align: center; padding: 20px;">确定要删除该检验项目吗？此操作不可恢复。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('deleteModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        const PageData = {
+            list: [
+                { id: 1, name: '血常规检查', code: 'CBC001', group: 'group', timeConfig: 'day', status: 'normal' },
+                { id: 2, name: '肝功能检测', code: 'LFT002', group: 'group', timeConfig: 'week', status: 'normal' },
+                { id: 3, name: '肾功能检测', code: 'RFT003', group: 'group', timeConfig: 'month', status: 'normal' },
+                { id: 4, name: '血糖检测', code: 'GLU004', group: 'single', timeConfig: 'day', status: 'disabled' },
+                { id: 5, name: '血脂检测', code: 'LIP005', group: 'group', timeConfig: 'month', status: 'normal' }
+            ],
+            currentEditId: null,
+            deleteId: null
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable(PageData.list);
+            Modal.initClickOutside('itemModal');
+            Modal.initClickOutside('deleteModal');
+        });
+
+        function renderTable(data) {
+            Table.render({
+                containerId: 'tableBody',
+                data: data,
+                rowRenderer: (item, index) => {
+                    const groupClass = item.group === 'group' ? 'type-group' : 'type-single';
+                    const groupText = item.group === 'group' ? '组套' : '单项';
+                    const timeText = { day: '按日', week: '按周', month: '按月', year: '按年' }[item.timeConfig] || item.timeConfig;
+                    return `
+                        <td>${index + 1}</td>
+                        <td>${item.name}</td>
+                        <td>${item.code}</td>
+                        <td><span class="project-type ${groupClass}">${groupText}</span></td>
+                        <td>${timeText}</td>
+                        <td>${StatusBadge.normal(item.status === 'normal')}</td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn action-btn-edit" onclick="handleEdit(${item.id})">
+                                    <i class="fas fa-edit"></i> 编辑
+                                </button>
+                                <button class="action-btn action-btn-delete" onclick="handleDelete(${item.id})">
+                                    <i class="fas fa-trash"></i> 删除
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                }
+            });
+            Table.updateCount('totalCount', data.length);
+        }
+
+        function handleSearch() {
+            const name = document.getElementById('searchName').value.toLowerCase();
+            const code = document.getElementById('searchCode').value.toLowerCase();
+            const group = document.getElementById('searchGroup').value;
+            
+            const filtered = PageData.list.filter(item => {
+                return (!name || item.name.toLowerCase().includes(name)) &&
+                       (!code || item.code.toLowerCase().includes(code)) &&
+                       (!group || item.group === group);
+            });
+            renderTable(filtered);
+        }
+
+        function handleReset() {
+            document.getElementById('searchName').value = '';
+            document.getElementById('searchCode').value = '';
+            document.getElementById('searchGroup').value = '';
+            renderTable(PageData.list);
+        }
+
+        function handleAdd() {
+            PageData.currentEditId = null;
+            document.getElementById('modalTitle').textContent = '新增检验项目';
+            document.getElementById('itemForm').reset();
+            Modal.open('itemModal');
+        }
+
+        function handleEdit(id) {
+            PageData.currentEditId = id;
+            const item = PageData.list.find(i => i.id === id);
+            if (item) {
+                document.getElementById('modalTitle').textContent = '编辑检验项目';
+                document.getElementById('itemName').value = item.name;
+                document.getElementById('itemCode').value = item.code;
+                document.getElementById('itemGroup').value = item.group;
+                document.getElementById('itemTimeConfig').value = item.timeConfig;
+                Modal.open('itemModal');
+            }
+        }
+
+        function handleSave() {
+            const name = document.getElementById('itemName').value;
+            const code = document.getElementById('itemCode').value;
+            
+            if (!name || !code) {
+                alert('请填写必填项');
+                return;
+            }
+            
+            if (PageData.currentEditId) {
+                const index = PageData.list.findIndex(i => i.id === PageData.currentEditId);
+                if (index !== -1) {
+                    PageData.list[index] = {
+                        ...PageData.list[index],
+                        name,
+                        code,
+                        group: document.getElementById('itemGroup').value,
+                        timeConfig: document.getElementById('itemTimeConfig').value
+                    };
+                }
+            } else {
+                const newId = Math.max(...PageData.list.map(i => i.id), 0) + 1;
+                PageData.list.push({
+                    id: newId,
+                    name,
+                    code,
+                    group: document.getElementById('itemGroup').value,
+                    timeConfig: document.getElementById('itemTimeConfig').value,
+                    status: 'normal'
+                });
+            }
+            
+            Modal.close('itemModal');
+            renderTable(PageData.list);
+        }
+
+        function handleDelete(id) {
+            PageData.deleteId = id;
+            Modal.open('deleteModal');
+        }
+
+        function confirmDelete() {
+            if (PageData.deleteId) {
+                PageData.list = PageData.list.filter(i => i.id !== PageData.deleteId);
+                renderTable(PageData.list);
+            }
+            Modal.close('deleteModal');
+        }
+
+        function handleExport() {
+            alert('导出功能开发中...');
+        }
+    </script>
+</body>
+</html>

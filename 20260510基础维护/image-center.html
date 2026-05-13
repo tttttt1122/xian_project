@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>影像中心信息管理</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <style>
+        /* 页面特有样式 */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stat-icon.blue {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .stat-icon.green {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+
+        .stat-icon.orange {
+            background: #fff7e6;
+            color: #faad14;
+        }
+
+        .stat-icon.red {
+            background: #fff1f0;
+            color: #ff4d4f;
+        }
+
+        .stat-info {
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        /* 详情弹窗样式 */
+        .detail-modal .modal-content {
+            width: 700px;
+        }
+
+        .detail-section {
+            margin-bottom: 20px;
+        }
+
+        .detail-section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            padding-left: 10px;
+            border-left: 3px solid #2d8cff;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+        }
+
+        .detail-item {
+            display: flex;
+            gap: 10px;
+        }
+
+        .detail-label {
+            color: #999;
+            font-size: 13px;
+            min-width: 80px;
+        }
+
+        .detail-value {
+            color: #333;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .stats-mini {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .stat-mini-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .stat-mini-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d8cff;
+        }
+
+        .stat-mini-label {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 页面头部 -->
+    <header class="page-header">
+        <h1 class="page-title"><i class="fas fa-x-ray"></i>影像中心信息管理</h1>
+    </header>
+
+    <!-- 统计卡片 -->
+    <section class="stats-cards">
+        <div class="stat-card">
+            <div class="stat-icon blue">
+                <i class="fas fa-hospital"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value">12</div>
+                <div class="stat-label">影像中心总数</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value">10</div>
+                <div class="stat-label">正常运营</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon orange">
+                <i class="fas fa-pause-circle"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value">2</div>
+                <div class="stat-label">暂停服务</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon red">
+                <i class="fas fa-server"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value">156</div>
+                <div class="stat-label">对接机构数</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 搜索区域 -->
+    <section class="search-area">
+        <div class="search-form">
+            <div class="form-group">
+                <label class="form-label">影像中心名称：</label>
+                <input type="text" class="form-input" id="searchName" placeholder="请输入名称">
+            </div>
+            <div class="form-group">
+                <label class="form-label">状态：</label>
+                <select class="form-select" id="searchStatus">
+                    <option value="">全部</option>
+                    <option value="normal">正常运营</option>
+                    <option value="suspended">暂停服务</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">地址关键词：</label>
+                <input type="text" class="form-input" id="searchAddress" placeholder="请输入地址">
+            </div>
+            <div class="form-group">
+                <label class="form-label">创建时间：</label>
+                <div class="date-range">
+                    <input type="date" class="date-input" id="startDate" placeholder="开始时间">
+                    <span>至</span>
+                    <input type="date" class="date-input" id="endDate" placeholder="结束时间">
+                </div>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-success" onclick="handleSearch()">
+                    <i class="fas fa-search"></i> 查询
+                </button>
+                <button class="btn btn-default" onclick="handleReset()">
+                    <i class="fas fa-redo"></i> 重置
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 表格区域 -->
+    <section class="table-container">
+        <div class="table-toolbar">
+            <div class="toolbar-left">
+                <span class="table-title">影像中心台账列表</span>
+                <span class="record-count">共 <strong id="totalCount">0</strong> 条记录</span>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn btn-primary" onclick="handleAdd()">
+                    <i class="fas fa-plus"></i> 新增影像中心
+                </button>
+                <button class="btn btn-warning" onclick="handleExport()">
+                    <i class="fas fa-download"></i> 导出
+                </button>
+            </div>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">序号</th>
+                    <th>影像中心名称</th>
+                    <th>地址</th>
+                    <th>联系方式</th>
+                    <th>有效状态</th>
+                    <th>创建时间</th>
+                    <th style="width: 200px;">操作</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <div class="pagination">
+            <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+            <span class="page-info">共 2 页</span>
+        </div>
+    </section>
+
+    <!-- 新增/编辑弹窗 -->
+    <div class="modal" id="centerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">新增影像中心</h3>
+                <button class="modal-close" onclick="Modal.close('centerModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="centerForm">
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label><span class="required">*</span>影像中心名称</label>
+                            <input type="text" id="centerName" placeholder="请输入影像中心名称">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label><span class="required">*</span>联系人</label>
+                            <input type="text" id="contactPerson" placeholder="请输入联系人">
+                        </div>
+                        <div class="form-item">
+                            <label><span class="required">*</span>联系电话</label>
+                            <input type="text" id="contactPhone" placeholder="请输入联系电话">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label><span class="required">*</span>详细地址</label>
+                            <input type="text" id="centerAddress" placeholder="请输入详细地址">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label>有效状态</label>
+                            <select id="centerStatus">
+                                <option value="normal">正常运营</option>
+                                <option value="suspended">暂停服务</option>
+                            </select>
+                        </div>
+                        <div class="form-item">
+                            <label>服务时间</label>
+                            <input type="text" id="serviceTime" placeholder="如：08:00-18:00" value="08:00-18:00">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('centerModal')">取消</button>
+                <button class="btn btn-primary" onclick="handleSave()">
+                    <i class="fas fa-save"></i> 保存
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详情弹窗 -->
+    <div class="modal detail-modal" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-hospital" style="margin-right: 8px; color: #2d8cff;"></i>影像中心详情</h3>
+                <button class="modal-close" onclick="Modal.close('detailModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-section">
+                    <div class="detail-section-title">基本信息</div>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">中心名称：</span>
+                            <span class="detail-value" id="detailName">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">联系人：</span>
+                            <span class="detail-value" id="detailContact">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">联系电话：</span>
+                            <span class="detail-value" id="detailPhone">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">服务时间：</span>
+                            <span class="detail-value" id="detailServiceTime">-</span>
+                        </div>
+                        <div class="detail-item" style="grid-column: span 2;">
+                            <span class="detail-label">详细地址：</span>
+                            <span class="detail-value" id="detailAddress">-</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-section-title">运营统计</div>
+                    <div class="stats-mini">
+                        <div class="stat-mini-item">
+                            <div class="stat-mini-value" id="statReports">0</div>
+                            <div class="stat-mini-label">累计报告</div>
+                        </div>
+                        <div class="stat-mini-item">
+                            <div class="stat-mini-value" id="statImages">0</div>
+                            <div class="stat-mini-label">影像数量</div>
+                        </div>
+                        <div class="stat-mini-item">
+                            <div class="stat-mini-value" id="statOrgs">0</div>
+                            <div class="stat-mini-label">对接机构</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('detailModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认弹窗 -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h3 class="modal-title">确认删除</h3>
+                <button class="modal-close" onclick="Modal.close('deleteModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="confirm-body">
+                    <div class="confirm-icon warning">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <p class="confirm-text">确定要删除该影像中心吗？</p>
+                    <p class="confirm-subtext">删除后无法恢复，请谨慎操作！</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('deleteModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        // 页面数据
+        const PageData = {
+            list: [
+                { id: 1, name: '市第一人民医院影像中心', address: '市中心路1号', phone: '0512-12345678', status: 'normal', createTime: '2024-01-15 10:30:00', contact: '张主任', serviceTime: '08:00-18:00', reports: 12580, images: 45230, orgs: 45 },
+                { id: 2, name: '中心医院影像中心', address: '解放路88号', phone: '0512-87654321', status: 'normal', createTime: '2024-01-14 09:15:00', contact: '李主任', serviceTime: '08:00-18:00', reports: 9860, images: 32150, orgs: 38 },
+                { id: 3, name: '中医院影像中心', address: '人民路66号', phone: '0512-11223344', status: 'normal', createTime: '2024-01-13 14:20:00', contact: '王主任', serviceTime: '08:00-17:30', reports: 6540, images: 21890, orgs: 25 },
+                { id: 4, name: '妇幼保健院影像中心', address: '健康路22号', phone: '0512-55667788', status: 'suspended', createTime: '2024-01-12 11:00:00', contact: '赵主任', serviceTime: '08:00-17:00', reports: 4230, images: 15670, orgs: 18 },
+                { id: 5, name: '第二人民医院影像中心', address: '建设路55号', phone: '0512-99887766', status: 'normal', createTime: '2024-01-11 16:45:00', contact: '陈主任', serviceTime: '08:00-18:00', reports: 7890, images: 28760, orgs: 32 },
+                { id: 6, name: '第三人民医院影像中心', address: '和平路33号', phone: '0512-44332211', status: 'suspended', createTime: '2024-01-10 08:30:00', contact: '刘主任', serviceTime: '08:00-17:00', reports: 3210, images: 11230, orgs: 15 }
+            ],
+            currentEditId: null,
+            deleteId: null
+        };
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable(PageData.list);
+            Modal.initClickOutside('centerModal');
+            Modal.initClickOutside('detailModal');
+            Modal.initClickOutside('deleteModal');
+        });
+
+        // 渲染表格
+        function renderTable(data) {
+            Table.render({
+                containerId: 'tableBody',
+                data: data,
+                rowRenderer: (item, index) => `
+                    <td>${index + 1}</td>
+                    <td>${item.name}</td>
+                    <td>${item.address}</td>
+                    <td>${item.phone}</td>
+                    <td>${StatusBadge.normal(item.status === 'normal')}</td>
+                    <td>${item.createTime}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn action-btn-view" onclick="handleView(${item.id})">
+                                <i class="fas fa-eye"></i> 查看
+                            </button>
+                            <button class="action-btn action-btn-edit" onclick="handleEdit(${item.id})">
+                                <i class="fas fa-edit"></i> 编辑
+                            </button>
+                            <button class="action-btn action-btn-delete" onclick="handleDelete(${item.id})">
+                                <i class="fas fa-trash"></i> 删除
+                            </button>
+                        </div>
+                    </td>
+                `
+            });
+            Table.updateCount('totalCount', data.length);
+        }
+
+        // 新增
+        function handleAdd() {
+            PageData.currentEditId = null;
+            document.getElementById('modalTitle').textContent = '新增影像中心';
+            Form.reset('centerForm');
+            Modal.open('centerModal');
+        }
+
+        // 编辑
+        function handleEdit(id) {
+            const item = PageData.list.find(c => c.id === id);
+            if (!item) return;
+
+            PageData.currentEditId = id;
+            document.getElementById('modalTitle').textContent = '编辑影像中心';
+            
+            Form.setData('centerForm', {
+                centerName: item.name,
+                contactPerson: item.contact,
+                contactPhone: item.phone,
+                centerAddress: item.address,
+                centerStatus: item.status,
+                serviceTime: item.serviceTime
+            });
+            
+            Modal.open('centerModal');
+        }
+
+        // 保存
+        function handleSave() {
+            const data = Form.getData('centerForm');
+            
+            if (!Form.validate('centerForm', ['centerName', 'contactPerson', 'contactPhone', 'centerAddress'])) {
+                alert('请填写必填项！');
+                return;
+            }
+
+            if (PageData.currentEditId) {
+                // 编辑
+                const index = PageData.list.findIndex(c => c.id === PageData.currentEditId);
+                if (index > -1) {
+                    PageData.list[index] = {
+                        ...PageData.list[index],
+                        name: data.centerName,
+                        contact: data.contactPerson,
+                        phone: data.contactPhone,
+                        address: data.centerAddress,
+                        status: data.centerStatus,
+                        serviceTime: data.serviceTime
+                    };
+                }
+                alert('修改成功！');
+            } else {
+                // 新增
+                const newId = Math.max(...PageData.list.map(c => c.id)) + 1;
+                PageData.list.unshift({
+                    id: newId,
+                    name: data.centerName,
+                    contact: data.contactPerson,
+                    phone: data.contactPhone,
+                    address: data.centerAddress,
+                    status: data.centerStatus,
+                    serviceTime: data.serviceTime,
+                    createTime: Utils.formatDate(new Date(), 'YYYY-MM-DD HH:mm:ss'),
+                    reports: 0,
+                    images: 0,
+                    orgs: 0
+                });
+                alert('添加成功！');
+            }
+
+            renderTable(PageData.list);
+            Modal.close('centerModal');
+        }
+
+        // 查看详情
+        function handleView(id) {
+            const item = PageData.list.find(c => c.id === id);
+            if (!item) return;
+
+            document.getElementById('detailName').textContent = item.name;
+            document.getElementById('detailContact').textContent = item.contact;
+            document.getElementById('detailPhone').textContent = item.phone;
+            document.getElementById('detailServiceTime').textContent = item.serviceTime;
+            document.getElementById('detailAddress').textContent = item.address;
+            document.getElementById('statReports').textContent = item.reports.toLocaleString();
+            document.getElementById('statImages').textContent = item.images.toLocaleString();
+            document.getElementById('statOrgs').textContent = item.orgs;
+
+            Modal.open('detailModal');
+        }
+
+        // 删除
+        function handleDelete(id) {
+            PageData.deleteId = id;
+            Modal.open('deleteModal');
+        }
+
+        // 确认删除
+        function confirmDelete() {
+            if (PageData.deleteId) {
+                PageData.list = PageData.list.filter(c => c.id !== PageData.deleteId);
+                renderTable(PageData.list);
+                Modal.close('deleteModal');
+                PageData.deleteId = null;
+                alert('删除成功！');
+            }
+        }
+
+        // 搜索
+        function handleSearch() {
+            const name = document.getElementById('searchName').value.toLowerCase();
+            const status = document.getElementById('searchStatus').value;
+            const address = document.getElementById('searchAddress').value.toLowerCase();
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            const filtered = PageData.list.filter(item => {
+                const matchName = !name || item.name.toLowerCase().includes(name);
+                const matchStatus = !status || item.status === status;
+                const matchAddress = !address || item.address.toLowerCase().includes(address);
+                
+                // 创建时间筛选
+                let matchDate = true;
+                if (startDate || endDate) {
+                    const itemDate = new Date(item.createTime.split(' ')[0]);
+                    if (startDate) {
+                        const start = new Date(startDate);
+                        matchDate = matchDate && itemDate >= start;
+                    }
+                    if (endDate) {
+                        const end = new Date(endDate);
+                        end.setHours(23, 59, 59);
+                        matchDate = matchDate && itemDate <= end;
+                    }
+                }
+                
+                return matchName && matchStatus && matchAddress && matchDate;
+            });
+            
+            renderTable(filtered);
+        }
+
+        // 重置搜索
+        function handleReset() {
+            Search.reset(['searchName', 'searchStatus', 'searchAddress', 'startDate', 'endDate']);
+            renderTable(PageData.list);
+        }
+
+        // 导出
+        function handleExport() {
+            alert('影像中心信息导出成功！');
+        }
+    </script>
+</body>
+</html>

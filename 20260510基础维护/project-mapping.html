@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>医疗机构互认项目对照</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <style>
+        /* 页面特有样式 */
+        .mapping-preview {
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .mapping-preview-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #52c41a;
+            margin-bottom: 10px;
+        }
+
+        .mapping-preview-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .mapping-item {
+            flex: 1;
+            background: #fff;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .mapping-item-label {
+            color: #999;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .mapping-item-value {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .mapping-arrow {
+            color: #52c41a;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 页面头部 -->
+    <header class="page-header">
+        <h1 class="page-title"><i class="fas fa-exchange-alt"></i>医疗机构互认项目对照</h1>
+    </header>
+
+    <!-- 搜索区域 -->
+    <section class="search-area">
+        <div class="search-form">
+            <div class="form-group">
+                <label class="form-label">医疗机构：</label>
+                <select class="form-select" id="searchOrg">
+                    <option value="">全部机构</option>
+                    <option value="市第一人民医院">市第一人民医院</option>
+                    <option value="中心医院">中心医院</option>
+                    <option value="中医院">中医院</option>
+                    <option value="妇幼保健院">妇幼保健院</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">标准项目名称：</label>
+                <input type="text" class="form-input" id="searchProject" placeholder="请输入标准项目名称">
+            </div>
+            <div class="form-group">
+                <label class="form-label">院内编码：</label>
+                <input type="text" class="form-input" id="searchCode" placeholder="请输入院内编码">
+            </div>
+            <div class="form-group">
+                <label class="form-label">对照状态：</label>
+                <select class="form-select" id="searchStatus">
+                    <option value="">全部</option>
+                    <option value="mapped">已对照</option>
+                    <option value="pending">待对照</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-success" onclick="handleSearch()">
+                    <i class="fas fa-search"></i> 查询
+                </button>
+                <button class="btn btn-default" onclick="handleReset()">
+                    <i class="fas fa-redo"></i> 重置
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 表格区域 -->
+    <section class="table-container">
+        <div class="table-toolbar">
+            <div class="toolbar-left">
+                <span class="table-title">对照映射表</span>
+                <span class="record-count">共 <strong id="totalCount">0</strong> 条记录</span>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn btn-primary" onclick="handleAdd()">
+                    <i class="fas fa-plus"></i> 新增对照
+                </button>
+                <button class="btn btn-warning" onclick="handleExport()">
+                    <i class="fas fa-download"></i> 导出对照表
+                </button>
+            </div>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">序号</th>
+                    <th>标准项目名称</th>
+                    <th>标准编码</th>
+                    <th>医疗机构</th>
+                    <th>院内项目编码</th>
+                    <th>院内项目名称</th>
+                    <th>对照状态</th>
+                    <th>创建时间</th>
+                    <th style="width: 150px;">操作</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <div class="pagination">
+            <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+            <span class="page-info">共 3 页</span>
+        </div>
+    </section>
+
+    <!-- 新增/编辑弹窗 -->
+    <div class="modal" id="mappingModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">新增项目对照</h3>
+                <button class="modal-close" onclick="Modal.close('mappingModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="mappingForm">
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label><span class="required">*</span>医疗机构</label>
+                            <select id="orgSelect">
+                                <option value="">请选择医疗机构</option>
+                                <option value="市第一人民医院">市第一人民医院</option>
+                                <option value="中心医院">中心医院</option>
+                                <option value="中医院">中医院</option>
+                                <option value="妇幼保健院">妇幼保健院</option>
+                                <option value="第二人民医院">第二人民医院</option>
+                            </select>
+                        </div>
+                        <div class="form-item">
+                            <label><span class="required">*</span>标准项目</label>
+                            <select id="standardProject">
+                                <option value="">请选择标准项目</option>
+                                <option value="CT001">颅脑CT平扫 (CT001)</option>
+                                <option value="XR001">胸部X线摄影 (XR001)</option>
+                                <option value="US001">腹部超声检查 (US001)</option>
+                                <option value="EN001">胃镜常规检查 (EN001)</option>
+                                <option value="ECG001">心电图检查 (ECG001)</option>
+                                <option value="PA001">病理活检 (PA001)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label><span class="required">*</span>院内项目编码</label>
+                            <input type="text" id="internalCode" placeholder="请输入院内项目编码">
+                        </div>
+                        <div class="form-item">
+                            <label><span class="required">*</span>院内项目名称</label>
+                            <input type="text" id="internalName" placeholder="请输入院内项目名称">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label>对照状态</label>
+                            <select id="mappingStatus">
+                                <option value="mapped">已对照</option>
+                                <option value="pending">待对照</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mapping-preview" id="mappingPreview" style="display: none;">
+                        <div class="mapping-preview-title"><i class="fas fa-link"></i> 对照关系预览</div>
+                        <div class="mapping-preview-content">
+                            <div class="mapping-item">
+                                <div class="mapping-item-label">标准项目</div>
+                                <div class="mapping-item-value" id="previewStandard">-</div>
+                            </div>
+                            <div class="mapping-arrow"><i class="fas fa-arrows-alt-h"></i></div>
+                            <div class="mapping-item">
+                                <div class="mapping-item-label">院内项目</div>
+                                <div class="mapping-item-value" id="previewInternal">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('mappingModal')">取消</button>
+                <button class="btn btn-primary" onclick="handleSave()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认弹窗 -->
+    <div class="modal confirm-modal" id="deleteModal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h3 class="modal-title">确认删除</h3>
+                <button class="modal-close" onclick="Modal.close('deleteModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="confirm-body">
+                    <div class="confirm-icon warning"><i class="fas fa-exclamation-circle"></i></div>
+                    <p class="confirm-text">确定要删除该对照关系吗？删除后将无法恢复。</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('deleteModal')">取消</button>
+                <button class="btn btn-danger" onclick="handleConfirmDelete()">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        // 页面数据
+        const PageData = {
+            list: [
+                { id: 1, standardName: '颅脑CT平扫', standardCode: 'CT001', org: '市第一人民医院', internalCode: 'CT-001-A', internalName: '头颅CT平扫', status: 'mapped', createTime: '2024-01-15 10:30:00' },
+                { id: 2, standardName: '胸部X线摄影', standardCode: 'XR001', org: '中心医院', internalCode: 'XR-001-B', internalName: '胸部正位片', status: 'mapped', createTime: '2024-01-15 11:00:00' },
+                { id: 3, standardName: '腹部超声检查', standardCode: 'US001', org: '中医院', internalCode: 'US-001-C', internalName: '腹部B超', status: 'mapped', createTime: '2024-01-16 09:15:00' },
+                { id: 4, standardName: '胃镜常规检查', standardCode: 'EN001', org: '妇幼保健院', internalCode: 'EN-001-D', internalName: '电子胃镜检查', status: 'pending', createTime: '2024-01-16 14:20:00' },
+                { id: 5, standardName: '心电图检查', standardCode: 'ECG001', org: '市第一人民医院', internalCode: 'ECG-001-A', internalName: '常规心电图', status: 'mapped', createTime: '2024-01-17 08:45:00' },
+                { id: 6, standardName: '病理活检', standardCode: 'PA001', org: '中心医院', internalCode: 'PA-001-B', internalName: '组织病理检查', status: 'mapped', createTime: '2024-01-17 16:30:00' },
+                { id: 7, standardName: '颅脑CT平扫', standardCode: 'CT001', org: '第二人民医院', internalCode: 'CT-001-E', internalName: '头部CT扫描', status: 'mapped', createTime: '2024-01-18 10:00:00' },
+                { id: 8, standardName: '胸部X线摄影', standardCode: 'XR001', org: '中医院', internalCode: 'XR-001-C', internalName: '胸片检查', status: 'pending', createTime: '2024-01-18 15:45:00' }
+            ],
+            currentEditId: null,
+            deleteId: null
+        };
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable(PageData.list);
+            Modal.initClickOutside('mappingModal');
+            Modal.initClickOutside('deleteModal');
+            initPreviewListeners();
+        });
+
+        // 渲染表格
+        function renderTable(data) {
+            Table.render({
+                containerId: 'tableBody',
+                data: data,
+                rowRenderer: (item, index) => `
+                    <td>${index + 1}</td>
+                    <td>${item.standardName}</td>
+                    <td>${item.standardCode}</td>
+                    <td>${item.org}</td>
+                    <td>${item.internalCode}</td>
+                    <td>${item.internalName}</td>
+                    <td>${item.status === 'mapped' 
+                        ? StatusBadge.create('enabled', '已对照', 'fa-check-circle') 
+                        : StatusBadge.create('pending', '待对照', 'fa-clock')}</td>
+                    <td>${item.createTime}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn action-btn-edit" onclick="handleEdit(${item.id})">
+                                <i class="fas fa-edit"></i> 编辑
+                            </button>
+                            <button class="action-btn action-btn-delete" onclick="handleDelete(${item.id})">
+                                <i class="fas fa-trash"></i> 删除
+                            </button>
+                        </div>
+                    </td>
+                `
+            });
+            Table.updateCount('totalCount', data.length);
+        }
+
+        // 搜索
+        function handleSearch() {
+            const conditions = Search.getConditions(['searchOrg', 'searchProject', 'searchCode', 'searchStatus']);
+            const filtered = Search.filter(PageData.list, conditions, (item, cond) => {
+                const matchOrg = !cond.searchOrg || item.org === cond.searchOrg;
+                const matchProject = !cond.searchProject || item.standardName.toLowerCase().includes(cond.searchProject);
+                const matchCode = !cond.searchCode || item.internalCode.toLowerCase().includes(cond.searchCode);
+                const matchStatus = !cond.searchStatus || item.status === cond.searchStatus;
+                return matchOrg && matchProject && matchCode && matchStatus;
+            });
+            renderTable(filtered);
+        }
+
+        // 重置
+        function handleReset() {
+            Search.reset(['searchOrg', 'searchProject', 'searchCode', 'searchStatus']);
+            renderTable(PageData.list);
+        }
+
+        // 新增
+        function handleAdd() {
+            PageData.currentEditId = null;
+            document.getElementById('modalTitle').textContent = '新增项目对照';
+            Form.reset('mappingForm');
+            document.getElementById('mappingPreview').style.display = 'none';
+            Modal.open('mappingModal');
+        }
+
+        // 编辑
+        function handleEdit(id) {
+            PageData.currentEditId = id;
+            const item = PageData.list.find(m => m.id === id);
+            if (item) {
+                document.getElementById('modalTitle').textContent = '编辑项目对照';
+                Form.setData('mappingForm', {
+                    orgSelect: item.org,
+                    standardProject: item.standardCode,
+                    internalCode: item.internalCode,
+                    internalName: item.internalName,
+                    mappingStatus: item.status
+                });
+                document.getElementById('previewStandard').textContent = item.standardName;
+                document.getElementById('previewInternal').textContent = item.internalName;
+                document.getElementById('mappingPreview').style.display = 'block';
+                Modal.open('mappingModal');
+            }
+        }
+
+        // 保存
+        function handleSave() {
+            const data = Form.getData('mappingForm');
+            if (!Form.validate('mappingForm', ['orgSelect', 'standardProject', 'internalCode', 'internalName'])) {
+                alert('请填写所有必填项！');
+                return;
+            }
+
+            const standardSelect = document.getElementById('standardProject');
+            const standardName = standardSelect.options[standardSelect.selectedIndex].text.split('(')[0].trim();
+
+            if (PageData.currentEditId) {
+                const index = PageData.list.findIndex(m => m.id === PageData.currentEditId);
+                if (index !== -1) {
+                    PageData.list[index] = {
+                        ...PageData.list[index],
+                        org: data.orgSelect,
+                        standardName,
+                        standardCode: data.standardProject,
+                        internalCode: data.internalCode,
+                        internalName: data.internalName,
+                        status: data.mappingStatus
+                    };
+                }
+                alert('修改成功！');
+            } else {
+                PageData.list.push({
+                    id: PageData.list.length + 1,
+                    standardName,
+                    standardCode: data.standardProject,
+                    org: data.orgSelect,
+                    internalCode: data.internalCode,
+                    internalName: data.internalName,
+                    status: data.mappingStatus,
+                    createTime: Utils.formatDate(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                });
+                alert('新增成功！');
+            }
+
+            Modal.close('mappingModal');
+            renderTable(PageData.list);
+        }
+
+        // 删除
+        function handleDelete(id) {
+            PageData.deleteId = id;
+            Modal.open('deleteModal');
+        }
+
+        // 确认删除
+        function handleConfirmDelete() {
+            if (PageData.deleteId) {
+                PageData.list = PageData.list.filter(m => m.id !== PageData.deleteId);
+                renderTable(PageData.list);
+                Modal.close('deleteModal');
+                alert('删除成功！');
+            }
+        }
+
+        // 导出
+        function handleExport() {
+            ExportUtil.toJSON(PageData.list, '项目对照数据.json');
+        }
+
+        // 预览监听
+        function initPreviewListeners() {
+            document.getElementById('standardProject').addEventListener('change', function() {
+                if (this.value) {
+                    const name = this.options[this.selectedIndex].text.split('(')[0].trim();
+                    document.getElementById('previewStandard').textContent = name;
+                    document.getElementById('mappingPreview').style.display = 'block';
+                }
+            });
+
+            document.getElementById('internalName').addEventListener('input', function() {
+                document.getElementById('previewInternal').textContent = this.value || '-';
+                if (this.value || document.getElementById('standardProject').value) {
+                    document.getElementById('mappingPreview').style.display = 'block';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全民健康信息平台 - 后台管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFangSC', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f7fa;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* 左侧菜单栏 */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, #1a2a3a 0%, #0d1b2a 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+        }
+
+        .logo {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .logo p {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+            margin-top: 5px;
+        }
+
+        .menu {
+            flex: 1;
+            padding: 10px 0;
+        }
+
+        .menu-item {
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .menu-header {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .menu-header:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .menu-header.active {
+            background: rgba(45, 140, 255, 0.15);
+            border-left: 3px solid #2d8cff;
+        }
+
+        .menu-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .menu-header.active .menu-icon {
+            color: #2d8cff;
+        }
+
+        .menu-title {
+            flex: 1;
+            font-size: 14px;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .menu-arrow {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            transition: transform 0.3s;
+        }
+
+        .menu-item.expanded .menu-arrow {
+            transform: rotate(90deg);
+        }
+
+        .submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .menu-item.expanded .submenu {
+            max-height: 500px;
+        }
+
+        .submenu-item {
+            padding: 12px 20px 12px 56px;
+            cursor: pointer;
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .submenu-item:hover {
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+        }
+
+        .submenu-item.active {
+            background: rgba(45, 140, 255, 0.2);
+            color: #2d8cff;
+            border-left-color: #2d8cff;
+        }
+
+        /* 右侧内容区 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            height: 60px;
+            background: #fff;
+            border-bottom: 1px solid #e8ecf1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .breadcrumb {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .breadcrumb span {
+            color: #2d8cff;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info i {
+            font-size: 18px;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2d8cff, #1a6fcc);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f5f7fa;
+        }
+
+        .content-area iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #fff;
+            border-radius: 8px;
+        }
+
+        /* 功能开发中占位 */
+        .placeholder-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background: #fff;
+            border-radius: 8px;
+        }
+
+        .placeholder-page i {
+            font-size: 64px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .placeholder-page h2 {
+            font-size: 24px;
+            color: #999;
+            font-weight: 400;
+        }
+
+        .placeholder-page p {
+            font-size: 14px;
+            color: #bbb;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 左侧菜单栏 -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h1><i class="fas fa-hospital"></i> 全民健康信息平台</h1>
+                <p>后台管理系统</p>
+            </div>
+            <nav class="menu">
+                <!-- 基础信息维护 -->
+                <div class="menu-item expanded">
+                    <div class="menu-header active" onclick="toggleMenu(this)">
+                        <span class="menu-icon"><i class="fas fa-database"></i></span>
+                        <span class="menu-title">基础信息维护</span>
+                        <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+                    </div>
+                    <div class="submenu">
+                        <div class="submenu-item active" onclick="loadPage('check-project.html', this)">检查项目信息维护</div>
+                        <div class="submenu-item" onclick="loadPage('test-item.html', this)">检验项目信息维护</div>
+                        <div class="submenu-item" onclick="loadPage('medical-org.html', this)">医疗机构基础信息维护</div>
+                        <div class="submenu-item" onclick="loadPage('department.html', this)">科室信息基础信息维护</div>
+                        <div class="submenu-item" onclick="loadPage('medical-alliance.html', this)">医联/共体基础信息维护</div>
+                    </div>
+                </div>
+
+                <!-- 双通道数据采集与质控存储 -->
+                <div class="menu-item">
+                    <div class="menu-header" onclick="toggleMenu(this)">
+                        <span class="menu-icon"><i class="fas fa-exchange-alt"></i></span>
+                        <span class="menu-title">双通道数据采集与质控存储</span>
+                        <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+                    </div>
+                    <div class="submenu">
+                        <div class="submenu-item" onclick="loadPage('data-flow.html', this)">数据运行管理</div>
+                        <div class="submenu-item" onclick="loadPage('quality-control-logic.html', this)">质控业务逻辑管理</div>
+                        <div class="submenu-item" onclick="loadPage('business-logic.html', this)">业务逻辑管理</div>
+                        <div class="submenu-item" onclick="loadPage('quality-rule-lib.html', this)">质控规则库管理</div>
+                        <div class="submenu-item" onclick="loadPage('data-task.html', this)">数据任务管理</div>
+                        <div class="submenu-item" onclick="loadPage('extract-log.html', this)">抽取日志管理</div>
+                    </div>
+                </div>
+
+                <!-- 多类互认规则配置 -->
+                <div class="menu-item">
+                    <div class="menu-header" onclick="toggleMenu(this)">
+                        <span class="menu-icon"><i class="fas fa-cogs"></i></span>
+                        <span class="menu-title">多类互认规则配置</span>
+                        <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+                    </div>
+                    <div class="submenu">
+                        <div class="submenu-item" onclick="loadPage('project-mapping.html', this)">医疗机构互认项目对照</div>
+                        <div class="submenu-item" onclick="loadPage('dept-mapping.html', this)">医疗机构科室信息对照</div>
+                        <div class="submenu-item" onclick="loadPage('reject-reason.html', this)">不互认原因管理</div>
+                        <div class="submenu-item" onclick="loadPage('project-relation.html', this)">项目包含关系管理</div>
+                        <div class="submenu-item" onclick="loadPage('mutual-rule.html', this)">互认规则设置</div>
+                        <div class="submenu-item" onclick="loadPage('org-custom-config.html', this)">医疗机构自定义配置</div>
+                        <div class="submenu-item" onclick="loadPage('dept-custom-config.html', this)">医疗机构科室自定义配置</div>
+                    </div>
+                </div>
+
+                <!-- 报告查询 -->
+                <div class="menu-item">
+                    <div class="menu-header" onclick="toggleMenu(this)">
+                        <span class="menu-icon"><i class="fas fa-file-medical"></i></span>
+                        <span class="menu-title">报告查询</span>
+                        <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+                    </div>
+                    <div class="submenu">
+                        <div class="submenu-item" onclick="loadPage('patient-mutual.html', this)">患者可互认信息查询</div>
+                        <div class="submenu-item" onclick="loadPage('patient-mutual-result.html', this)">患者互认结果查询</div>
+                    </div>
+                </div>
+
+                <!-- 日志追溯 -->
+                <div class="menu-item">
+                    <div class="menu-header" onclick="toggleMenu(this)">
+                        <span class="menu-icon"><i class="fas fa-history"></i></span>
+                        <span class="menu-title">日志追溯</span>
+                        <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+                    </div>
+                    <div class="submenu">
+                        <div class="submenu-item" onclick="loadPage('login-log.html', this)">登录日志管理</div>
+                        <div class="submenu-item" onclick="loadPage('operation-log.html', this)">操作日志管理</div>
+                        <div class="submenu-item" onclick="loadPage('user-change-log.html', this)">用户变更日志管理</div>
+                    </div>
+                </div>
+
+                <!-- 影像配置 -->
+                <div class="menu-item">
+                    <div class="menu-header" onclick="toggleMenu(this)">
+                        <span class="menu-icon"><i class="fas fa-x-ray"></i></span>
+                        <span class="menu-title">影像配置</span>
+                        <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+                    </div>
+                    <div class="submenu">
+                        <div class="submenu-item" onclick="loadPage('image-center.html', this)">影像中心信息管理</div>
+                        <div class="submenu-item" onclick="loadPage('image-vendor.html', this)">影像厂商维护</div>
+                        <div class="submenu-item" onclick="loadPage('proxy-group.html', this)">机构代理群组管理</div>
+                        <div class="submenu-item" onclick="loadPage('proxy-settings.html', this)">调用方影像与报告代理设置</div>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 右侧内容区 -->
+        <main class="main-content">
+            <header class="header">
+                <div class="breadcrumb">
+                    <span id="currentModule">基础信息维护</span> / <span id="currentPage">检查项目信息维护</span>
+                </div>
+                <div class="user-info">
+                    <i class="fas fa-bell"></i>
+                    <i class="fas fa-cog"></i>
+                    <div class="user-avatar">管</div>
+                </div>
+            </header>
+            <div class="content-area">
+                <iframe id="contentFrame" src="check-project.html"></iframe>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 切换菜单展开/收起
+        function toggleMenu(header) {
+            const menuItem = header.parentElement;
+            menuItem.classList.toggle('expanded');
+        }
+
+        // 加载页面
+        function loadPage(url, element) {
+            // 更新iframe
+            document.getElementById('contentFrame').src = url;
+            
+            // 更新菜单选中状态
+            document.querySelectorAll('.submenu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            element.classList.add('active');
+            
+            // 更新面包屑
+            const menuItem = element.closest('.menu-item');
+            const moduleName = menuItem.querySelector('.menu-title').textContent;
+            const pageName = element.textContent;
+            document.getElementById('currentModule').textContent = moduleName;
+            document.getElementById('currentPage').textContent = pageName;
+            
+            // 更新一级菜单激活状态
+            document.querySelectorAll('.menu-header').forEach(header => {
+                header.classList.remove('active');
+            });
+            menuItem.querySelector('.menu-header').classList.add('active');
+        }
+    </script>
+</body>
+</html>

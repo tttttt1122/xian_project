@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>业务逻辑管理</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <style>
+        .logic-card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .logic-card-header {
+            padding: 15px 20px;
+            background: #fafafa;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logic-card-header i {
+            color: #2d8cff;
+            font-size: 18px;
+        }
+        .logic-card-header h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+        .logic-card-body {
+            padding: 20px;
+        }
+        .code-editor {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            resize: vertical;
+            background: #fafafa;
+        }
+        .code-editor:focus {
+            outline: none;
+            border-color: #2d8cff;
+            background: #fff;
+        }
+        .config-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .config-row:last-child {
+            border-bottom: none;
+        }
+        .config-label {
+            width: 150px;
+            font-size: 14px;
+            color: #333;
+        }
+        .config-value {
+            flex: 1;
+        }
+        .btn-test {
+            padding: 8px 20px;
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-test:hover {
+            background: #d9f7be;
+        }
+        .log-preview {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .log-time {
+            color: #858585;
+        }
+        .log-info {
+            color: #4ec9b0;
+        }
+        .log-error {
+            color: #f48771;
+        }
+        .action-bar {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px;
+            background: #fafafa;
+            border-top: 1px solid #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <h1 class="page-title"><i class="fas fa-cogs"></i>业务逻辑管理</h1>
+    </header>
+
+    <div class="logic-card">
+        <div class="logic-card-header">
+            <i class="fas fa-code"></i>
+            <h3>运行脚本设置</h3>
+        </div>
+        <div class="logic-card-body">
+            <textarea class="code-editor" id="scriptEditor" placeholder="请输入运行脚本...">-- 数据清洗脚本示例
+BEGIN
+    -- 清洗检验数据
+    UPDATE test_data SET status = 'cleaned' 
+    WHERE create_time >= :start_time 
+    AND create_time <= :end_time;
+    
+    -- 记录清洗日志
+    INSERT INTO clean_log (clean_time, record_count) 
+    VALUES (SYSDATE, SQL%ROWCOUNT);
+    
+    COMMIT;
+END;</textarea>
+        </div>
+    </div>
+
+    <div class="logic-card">
+        <div class="logic-card-header">
+            <i class="fas fa-key"></i>
+            <h3>主键映射设置</h3>
+        </div>
+        <div class="logic-card-body">
+            <div class="config-row">
+                <span class="config-label">患者ID映射字段</span>
+                <div class="config-value">
+                    <input type="text" class="form-input" value="PATIENT_ID" style="width: 300px;">
+                </div>
+            </div>
+            <div class="config-row">
+                <span class="config-label">就诊ID映射字段</span>
+                <div class="config-value">
+                    <input type="text" class="form-input" value="VISIT_ID" style="width: 300px;">
+                </div>
+            </div>
+            <div class="config-row">
+                <span class="config-label">报告ID映射字段</span>
+                <div class="config-value">
+                    <input type="text" class="form-input" value="REPORT_ID" style="width: 300px;">
+                </div>
+            </div>
+            <div class="config-row">
+                <span class="config-label">映射方式</span>
+                <div class="config-value">
+                    <select class="form-select" style="width: 300px;">
+                        <option value="direct">直接映射</option>
+                        <option value="md5">MD5加密映射</option>
+                        <option value="uuid">UUID生成</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="logic-card">
+        <div class="logic-card-header">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>执行错误日志设置</h3>
+        </div>
+        <div class="logic-card-body">
+            <div class="config-row">
+                <span class="config-label">错误日志级别</span>
+                <div class="config-value">
+                    <select class="form-select" style="width: 300px;">
+                        <option value="debug">DEBUG</option>
+                        <option value="info">INFO</option>
+                        <option value="warning" selected>WARNING</option>
+                        <option value="error">ERROR</option>
+                    </select>
+                </div>
+            </div>
+            <div class="config-row">
+                <span class="config-label">日志保留天数</span>
+                <div class="config-value">
+                    <input type="number" class="form-input" value="30" style="width: 300px;">
+                    <span style="color: #999; margin-left: 10px;">天</span>
+                </div>
+            </div>
+            <div class="config-row">
+                <span class="config-label">错误通知方式</span>
+                <div class="config-value">
+                    <label style="margin-right: 20px;"><input type="checkbox" checked> 邮件通知</label>
+                    <label style="margin-right: 20px;"><input type="checkbox" checked> 短信通知</label>
+                    <label><input type="checkbox"> 系统消息</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="logic-card">
+        <div class="logic-card-header">
+            <i class="fas fa-file-alt"></i>
+            <h3>日志记录设置</h3>
+        </div>
+        <div class="logic-card-body">
+            <div class="config-row">
+                <span class="config-label">日志存储位置</span>
+                <div class="config-value">
+                    <input type="text" class="form-input" value="/var/log/medical-platform/" style="width: 400px;">
+                </div>
+            </div>
+            <div class="config-row">
+                <span class="config-label">单文件大小限制</span>
+                <div class="config-value">
+                    <input type="number" class="form-input" value="100" style="width: 200px;">
+                    <span style="color: #999; margin-left: 10px;">MB</span>
+                </div>
+            </div>
+            <div class="config-row">
+                <span class="config-label">日志预览</span>
+                <div class="config-value">
+                    <div class="log-preview">
+                        <div><span class="log-time">[2024-01-18 09:30:25]</span> <span class="log-info">INFO</span> 数据抽取任务开始执行</div>
+                        <div><span class="log-time">[2024-01-18 09:30:26]</span> <span class="log-info">INFO</span> 连接数据源成功</div>
+                        <div><span class="log-time">[2024-01-18 09:30:30]</span> <span class="log-info">INFO</span> 开始抽取检验数据，预计记录数：12580</div>
+                        <div><span class="log-time">[2024-01-18 09:31:15]</span> <span class="log-info">INFO</span> 检验数据抽取完成，实际记录数：12580</div>
+                        <div><span class="log-time">[2024-01-18 09:31:16]</span> <span class="log-info">INFO</span> 数据质控检查通过</div>
+                        <div><span class="log-time">[2024-01-18 09:31:20]</span> <span class="log-info">INFO</span> 数据入库完成</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-bar">
+        <button class="btn btn-primary" onclick="handleSave()">
+            <i class="fas fa-save"></i> 保存设置
+        </button>
+        <button class="btn btn-test" onclick="handleTest()">
+            <i class="fas fa-play"></i> 测试运行
+        </button>
+        <button class="btn btn-default" onclick="handleReset()">
+            <i class="fas fa-undo"></i> 重置
+        </button>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        function handleSave() {
+            alert('设置保存成功！');
+        }
+
+        function handleTest() {
+            alert('测试运行中，请查看日志...');
+        }
+
+        function handleReset() {
+            if (confirm('确定要重置所有设置吗？')) {
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>

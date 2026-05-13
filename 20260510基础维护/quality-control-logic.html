@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>质控业务逻辑管理</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <style>
+        .data-type-tabs {
+            display: flex;
+            border-bottom: 1px solid #e8e8e8;
+            margin-bottom: 20px;
+        }
+        .data-type-tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+            font-size: 14px;
+            color: #666;
+        }
+        .data-type-tab:hover {
+            color: #2d8cff;
+        }
+        .data-type-tab.active {
+            color: #2d8cff;
+            border-bottom-color: #2d8cff;
+            font-weight: 500;
+        }
+        .control-section {
+            background: #fafafa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .control-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .control-content {
+            background: #fff;
+            border-radius: 6px;
+            padding: 15px;
+        }
+        .switch-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .switch-row:last-child {
+            border-bottom: none;
+        }
+        .switch-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #333;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 22px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #2d8cff;
+        }
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+        .condition-list {
+            margin-top: 10px;
+        }
+        .condition-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+        .condition-item input {
+            flex: 1;
+            padding: 6px 10px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .btn-add-condition {
+            padding: 6px 12px;
+            background: #f0f7ff;
+            color: #2d8cff;
+            border: 1px dashed #2d8cff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-add-condition:hover {
+            background: #e6f7ff;
+        }
+        .btn-remove-condition {
+            padding: 4px 8px;
+            background: #fff1f0;
+            color: #ff4d4f;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <h1 class="page-title"><i class="fas fa-tasks"></i>质控业务逻辑管理</h1>
+    </header>
+
+    <section class="data-type-tabs">
+        <div class="data-type-tab active" onclick="switchTab(this, 'test')">检验数据</div>
+        <div class="data-type-tab" onclick="switchTab(this, 'indicator')">检验指标数据</div>
+        <div class="data-type-tab" onclick="switchTab(this, 'bacteria')">检验细菌数据</div>
+        <div class="data-type-tab" onclick="switchTab(this, 'sensitivity')">检验药敏数据</div>
+        <div class="data-type-tab" onclick="switchTab(this, 'check')">检查数据</div>
+    </section>
+
+    <section class="control-section">
+        <div class="control-title">
+            <i class="fas fa-check-circle" style="color: #52c41a;"></i>
+            规范性质控
+        </div>
+        <div class="control-content">
+            <div class="switch-row">
+                <span class="switch-label">启用规范性质控</span>
+                <label class="switch">
+                    <input type="checkbox" checked id="normSwitch">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="condition-list" id="normConditions">
+                <div class="condition-item">
+                    <span>条件1：</span>
+                    <input type="text" placeholder="请输入质控条件" value="数据格式校验">
+                    <button class="btn-remove-condition" onclick="this.parentElement.remove()">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                <div class="condition-item">
+                    <span>条件2：</span>
+                    <input type="text" placeholder="请输入质控条件" value="编码规范校验">
+                    <button class="btn-remove-condition" onclick="this.parentElement.remove()">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <button class="btn-add-condition" onclick="addCondition()" style="margin-top: 10px;">
+                <i class="fas fa-plus"></i> 添加条件
+            </button>
+        </div>
+    </section>
+
+    <section class="control-section">
+        <div class="control-title">
+            <i class="fas fa-shield-alt" style="color: #1890ff;"></i>
+            完整性质控
+        </div>
+        <div class="control-content">
+            <div class="switch-row">
+                <span class="switch-label">启用完整性质控</span>
+                <label class="switch">
+                    <input type="checkbox" checked id="completeSwitch">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <p style="color: #999; font-size: 13px; margin-top: 10px;">
+                开启后系统将自动检查必填字段的完整性
+            </p>
+        </div>
+    </section>
+
+    <section class="control-section">
+        <div class="control-title">
+            <i class="fas fa-table" style="color: #fa8c16;"></i>
+            缺失表质控
+        </div>
+        <div class="control-content">
+            <div class="switch-row">
+                <span class="switch-label">启用缺失表质控</span>
+                <label class="switch">
+                    <input type="checkbox" id="missingSwitch">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <p style="color: #999; font-size: 13px; margin-top: 10px;">
+                开启后系统将检测并标记缺失的数据表
+            </p>
+        </div>
+    </section>
+
+    <div style="text-align: center; margin-top: 30px; padding: 20px;">
+        <button class="btn btn-primary" onclick="handleSave()" style="padding: 12px 40px;">
+            <i class="fas fa-save"></i> 保存配置
+        </button>
+        <button class="btn btn-default" onclick="handleReset()" style="padding: 12px 40px; margin-left: 15px;">
+            <i class="fas fa-undo"></i> 重置
+        </button>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        let currentTab = 'test';
+
+        function switchTab(element, type) {
+            document.querySelectorAll('.data-type-tab').forEach(tab => tab.classList.remove('active'));
+            element.classList.add('active');
+            currentTab = type;
+            // 这里可以加载对应数据类型的配置
+        }
+
+        function addCondition() {
+            const container = document.getElementById('normConditions');
+            const count = container.children.length + 1;
+            const item = document.createElement('div');
+            item.className = 'condition-item';
+            item.innerHTML = `
+                <span>条件${count}：</span>
+                <input type="text" placeholder="请输入质控条件">
+                <button class="btn-remove-condition" onclick="this.parentElement.remove()">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            container.appendChild(item);
+        }
+
+        function handleSave() {
+            alert('配置保存成功！');
+        }
+
+        function handleReset() {
+            if (confirm('确定要重置当前配置吗？')) {
+                document.getElementById('normSwitch').checked = true;
+                document.getElementById('completeSwitch').checked = true;
+                document.getElementById('missingSwitch').checked = false;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抽取日志管理</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <style>
+        .log-status {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .status-success {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+        .status-fail {
+            background: #fff1f0;
+            color: #ff4d4f;
+            border: 1px solid #ffa39e;
+        }
+        .status-running {
+            background: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+        }
+        .data-type-tag {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-block;
+        }
+        .type-test {
+            background: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+        }
+        .type-check {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+        .type-image {
+            background: #fff7e6;
+            color: #fa8c16;
+            border: 1px solid #ffd591;
+        }
+        .type-patient {
+            background: #fff2e8;
+            color: #fa541c;
+            border: 1px solid #ffbb96;
+        }
+        .record-count-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            background: #f0f0f0;
+            border-radius: 12px;
+            font-size: 13px;
+            color: #666;
+        }
+        .log-detail {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <h1 class="page-title"><i class="fas fa-file-alt"></i>抽取日志管理</h1>
+    </header>
+
+    <section class="search-area">
+        <div class="search-form">
+            <div class="form-group">
+                <label class="form-label">数据类型：</label>
+                <select class="form-select" id="searchType">
+                    <option value="">全部</option>
+                    <option value="test">检验数据</option>
+                    <option value="check">检查数据</option>
+                    <option value="image">影像数据</option>
+                    <option value="patient">患者数据</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">状态：</label>
+                <select class="form-select" id="searchStatus">
+                    <option value="">全部</option>
+                    <option value="success">成功</option>
+                    <option value="fail">失败</option>
+                    <option value="running">运行中</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">时间范围：</label>
+                <div class="date-range">
+                    <input type="date" class="date-input" id="startDate">
+                    <span>至</span>
+                    <input type="date" class="date-input" id="endDate">
+                </div>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-success" onclick="handleSearch()">
+                    <i class="fas fa-search"></i> 查询
+                </button>
+                <button class="btn btn-default" onclick="handleReset()">
+                    <i class="fas fa-redo"></i> 重置
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="table-container">
+        <div class="table-toolbar">
+            <div class="toolbar-left">
+                <span class="table-title">抽取日志列表</span>
+                <span class="record-count">共 <strong id="totalCount">0</strong> 条记录</span>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn btn-warning" onclick="handleExport()">
+                    <i class="fas fa-download"></i> 导出
+                </button>
+            </div>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">序号</th>
+                    <th>数据类型</th>
+                    <th>开始时间</th>
+                    <th>结束时间</th>
+                    <th>抽取记录数</th>
+                    <th>状态</th>
+                    <th style="width: 120px;">操作</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <div class="pagination">
+            <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+            <span class="page-info">共 3 页</span>
+        </div>
+    </section>
+
+    <div class="modal" id="detailModal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h3 class="modal-title">日志明细</h3>
+                <button class="modal-close" onclick="Modal.close('detailModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="log-detail" id="logDetail">
+[2024-01-18 09:00:00] INFO 开始执行检验数据抽取任务
+[2024-01-18 09:00:01] INFO 连接数据源成功
+[2024-01-18 09:00:05] INFO 开始抽取数据...
+[2024-01-18 09:02:30] INFO 数据抽取完成，共 12580 条记录
+[2024-01-18 09:02:31] INFO 开始数据质控检查
+[2024-01-18 09:03:15] INFO 质控检查通过
+[2024-01-18 09:03:20] INFO 数据入库完成
+[2024-01-18 09:03:20] INFO 任务执行成功
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('detailModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        const PageData = {
+            list: [
+                { id: 1, type: 'test', startTime: '2024-01-18 09:00:00', endTime: '2024-01-18 09:03:20', count: 12580, status: 'success' },
+                { id: 2, type: 'check', startTime: '2024-01-18 08:30:00', endTime: '2024-01-18 08:45:15', count: 8650, status: 'success' },
+                { id: 3, type: 'image', startTime: '2024-01-18 08:00:00', endTime: '2024-01-18 08:25:30', count: 3240, status: 'success' },
+                { id: 4, type: 'patient', startTime: '2024-01-18 07:00:00', endTime: '2024-01-18 07:15:00', count: 5680, status: 'fail' },
+                { id: 5, type: 'test', startTime: '2024-01-18 06:00:00', endTime: '-', count: 0, status: 'running' }
+            ]
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable(PageData.list);
+            Modal.initClickOutside('detailModal');
+        });
+
+        function renderTable(data) {
+            Table.render({
+                containerId: 'tableBody',
+                data: data,
+                rowRenderer: (item, index) => {
+                    const typeMap = {
+                        test: { class: 'type-test', text: '检验数据' },
+                        check: { class: 'type-check', text: '检查数据' },
+                        image: { class: 'type-image', text: '影像数据' },
+                        patient: { class: 'type-patient', text: '患者数据' }
+                    };
+                    const type = typeMap[item.type];
+                    const statusMap = {
+                        success: { class: 'status-success', icon: 'fa-check-circle', text: '成功' },
+                        fail: { class: 'status-fail', icon: 'fa-times-circle', text: '失败' },
+                        running: { class: 'status-running', icon: 'fa-spinner fa-spin', text: '运行中' }
+                    };
+                    const status = statusMap[item.status];
+                    return `
+                        <td>${index + 1}</td>
+                        <td><span class="data-type-tag ${type.class}">${type.text}</span></td>
+                        <td>${item.startTime}</td>
+                        <td>${item.endTime}</td>
+                        <td><span class="record-count-badge"><i class="fas fa-database"></i> ${item.count.toLocaleString()} 条</span></td>
+                        <td><span class="log-status ${status.class}"><i class="fas ${status.icon}"></i> ${status.text}</span></td>
+                        <td>
+                            <button class="action-btn action-btn-view" onclick="handleViewDetail(${item.id})">
+                                <i class="fas fa-eye"></i> 查看明细
+                            </button>
+                        </td>
+                    `;
+                }
+            });
+            Table.updateCount('totalCount', data.length);
+        }
+
+        function handleSearch() {
+            const type = document.getElementById('searchType').value;
+            const status = document.getElementById('searchStatus').value;
+            
+            const filtered = PageData.list.filter(item => {
+                return (!type || item.type === type) &&
+                       (!status || item.status === status);
+            });
+            renderTable(filtered);
+        }
+
+        function handleReset() {
+            document.getElementById('searchType').value = '';
+            document.getElementById('searchStatus').value = '';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            renderTable(PageData.list);
+        }
+
+        function handleViewDetail(id) {
+            Modal.open('detailModal');
+        }
+
+        function handleExport() {
+            alert('导出功能开发中...');
+        }
+    </script>
+</body>
+</html>

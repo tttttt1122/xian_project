@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>操作日志管理</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="page-container">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-history"></i>
+                操作日志管理
+            </h1>
+        </div>
+
+        <!-- 搜索区域 -->
+        <div class="search-area">
+            <div class="search-form">
+                <div class="form-group">
+                    <label class="form-label">操作用户</label>
+                    <input type="text" class="form-input" id="userName" placeholder="请输入用户名">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">操作模块</label>
+                    <select class="form-select" id="moduleSelect">
+                        <option value="">全部模块</option>
+                        <option value="user">用户管理</option>
+                        <option value="org">机构管理</option>
+                        <option value="project">项目管理</option>
+                        <option value="rule">规则管理</option>
+                        <option value="data">数据管理</option>
+                        <option value="system">系统设置</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">操作类型</label>
+                    <select class="form-select" id="actionSelect">
+                        <option value="">全部类型</option>
+                        <option value="add">新增</option>
+                        <option value="edit">修改</option>
+                        <option value="delete">删除</option>
+                        <option value="query">查询</option>
+                        <option value="export">导出</option>
+                        <option value="login">登录</option>
+                        <option value="logout">退出</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">操作时间</label>
+                    <div class="date-range">
+                        <input type="date" class="form-input" id="startDate">
+                        <span>至</span>
+                        <input type="date" class="form-input" id="endDate">
+                    </div>
+                </div>
+                <div class="form-group search-btns">
+                    <button class="btn btn-primary" onclick="handleSearch()">
+                        <i class="fas fa-search"></i> 查询
+                    </button>
+                    <button class="btn btn-default" onclick="handleReset()">
+                        <i class="fas fa-redo"></i> 重置
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="action-bar">
+            <button class="btn btn-success" onclick="handleExport()">
+                <i class="fas fa-file-export"></i> 导出
+            </button>
+            <button class="btn btn-danger" onclick="handleBatchDelete()">
+                <i class="fas fa-trash-alt"></i> 批量删除
+            </button>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;"><input type="checkbox" id="selectAll"></th>
+                        <th style="width: 60px;">序号</th>
+                        <th>操作用户</th>
+                        <th>操作时间</th>
+                        <th>操作模块</th>
+                        <th>操作类型</th>
+                        <th>操作内容</th>
+                        <th>IP地址</th>
+                        <th style="width: 100px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination-container" id="pagination"></div>
+    </div>
+
+    <!-- 日志详情模态框 -->
+    <div class="modal" id="detailModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title">操作日志详情</h3>
+                <button class="modal-close" onclick="Modal.close('detailModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                    <div class="detail-item">
+                        <label style="color: #64748b; font-size: 12px;">操作用户</label>
+                        <div style="font-weight: 500; margin-top: 5px;" id="detailUser">admin</div>
+                    </div>
+                    <div class="detail-item">
+                        <label style="color: #64748b; font-size: 12px;">操作时间</label>
+                        <div style="font-weight: 500; margin-top: 5px;" id="detailTime">2024-01-15 10:30:25</div>
+                    </div>
+                    <div class="detail-item">
+                        <label style="color: #64748b; font-size: 12px;">操作模块</label>
+                        <div style="font-weight: 500; margin-top: 5px;" id="detailModule">用户管理</div>
+                    </div>
+                    <div class="detail-item">
+                        <label style="color: #64748b; font-size: 12px;">操作类型</label>
+                        <div style="font-weight: 500; margin-top: 5px;" id="detailAction">新增</div>
+                    </div>
+                    <div class="detail-item" style="grid-column: span 2;">
+                        <label style="color: #64748b; font-size: 12px;">IP地址</label>
+                        <div style="font-weight: 500; margin-top: 5px;" id="detailIp">192.168.1.100</div>
+                    </div>
+                    <div class="detail-item" style="grid-column: span 2;">
+                        <label style="color: #64748b; font-size: 12px;">操作内容</label>
+                        <div style="background: #f8fafc; padding: 15px; border-radius: 6px; margin-top: 5px; font-family: monospace; font-size: 13px;" id="detailContent">
+                            {"action": "add", "target": "user", "data": {"username": "zhangsan", "role": "doctor"}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('detailModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认模态框 -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3 class="modal-title">确认删除</h3>
+                <button class="modal-close" onclick="Modal.close('deleteModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="text-align: center; padding: 20px;">
+                    <i class="fas fa-exclamation-triangle" style="color: #f59e0b; font-size: 48px;"></i>
+                </p>
+                <p style="text-align: center;">确定要删除该操作日志吗？<br>删除后将无法恢复。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('deleteModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        // 页面数据
+        const PageData = {
+            list: [
+                { id: 1, user: 'admin', time: '2024-01-15 10:30:25', module: '用户管理', moduleCode: 'user', action: '新增', actionCode: 'add', content: '新增用户：zhangsan', ip: '192.168.1.100' },
+                { id: 2, user: 'admin', time: '2024-01-15 10:25:18', module: '机构管理', moduleCode: 'org', action: '修改', actionCode: 'edit', content: '修改机构信息：市第一人民医院', ip: '192.168.1.100' },
+                { id: 3, user: 'doctor1', time: '2024-01-15 09:45:32', module: '项目管理', moduleCode: 'project', action: '查询', actionCode: 'query', content: '查询检查项目列表', ip: '192.168.1.105' },
+                { id: 4, user: 'admin', time: '2024-01-15 09:30:00', module: '规则管理', moduleCode: 'rule', action: '删除', actionCode: 'delete', content: '删除互认规则：RULE001', ip: '192.168.1.100' },
+                { id: 5, user: 'operator1', time: '2024-01-15 09:15:45', module: '数据管理', moduleCode: 'data', action: '导出', actionCode: 'export', content: '导出互认统计数据', ip: '192.168.1.110' },
+                { id: 6, user: 'admin', time: '2024-01-15 09:00:12', module: '系统设置', moduleCode: 'system', action: '修改', actionCode: 'edit', content: '修改系统参数配置', ip: '192.168.1.100' },
+                { id: 7, user: 'doctor2', time: '2024-01-15 08:45:30', module: '用户管理', moduleCode: 'user', action: '登录', actionCode: 'login', content: '用户登录系统', ip: '192.168.1.106' },
+                { id: 8, user: 'admin', time: '2024-01-15 08:30:00', module: '用户管理', moduleCode: 'user', action: '退出', actionCode: 'logout', content: '用户退出系统', ip: '192.168.1.100' }
+            ],
+            deleteId: null,
+            selectedIds: []
+        };
+
+        // 操作类型样式映射
+        const actionStyles = {
+            'add': { class: 'tag-green', icon: 'fa-plus' },
+            'edit': { class: 'tag-blue', icon: 'fa-edit' },
+            'delete': { class: 'tag-red', icon: 'fa-trash' },
+            'query': { class: 'tag-gray', icon: 'fa-search' },
+            'export': { class: 'tag-orange', icon: 'fa-file-export' },
+            'login': { class: 'tag-cyan', icon: 'fa-sign-in-alt' },
+            'logout': { class: 'tag-purple', icon: 'fa-sign-out-alt' }
+        };
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable(PageData.list);
+            initCheckbox();
+        });
+
+        // 初始化复选框
+        function initCheckbox() {
+            const selectAll = document.getElementById('selectAll');
+            selectAll.addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll('#tableBody input[type="checkbox"]');
+                checkboxes.forEach(cb => {
+                    cb.checked = this.checked;
+                });
+                updateSelectedIds();
+            });
+        }
+
+        // 更新选中ID
+        function updateSelectedIds() {
+            const checkboxes = document.querySelectorAll('#tableBody input[type="checkbox"]:checked');
+            PageData.selectedIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+        }
+
+        // 渲染表格
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = data.map((item, index) => {
+                const style = actionStyles[item.actionCode] || { class: 'tag-gray', icon: 'fa-circle' };
+                return `
+                    <tr>
+                        <td><input type="checkbox" value="${item.id}" onchange="updateSelectedIds()"></td>
+                        <td>${index + 1}</td>
+                        <td><i class="fas fa-user" style="color: #94a3b8; margin-right: 5px;"></i>${item.user}</td>
+                        <td>${item.time}</td>
+                        <td>${item.module}</td>
+                        <td><span class="tag ${style.class}"><i class="fas ${style.icon}"></i> ${item.action}</span></td>
+                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.content}">${item.content}</td>
+                        <td><span class="code-tag">${item.ip}</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn action-btn-view" onclick="handleView(${item.id})">
+                                    <i class="fas fa-eye"></i> 明细
+                                </button>
+                                <button class="action-btn action-btn-delete" onclick="handleDelete(${item.id})">
+                                    <i class="fas fa-trash"></i> 删除
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 搜索
+        function handleSearch() {
+            const user = document.getElementById('userName').value;
+            const module = document.getElementById('moduleSelect').value;
+            const action = document.getElementById('actionSelect').value;
+            
+            let filtered = PageData.list.filter(item => {
+                if (user && !item.user.includes(user)) return false;
+                if (module && item.moduleCode !== module) return false;
+                if (action && item.actionCode !== action) return false;
+                return true;
+            });
+            
+            renderTable(filtered);
+        }
+
+        // 重置
+        function handleReset() {
+            document.getElementById('userName').value = '';
+            document.getElementById('moduleSelect').value = '';
+            document.getElementById('actionSelect').value = '';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            document.getElementById('selectAll').checked = false;
+            renderTable(PageData.list);
+        }
+
+        // 导出
+        function handleExport() {
+            alert('导出操作日志');
+        }
+
+        // 批量删除
+        function handleBatchDelete() {
+            if (PageData.selectedIds.length === 0) {
+                alert('请先选择要删除的日志');
+                return;
+            }
+            if (confirm(`确定要删除选中的 ${PageData.selectedIds.length} 条日志吗？`)) {
+                alert('批量删除成功');
+            }
+        }
+
+        // 查看详情
+        function handleView(id) {
+            const item = PageData.list.find(i => i.id === id);
+            if (item) {
+                document.getElementById('detailUser').textContent = item.user;
+                document.getElementById('detailTime').textContent = item.time;
+                document.getElementById('detailModule').textContent = item.module;
+                document.getElementById('detailAction').textContent = item.action;
+                document.getElementById('detailIp').textContent = item.ip;
+                document.getElementById('detailContent').textContent = JSON.stringify({
+                    action: item.actionCode,
+                    module: item.moduleCode,
+                    content: item.content,
+                    timestamp: item.time
+                }, null, 2);
+                Modal.open('detailModal');
+            }
+        }
+
+        // 删除
+        function handleDelete(id) {
+            PageData.deleteId = id;
+            Modal.open('deleteModal');
+        }
+
+        // 确认删除
+        function confirmDelete() {
+            Modal.close('deleteModal');
+            alert('删除成功');
+        }
+    </script>
+</body>
+</html>

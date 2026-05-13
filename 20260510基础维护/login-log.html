@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录日志管理</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <style>
+        /* 页面特有样式 */
+        .login-status {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-success {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+
+        .status-fail {
+            background: #fff1f0;
+            color: #ff4d4f;
+            border: 1px solid #ffa39e;
+        }
+
+        .checkbox {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- 页面头部 -->
+    <header class="page-header">
+        <h1 class="page-title"><i class="fas fa-sign-in-alt"></i>登录日志管理</h1>
+    </header>
+
+    <!-- 搜索区域 -->
+    <section class="search-area">
+        <div class="search-form">
+            <div class="form-group">
+                <label class="form-label">用户名：</label>
+                <input type="text" class="form-input" id="searchUser" placeholder="请输入用户名">
+            </div>
+            <div class="form-group">
+                <label class="form-label">登录结果：</label>
+                <select class="form-select" id="searchResult">
+                    <option value="">全部</option>
+                    <option value="success">成功</option>
+                    <option value="fail">失败</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">时间范围：</label>
+                <div class="date-range">
+                    <input type="date" class="date-input" id="startDate">
+                    <span>至</span>
+                    <input type="date" class="date-input" id="endDate">
+                </div>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-success" onclick="handleSearch()">
+                    <i class="fas fa-search"></i> 查询
+                </button>
+                <button class="btn btn-default" onclick="handleReset()">
+                    <i class="fas fa-redo"></i> 重置
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 表格区域 -->
+    <section class="table-container">
+        <div class="table-toolbar">
+            <div class="toolbar-left">
+                <span class="table-title">登录日志列表</span>
+                <span class="record-count">共 <strong id="totalCount">0</strong> 条记录</span>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn btn-success" onclick="handleExport()">
+                    <i class="fas fa-file-export"></i> 导出
+                </button>
+                <button class="btn btn-danger" onclick="handleClear()">
+                    <i class="fas fa-trash-alt"></i> 清空日志
+                </button>
+            </div>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width: 50px;"><input type="checkbox" class="checkbox" id="selectAll" onclick="toggleSelectAll()"></th>
+                    <th style="width: 60px;">序号</th>
+                    <th>登录用户</th>
+                    <th>登录时间</th>
+                    <th>IP地址</th>
+                    <th>登录结果</th>
+                    <th>设备信息</th>
+                    <th style="width: 100px;">操作</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <div class="pagination">
+            <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+            <span class="page-info">共 3 页</span>
+        </div>
+    </section>
+
+    <!-- 删除确认弹窗 -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h3 class="modal-title">确认删除</h3>
+                <button class="modal-close" onclick="Modal.close('deleteModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="confirm-body">
+                    <div class="confirm-icon warning">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <p class="confirm-text">确定要删除选中的日志记录吗？</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('deleteModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 清空确认弹窗 -->
+    <div class="modal" id="clearModal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h3 class="modal-title">确认清空</h3>
+                <button class="modal-close" onclick="Modal.close('clearModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="confirm-body">
+                    <div class="confirm-icon danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <p class="confirm-text">确定要清空所有登录日志吗？</p>
+                    <p class="confirm-subtext">此操作不可恢复，请谨慎操作！</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('clearModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmClear()">确认清空</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        // 页面数据
+        const PageData = {
+            list: [
+                { id: 1, user: 'admin', time: '2024-01-18 09:30:25', ip: '192.168.1.100', result: 'success', device: 'Chrome 120 / Windows 10' },
+                { id: 2, user: 'zhangsan', time: '2024-01-18 09:15:10', ip: '192.168.1.105', result: 'success', device: 'Chrome 119 / Windows 11' },
+                { id: 3, user: 'lisi', time: '2024-01-18 08:45:33', ip: '192.168.1.110', result: 'fail', device: 'Firefox 121 / macOS' },
+                { id: 4, user: 'wangwu', time: '2024-01-17 17:20:15', ip: '192.168.1.115', result: 'success', device: 'Edge 120 / Windows 10' },
+                { id: 5, user: 'admin', time: '2024-01-17 16:00:00', ip: '192.168.1.100', result: 'success', device: 'Chrome 120 / Windows 10' },
+                { id: 6, user: 'zhaoliu', time: '2024-01-17 14:30:45', ip: '192.168.1.120', result: 'success', device: 'Safari 17 / macOS' },
+                { id: 7, user: 'sunqi', time: '2024-01-17 11:10:20', ip: '192.168.1.125', result: 'fail', device: 'Chrome 118 / Windows 10' },
+                { id: 8, user: 'admin', time: '2024-01-17 08:00:00', ip: '192.168.1.100', result: 'success', device: 'Chrome 120 / Windows 10' }
+            ],
+            selectedIds: [],
+            deleteId: null
+        };
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable(PageData.list);
+            Modal.initClickOutside('deleteModal');
+            Modal.initClickOutside('clearModal');
+        });
+
+        // 渲染表格
+        function renderTable(data) {
+            Table.render({
+                containerId: 'tableBody',
+                data: data,
+                rowRenderer: (item, index) => `
+                    <td><input type="checkbox" class="checkbox" ${PageData.selectedIds.includes(item.id) ? 'checked' : ''} onclick="toggleSelect(${item.id})"></td>
+                    <td>${index + 1}</td>
+                    <td>${item.user}</td>
+                    <td>${item.time}</td>
+                    <td>${item.ip}</td>
+                    <td>
+                        <span class="login-status ${item.result === 'success' ? 'status-success' : 'status-fail'}">
+                            <i class="fas ${item.result === 'success' ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+                            ${item.result === 'success' ? '成功' : '失败'}
+                        </span>
+                    </td>
+                    <td>${item.device}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" onclick="handleDelete(${item.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </td>
+                `
+            });
+            Table.updateCount('totalCount', data.length);
+        }
+
+        // 全选/取消全选
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll');
+            if (selectAll.checked) {
+                PageData.selectedIds = PageData.list.map(item => item.id);
+            } else {
+                PageData.selectedIds = [];
+            }
+            renderTable(PageData.list);
+        }
+
+        // 单选
+        function toggleSelect(id) {
+            const index = PageData.selectedIds.indexOf(id);
+            if (index > -1) {
+                PageData.selectedIds.splice(index, 1);
+            } else {
+                PageData.selectedIds.push(id);
+            }
+            document.getElementById('selectAll').checked = PageData.selectedIds.length === PageData.list.length;
+        }
+
+        // 删除单条日志
+        function handleDelete(id) {
+            PageData.deleteId = id;
+            Modal.open('deleteModal');
+        }
+
+        // 确认删除
+        function confirmDelete() {
+            if (PageData.deleteId) {
+                PageData.list = PageData.list.filter(item => item.id !== PageData.deleteId);
+            } else if (PageData.selectedIds.length > 0) {
+                PageData.list = PageData.list.filter(item => !PageData.selectedIds.includes(item.id));
+                PageData.selectedIds = [];
+            }
+            renderTable(PageData.list);
+            Modal.close('deleteModal');
+            PageData.deleteId = null;
+            alert('删除成功！');
+        }
+
+        // 清空日志
+        function handleClear() {
+            Modal.open('clearModal');
+        }
+
+        // 确认清空
+        function confirmClear() {
+            PageData.list = [];
+            PageData.selectedIds = [];
+            renderTable(PageData.list);
+            Modal.close('clearModal');
+            alert('日志已清空！');
+        }
+
+        // 导出
+        function handleExport() {
+            alert('登录日志导出成功！已生成CSV文件。');
+        }
+
+        // 搜索
+        function handleSearch() {
+            const conditions = Search.getConditions(['searchUser', 'searchResult']);
+            
+            const filtered = PageData.list.filter(item => {
+                const matchUser = !conditions.searchUser || item.user.toLowerCase().includes(conditions.searchUser);
+                const matchResult = !conditions.searchResult || item.result === conditions.searchResult;
+                return matchUser && matchResult;
+            });
+            
+            renderTable(filtered);
+        }
+
+        // 重置搜索
+        function handleReset() {
+            Search.reset(['searchUser', 'searchResult', 'startDate', 'endDate']);
+            renderTable(PageData.list);
+        }
+    </script>
+</body>
+</html>

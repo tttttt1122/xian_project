@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>患者互认结果查询</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <style>
+        .date-range {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .date-range input {
+            flex: 1;
+        }
+        .date-range span {
+            color: #64748b;
+            font-size: 14px;
+        }
+        .result-badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .result-success {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+        .result-reject {
+            background: #fff1f0;
+            color: #ff4d4f;
+            border: 1px solid #ffa39e;
+        }
+        .result-pending {
+            background: #fffbe6;
+            color: #faad14;
+            border: 1px solid #ffe58f;
+        }
+        .type-tag {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-block;
+        }
+        .type-check {
+            background: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+        }
+        .type-test {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <h1 class="page-title"><i class="fas fa-clipboard-check"></i>患者互认结果查询</h1>
+    </header>
+
+    <section class="search-area">
+        <div class="search-form">
+            <div class="form-group">
+                <label class="form-label">患者姓名</label>
+                <input type="text" class="form-input" id="patientName" placeholder="请输入患者姓名">
+            </div>
+            <div class="form-group">
+                <label class="form-label">证件号码</label>
+                <input type="text" class="form-input" id="idCard" placeholder="请输入身份证号">
+            </div>
+            <div class="form-group">
+                <label class="form-label">互认时间</label>
+                <div class="date-range">
+                    <input type="date" class="form-input" id="startDate">
+                    <span>至</span>
+                    <input type="date" class="form-input" id="endDate">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">互认结果</label>
+                <select class="form-select" id="resultSelect">
+                    <option value="">全部</option>
+                    <option value="success">互认成功</option>
+                    <option value="reject">拒绝互认</option>
+                    <option value="pending">待确认</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-success" onclick="handleSearch()">
+                    <i class="fas fa-search"></i> 查询
+                </button>
+                <button class="btn btn-default" onclick="handleReset()">
+                    <i class="fas fa-redo"></i> 重置
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="table-container">
+        <div class="table-toolbar">
+            <div class="toolbar-left">
+                <span class="table-title">互认结果列表</span>
+                <span class="record-count">共 <strong id="totalCount">0</strong> 条记录</span>
+            </div>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">序号</th>
+                    <th>患者姓名</th>
+                    <th>证件号码</th>
+                    <th>互认项目</th>
+                    <th>项目类型</th>
+                    <th>检查/检验机构</th>
+                    <th>互认时间</th>
+                    <th>互认结果</th>
+                    <th>互认机构</th>
+                    <th style="width: 150px;">操作</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <div class="pagination">
+            <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+            <span class="page-info">共 2 页</span>
+        </div>
+    </section>
+
+    <div class="modal" id="reportModal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <h3 class="modal-title">检查/检验报告详情</h3>
+                <button class="modal-close" onclick="Modal.close('reportModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="report-header" style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                        <div>
+                            <span style="color: #64748b;">患者姓名：</span>
+                            <strong id="reportPatientName">张三</strong>
+                        </div>
+                        <div>
+                            <span style="color: #64748b;">性别：</span>
+                            <strong>男</strong>
+                        </div>
+                        <div>
+                            <span style="color: #64748b;">年龄：</span>
+                            <strong>45岁</strong>
+                        </div>
+                        <div>
+                            <span style="color: #64748b;">检查项目：</span>
+                            <strong id="reportProject">胸部CT平扫</strong>
+                        </div>
+                        <div>
+                            <span style="color: #64748b;">检查时间：</span>
+                            <strong>2024-01-15 09:30:00</strong>
+                        </div>
+                        <div>
+                            <span style="color: #64748b;">检查机构：</span>
+                            <strong>市第一人民医院</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="report-content" style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px;">
+                    <h4 style="margin-bottom: 15px; color: #1e293b;">
+                        <i class="fas fa-file-medical-alt" style="color: #2d8cff;"></i> 检查所见
+                    </h4>
+                    <div style="background: #f8fafc; padding: 15px; border-radius: 6px; line-height: 1.8; color: #475569;">
+                        双肺纹理清晰，肺野内未见明显异常密度影。气管、支气管通畅，纵隔内未见明显肿大淋巴结。心脏大小、形态正常。双侧胸膜未见增厚，胸腔内未见积液征象。
+                    </div>
+                    
+                    <h4 style="margin: 20px 0 15px; color: #1e293b;">
+                        <i class="fas fa-diagnoses" style="color: #2d8cff;"></i> 诊断意见
+                    </h4>
+                    <div style="background: #f0fdf4; padding: 15px; border-radius: 6px; line-height: 1.8; color: #166534; border-left: 4px solid #22c55e;">
+                        胸部CT平扫未见明显异常。
+                    </div>
+                    
+                    <h4 style="margin: 20px 0 15px; color: #1e293b;">
+                        <i class="fas fa-image" style="color: #2d8cff;"></i> 影像资料
+                    </h4>
+                    <div style="background: #f1f5f9; height: 200px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #94a3b8;">
+                        <div style="text-align: center;">
+                            <i class="fas fa-images" style="font-size: 48px; margin-bottom: 10px;"></i>
+                            <p>影像查看区域（占位）</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('reportModal')">关闭</button>
+                <button class="btn btn-primary" onclick="alert('报告打印功能')">
+                    <i class="fas fa-print"></i> 打印报告
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        const PageData = {
+            list: [
+                { id: 1, name: '张三', idCard: '110101199001011234', project: '胸部CT平扫', type: '检查', org: '市第一人民医院', time: '2024-01-15 10:30:00', result: 'success', resultText: '互认成功', mutualOrg: '市中心医院' },
+                { id: 2, name: '李四', idCard: '110101198502023456', project: '血常规检查', type: '检验', org: '市中医院', time: '2024-01-14 15:20:00', result: 'success', resultText: '互认成功', mutualOrg: '市妇幼保健院' },
+                { id: 3, name: '王五', idCard: '110101199503034567', project: '肝功能检查', type: '检验', org: '市中心医院', time: '2024-01-13 09:15:00', result: 'reject', resultText: '拒绝互认', mutualOrg: '市第一人民医院' },
+                { id: 4, name: '赵六', idCard: '110101198808085678', project: '核磁共振', type: '检查', org: '市第一人民医院', time: '2024-01-12 14:45:00', result: 'pending', resultText: '待确认', mutualOrg: '市中医院' },
+                { id: 5, name: '钱七', idCard: '110101199212127890', project: '尿常规检查', type: '检验', org: '市妇幼保健院', time: '2024-01-11 11:30:00', result: 'success', resultText: '互认成功', mutualOrg: '市中心医院' }
+            ]
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable(PageData.list);
+            Modal.initClickOutside('reportModal');
+        });
+
+        function renderTable(data) {
+            Table.render({
+                containerId: 'tableBody',
+                data: data,
+                rowRenderer: (item, index) => {
+                    let resultClass, resultIcon;
+                    switch(item.result) {
+                        case 'success':
+                            resultClass = 'result-success';
+                            resultIcon = 'fa-check-circle';
+                            break;
+                        case 'reject':
+                            resultClass = 'result-reject';
+                            resultIcon = 'fa-times-circle';
+                            break;
+                        default:
+                            resultClass = 'result-pending';
+                            resultIcon = 'fa-clock';
+                    }
+                    const typeClass = item.type === '检查' ? 'type-check' : 'type-test';
+                    return `
+                        <td>${index + 1}</td>
+                        <td><strong>${item.name}</strong></td>
+                        <td>${maskIdCard(item.idCard)}</td>
+                        <td>${item.project}</td>
+                        <td><span class="type-tag ${typeClass}">${item.type}</span></td>
+                        <td>${item.org}</td>
+                        <td>${item.time}</td>
+                        <td><span class="result-badge ${resultClass}"><i class="fas ${resultIcon}"></i> ${item.resultText}</span></td>
+                        <td>${item.mutualOrg}</td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn action-btn-view" onclick="handleView(${item.id})">
+                                    <i class="fas fa-eye"></i> 查看报告
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                }
+            });
+            Table.updateCount('totalCount', data.length);
+        }
+
+        function maskIdCard(idCard) {
+            if (idCard.length === 18) {
+                return idCard.substring(0, 6) + '********' + idCard.substring(14);
+            }
+            return idCard;
+        }
+
+        function handleSearch() {
+            const name = document.getElementById('patientName').value.toLowerCase();
+            const idCard = document.getElementById('idCard').value;
+            const result = document.getElementById('resultSelect').value;
+            
+            const filtered = PageData.list.filter(item => {
+                return (!name || item.name.toLowerCase().includes(name)) &&
+                       (!idCard || item.idCard.includes(idCard)) &&
+                       (!result || item.result === result);
+            });
+            renderTable(filtered);
+        }
+
+        function handleReset() {
+            document.getElementById('patientName').value = '';
+            document.getElementById('idCard').value = '';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            document.getElementById('resultSelect').value = '';
+            renderTable(PageData.list);
+        }
+
+        function handleView(id) {
+            const item = PageData.list.find(i => i.id === id);
+            if (item) {
+                document.getElementById('reportPatientName').textContent = item.name;
+                document.getElementById('reportProject').textContent = item.project;
+                Modal.open('reportModal');
+            }
+        }
+    </script>
+</body>
+</html>

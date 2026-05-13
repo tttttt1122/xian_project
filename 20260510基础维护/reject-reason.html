@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>不互认原因管理</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <style>
+        .reason-code {
+            padding: 4px 10px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+            font-family: monospace;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <h1 class="page-title"><i class="fas fa-ban"></i>不互认原因管理</h1>
+    </header>
+
+    <section class="search-area">
+        <div class="search-form">
+            <div class="form-group">
+                <label class="form-label">原因编码：</label>
+                <input type="text" class="form-input" id="searchCode" placeholder="请输入原因编码">
+            </div>
+            <div class="form-group">
+                <label class="form-label">原因描述：</label>
+                <input type="text" class="form-input" id="searchDesc" placeholder="请输入原因描述">
+            </div>
+            <div class="form-group">
+                <label class="form-label">状态：</label>
+                <select class="form-select" id="searchStatus">
+                    <option value="">全部</option>
+                    <option value="normal">启用</option>
+                    <option value="disabled">停用</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-success" onclick="handleSearch()">
+                    <i class="fas fa-search"></i> 查询
+                </button>
+                <button class="btn btn-default" onclick="handleReset()">
+                    <i class="fas fa-redo"></i> 重置
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="table-container">
+        <div class="table-toolbar">
+            <div class="toolbar-left">
+                <span class="table-title">不互认原因列表</span>
+                <span class="record-count">共 <strong id="totalCount">0</strong> 条记录</span>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn btn-primary" onclick="handleAdd()">
+                    <i class="fas fa-plus"></i> 新增
+                </button>
+            </div>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">序号</th>
+                    <th>原因编码</th>
+                    <th>原因描述</th>
+                    <th>状态</th>
+                    <th style="width: 200px;">操作</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <div class="pagination">
+            <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+            <span class="page-info">共 2 页</span>
+        </div>
+    </section>
+
+    <div class="modal" id="reasonModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">新增不互认原因</h3>
+                <button class="modal-close" onclick="Modal.close('reasonModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="reasonForm">
+                    <div class="form-group">
+                        <label class="form-label required">原因编码</label>
+                        <input type="text" class="form-input" id="reasonCode" placeholder="请输入原因编码，如：REJECT001">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">原因描述</label>
+                        <textarea class="form-textarea" id="reasonDesc" rows="3" placeholder="请输入原因描述"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">状态</label>
+                        <select class="form-select" id="reasonStatus">
+                            <option value="normal">启用</option>
+                            <option value="disabled">停用</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('reasonModal')">取消</button>
+                <button class="btn btn-primary" onclick="handleSave()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="deleteModal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h3 class="modal-title">确认删除</h3>
+                <button class="modal-close" onclick="Modal.close('deleteModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="text-align: center; padding: 20px;">确定要删除该不互认原因吗？</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('deleteModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        const PageData = {
+            list: [
+                { id: 1, code: 'REJECT001', desc: '检查时间超过互认有效期', status: 'normal' },
+                { id: 2, code: 'REJECT002', desc: '病情变化需要重新检查', status: 'normal' },
+                { id: 3, code: 'REJECT003', desc: '检查项目不满足临床需求', status: 'normal' },
+                { id: 4, code: 'REJECT004', desc: '影像质量不符合诊断要求', status: 'normal' },
+                { id: 5, code: 'REJECT005', desc: '患者要求重新检查', status: 'disabled' },
+                { id: 6, code: 'REJECT006', desc: '检查设备型号差异较大', status: 'normal' }
+            ],
+            currentEditId: null,
+            deleteId: null
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable(PageData.list);
+            Modal.initClickOutside('reasonModal');
+            Modal.initClickOutside('deleteModal');
+        });
+
+        function renderTable(data) {
+            Table.render({
+                containerId: 'tableBody',
+                data: data,
+                rowRenderer: (item, index) => `
+                    <td>${index + 1}</td>
+                    <td><span class="reason-code">${item.code}</span></td>
+                    <td>${item.desc}</td>
+                    <td>${StatusBadge.normal(item.status === 'normal')}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn action-btn-edit" onclick="handleEdit(${item.id})">
+                                <i class="fas fa-edit"></i> 修改
+                            </button>
+                            <button class="action-btn action-btn-delete" onclick="handleDelete(${item.id})">
+                                <i class="fas fa-trash"></i> 删除
+                            </button>
+                        </div>
+                    </td>
+                `
+            });
+            Table.updateCount('totalCount', data.length);
+        }
+
+        function handleSearch() {
+            const code = document.getElementById('searchCode').value.toLowerCase();
+            const desc = document.getElementById('searchDesc').value.toLowerCase();
+            const status = document.getElementById('searchStatus').value;
+            
+            const filtered = PageData.list.filter(item => {
+                return (!code || item.code.toLowerCase().includes(code)) &&
+                       (!desc || item.desc.toLowerCase().includes(desc)) &&
+                       (!status || item.status === status);
+            });
+            renderTable(filtered);
+        }
+
+        function handleReset() {
+            document.getElementById('searchCode').value = '';
+            document.getElementById('searchDesc').value = '';
+            document.getElementById('searchStatus').value = '';
+            renderTable(PageData.list);
+        }
+
+        function handleAdd() {
+            PageData.currentEditId = null;
+            document.getElementById('modalTitle').textContent = '新增不互认原因';
+            document.getElementById('reasonForm').reset();
+            Modal.open('reasonModal');
+        }
+
+        function handleEdit(id) {
+            PageData.currentEditId = id;
+            const item = PageData.list.find(i => i.id === id);
+            if (item) {
+                document.getElementById('modalTitle').textContent = '修改不互认原因';
+                document.getElementById('reasonCode').value = item.code;
+                document.getElementById('reasonDesc').value = item.desc;
+                document.getElementById('reasonStatus').value = item.status;
+                Modal.open('reasonModal');
+            }
+        }
+
+        function handleSave() {
+            const code = document.getElementById('reasonCode').value;
+            const desc = document.getElementById('reasonDesc').value;
+            
+            if (!code || !desc) {
+                alert('请填写必填项');
+                return;
+            }
+            
+            if (PageData.currentEditId) {
+                const index = PageData.list.findIndex(i => i.id === PageData.currentEditId);
+                if (index !== -1) {
+                    PageData.list[index] = {
+                        ...PageData.list[index],
+                        code,
+                        desc,
+                        status: document.getElementById('reasonStatus').value
+                    };
+                }
+            } else {
+                const newId = Math.max(...PageData.list.map(i => i.id), 0) + 1;
+                PageData.list.push({
+                    id: newId,
+                    code,
+                    desc,
+                    status: document.getElementById('reasonStatus').value
+                });
+            }
+            
+            Modal.close('reasonModal');
+            renderTable(PageData.list);
+        }
+
+        function handleDelete(id) {
+            PageData.deleteId = id;
+            Modal.open('deleteModal');
+        }
+
+        function confirmDelete() {
+            if (PageData.deleteId) {
+                PageData.list = PageData.list.filter(i => i.id !== PageData.deleteId);
+                renderTable(PageData.list);
+            }
+            Modal.close('deleteModal');
+        }
+    </script>
+</body>
+</html>

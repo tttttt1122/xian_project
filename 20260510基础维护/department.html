@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>科室信息基础信息维护</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <style>
+        .dept-type {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-block;
+        }
+        .type-clinical {
+            background: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+        }
+        .type-auxiliary {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+        .type-admin {
+            background: #fff7e6;
+            color: #fa8c16;
+            border: 1px solid #ffd591;
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <h1 class="page-title"><i class="fas fa-clinic-medical"></i>科室信息基础信息维护</h1>
+    </header>
+
+    <section class="search-area">
+        <div class="search-form">
+            <div class="form-group">
+                <label class="form-label">科室名称：</label>
+                <input type="text" class="form-input" id="searchName" placeholder="请输入科室名称">
+            </div>
+            <div class="form-group">
+                <label class="form-label">科室编码：</label>
+                <input type="text" class="form-input" id="searchCode" placeholder="请输入科室编码">
+            </div>
+            <div class="form-group">
+                <label class="form-label">所属机构：</label>
+                <select class="form-select" id="searchOrg">
+                    <option value="">全部</option>
+                    <option value="市第一人民医院">市第一人民医院</option>
+                    <option value="中心医院">中心医院</option>
+                    <option value="中医院">中医院</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">科室类别：</label>
+                <select class="form-select" id="searchType">
+                    <option value="">全部</option>
+                    <option value="clinical">临床科室</option>
+                    <option value="auxiliary">医技科室</option>
+                    <option value="admin">行政科室</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-success" onclick="handleSearch()">
+                    <i class="fas fa-search"></i> 查询
+                </button>
+                <button class="btn btn-default" onclick="handleReset()">
+                    <i class="fas fa-redo"></i> 重置
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="table-container">
+        <div class="table-toolbar">
+            <div class="toolbar-left">
+                <span class="table-title">科室标准信息列表</span>
+                <span class="record-count">共 <strong id="totalCount">0</strong> 条记录</span>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn btn-primary" onclick="handleAdd()">
+                    <i class="fas fa-plus"></i> 新增
+                </button>
+                <button class="btn btn-warning" onclick="handleExport()">
+                    <i class="fas fa-download"></i> 导出
+                </button>
+            </div>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">序号</th>
+                    <th>科室名称</th>
+                    <th>科室编码</th>
+                    <th>所属机构</th>
+                    <th>科室类别</th>
+                    <th>状态</th>
+                    <th style="width: 200px;">操作</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <div class="pagination">
+            <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+            <span class="page-info">共 3 页</span>
+        </div>
+    </section>
+
+    <div class="modal" id="deptModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">新增科室</h3>
+                <button class="modal-close" onclick="Modal.close('deptModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="deptForm">
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label required">科室名称</label>
+                                <input type="text" class="form-input" id="deptName" placeholder="请输入科室名称">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label required">科室编码</label>
+                                <input type="text" class="form-input" id="deptCode" placeholder="请输入科室编码">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label">所属机构</label>
+                                <select class="form-select" id="deptOrg">
+                                    <option value="市第一人民医院">市第一人民医院</option>
+                                    <option value="中心医院">中心医院</option>
+                                    <option value="中医院">中医院</option>
+                                    <option value="妇幼保健院">妇幼保健院</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label">科室类别</label>
+                                <select class="form-select" id="deptType">
+                                    <option value="clinical">临床科室</option>
+                                    <option value="auxiliary">医技科室</option>
+                                    <option value="admin">行政科室</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label">负责人</label>
+                                <input type="text" class="form-input" id="deptLeader" placeholder="请输入负责人姓名">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label">联系电话</label>
+                                <input type="text" class="form-input" id="deptPhone" placeholder="请输入联系电话">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">备注说明</label>
+                        <textarea class="form-textarea" id="deptRemark" rows="3" placeholder="请输入备注说明"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('deptModal')">取消</button>
+                <button class="btn btn-primary" onclick="handleSave()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="deleteModal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h3 class="modal-title">确认删除</h3>
+                <button class="modal-close" onclick="Modal.close('deleteModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="text-align: center; padding: 20px;">确定要删除该科室吗？此操作不可恢复。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('deleteModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        const PageData = {
+            list: [
+                { id: 1, name: '内科', code: 'DEPT001', org: '市第一人民医院', type: 'clinical', leader: '王主任', phone: '1234', status: 'normal' },
+                { id: 2, name: '外科', code: 'DEPT002', org: '市第一人民医院', type: 'clinical', leader: '李主任', phone: '1235', status: 'normal' },
+                { id: 3, name: '放射科', code: 'DEPT003', org: '中心医院', type: 'auxiliary', leader: '张主任', phone: '1236', status: 'normal' },
+                { id: 4, name: '检验科', code: 'DEPT004', org: '中心医院', type: 'auxiliary', leader: '赵主任', phone: '1237', status: 'normal' },
+                { id: 5, name: '医务科', code: 'DEPT005', org: '中医院', type: 'admin', leader: '刘主任', phone: '1238', status: 'disabled' }
+            ],
+            currentEditId: null,
+            deleteId: null
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable(PageData.list);
+            Modal.initClickOutside('deptModal');
+            Modal.initClickOutside('deleteModal');
+        });
+
+        function renderTable(data) {
+            Table.render({
+                containerId: 'tableBody',
+                data: data,
+                rowRenderer: (item, index) => {
+                    const typeMap = {
+                        clinical: { class: 'type-clinical', text: '临床科室' },
+                        auxiliary: { class: 'type-auxiliary', text: '医技科室' },
+                        admin: { class: 'type-admin', text: '行政科室' }
+                    };
+                    const type = typeMap[item.type];
+                    return `
+                        <td>${index + 1}</td>
+                        <td>${item.name}</td>
+                        <td>${item.code}</td>
+                        <td>${item.org}</td>
+                        <td><span class="dept-type ${type.class}">${type.text}</span></td>
+                        <td>${StatusBadge.normal(item.status === 'normal')}</td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn action-btn-edit" onclick="handleEdit(${item.id})">
+                                    <i class="fas fa-edit"></i> 编辑
+                                </button>
+                                <button class="action-btn action-btn-delete" onclick="handleDelete(${item.id})">
+                                    <i class="fas fa-trash"></i> 删除
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                }
+            });
+            Table.updateCount('totalCount', data.length);
+        }
+
+        function handleSearch() {
+            const name = document.getElementById('searchName').value.toLowerCase();
+            const code = document.getElementById('searchCode').value.toLowerCase();
+            const org = document.getElementById('searchOrg').value;
+            const type = document.getElementById('searchType').value;
+            
+            const filtered = PageData.list.filter(item => {
+                return (!name || item.name.toLowerCase().includes(name)) &&
+                       (!code || item.code.toLowerCase().includes(code)) &&
+                       (!org || item.org === org) &&
+                       (!type || item.type === type);
+            });
+            renderTable(filtered);
+        }
+
+        function handleReset() {
+            document.getElementById('searchName').value = '';
+            document.getElementById('searchCode').value = '';
+            document.getElementById('searchOrg').value = '';
+            document.getElementById('searchType').value = '';
+            renderTable(PageData.list);
+        }
+
+        function handleAdd() {
+            PageData.currentEditId = null;
+            document.getElementById('modalTitle').textContent = '新增科室';
+            document.getElementById('deptForm').reset();
+            Modal.open('deptModal');
+        }
+
+        function handleEdit(id) {
+            PageData.currentEditId = id;
+            const item = PageData.list.find(i => i.id === id);
+            if (item) {
+                document.getElementById('modalTitle').textContent = '编辑科室';
+                document.getElementById('deptName').value = item.name;
+                document.getElementById('deptCode').value = item.code;
+                document.getElementById('deptOrg').value = item.org;
+                document.getElementById('deptType').value = item.type;
+                document.getElementById('deptLeader').value = item.leader;
+                document.getElementById('deptPhone').value = item.phone;
+                Modal.open('deptModal');
+            }
+        }
+
+        function handleSave() {
+            const name = document.getElementById('deptName').value;
+            const code = document.getElementById('deptCode').value;
+            
+            if (!name || !code) {
+                alert('请填写必填项');
+                return;
+            }
+            
+            if (PageData.currentEditId) {
+                const index = PageData.list.findIndex(i => i.id === PageData.currentEditId);
+                if (index !== -1) {
+                    PageData.list[index] = {
+                        ...PageData.list[index],
+                        name,
+                        code,
+                        org: document.getElementById('deptOrg').value,
+                        type: document.getElementById('deptType').value,
+                        leader: document.getElementById('deptLeader').value,
+                        phone: document.getElementById('deptPhone').value
+                    };
+                }
+            } else {
+                const newId = Math.max(...PageData.list.map(i => i.id), 0) + 1;
+                PageData.list.push({
+                    id: newId,
+                    name,
+                    code,
+                    org: document.getElementById('deptOrg').value,
+                    type: document.getElementById('deptType').value,
+                    leader: document.getElementById('deptLeader').value,
+                    phone: document.getElementById('deptPhone').value,
+                    status: 'normal'
+                });
+            }
+            
+            Modal.close('deptModal');
+            renderTable(PageData.list);
+        }
+
+        function handleDelete(id) {
+            PageData.deleteId = id;
+            Modal.open('deleteModal');
+        }
+
+        function confirmDelete() {
+            if (PageData.deleteId) {
+                PageData.list = PageData.list.filter(i => i.id !== PageData.deleteId);
+                renderTable(PageData.list);
+            }
+            Modal.close('deleteModal');
+        }
+
+        function handleExport() {
+            alert('导出功能开发中...');
+        }
+    </script>
+</body>
+</html>

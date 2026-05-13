@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>调用方影像与报告代理设置</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <style>
+        .tab-container {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .tab-header {
+            display: flex;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .tab-item {
+            padding: 15px 30px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+            font-weight: 500;
+            color: #64748b;
+        }
+        .tab-item:hover {
+            color: #2d8cff;
+            background: #f8fafc;
+        }
+        .tab-item.active {
+            color: #2d8cff;
+            border-bottom-color: #2d8cff;
+            background: #f0f7ff;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .permission-badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .perm-read {
+            background: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+        }
+        .perm-write {
+            background: #fff7e6;
+            color: #fa8c16;
+            border: 1px solid #ffd591;
+        }
+        .format-badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .status-normal {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+        .status-disabled {
+            background: #fff1f0;
+            color: #ff4d4f;
+            border: 1px solid #ffa39e;
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <h1 class="page-title"><i class="fas fa-network-wired"></i>调用方影像与报告代理设置</h1>
+    </header>
+
+    <div class="tab-container">
+        <div class="tab-header">
+            <div class="tab-item active" onclick="switchTab('image')">
+                <i class="fas fa-image"></i> 影像代理配置
+            </div>
+            <div class="tab-item" onclick="switchTab('report')">
+                <i class="fas fa-file-medical"></i> 报告代理配置
+            </div>
+        </div>
+        
+        <div class="tab-content active" id="imageTab">
+            <section class="search-area">
+                <div class="search-form">
+                    <div class="form-group">
+                        <label class="form-label">调用方名称</label>
+                        <input type="text" class="form-input" id="imageCallerName" placeholder="请输入调用方名称">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">访问权限</label>
+                        <select class="form-select" id="imagePermission">
+                            <option value="">全部权限</option>
+                            <option value="read">只读</option>
+                            <option value="write">读写</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">状态</label>
+                        <select class="form-select" id="imageStatus">
+                            <option value="">全部状态</option>
+                            <option value="normal">启用</option>
+                            <option value="disabled">停用</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-success" onclick="handleSearch('image')">
+                            <i class="fas fa-search"></i> 查询
+                        </button>
+                        <button class="btn btn-default" onclick="handleReset('image')">
+                            <i class="fas fa-redo"></i> 重置
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="table-container">
+                <div class="table-toolbar">
+                    <div class="toolbar-left">
+                        <span class="table-title">影像代理配置列表</span>
+                        <span class="record-count">共 <strong id="imageTotalCount">0</strong> 条记录</span>
+                    </div>
+                    <div class="toolbar-right">
+                        <button class="btn btn-primary" onclick="handleAdd('image')">
+                            <i class="fas fa-plus"></i> 新增
+                        </button>
+                        <button class="btn btn-warning" onclick="handleExport('image')">
+                            <i class="fas fa-download"></i> 导出
+                        </button>
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">序号</th>
+                            <th>调用方名称</th>
+                            <th>调用方编码</th>
+                            <th>访问权限</th>
+                            <th>数据格式</th>
+                            <th>访问IP白名单</th>
+                            <th>状态</th>
+                            <th style="width: 200px;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="imageTableBody"></tbody>
+                </table>
+                <div class="pagination">
+                    <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+                    <span class="page-info">共 2 页</span>
+                </div>
+            </section>
+        </div>
+        
+        <div class="tab-content" id="reportTab">
+            <section class="search-area">
+                <div class="search-form">
+                    <div class="form-group">
+                        <label class="form-label">调用方名称</label>
+                        <input type="text" class="form-input" id="reportCallerName" placeholder="请输入调用方名称">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">访问权限</label>
+                        <select class="form-select" id="reportPermission">
+                            <option value="">全部权限</option>
+                            <option value="read">只读</option>
+                            <option value="write">读写</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">状态</label>
+                        <select class="form-select" id="reportStatus">
+                            <option value="">全部状态</option>
+                            <option value="normal">启用</option>
+                            <option value="disabled">停用</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-success" onclick="handleSearch('report')">
+                            <i class="fas fa-search"></i> 查询
+                        </button>
+                        <button class="btn btn-default" onclick="handleReset('report')">
+                            <i class="fas fa-redo"></i> 重置
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="table-container">
+                <div class="table-toolbar">
+                    <div class="toolbar-left">
+                        <span class="table-title">报告代理配置列表</span>
+                        <span class="record-count">共 <strong id="reportTotalCount">0</strong> 条记录</span>
+                    </div>
+                    <div class="toolbar-right">
+                        <button class="btn btn-primary" onclick="handleAdd('report')">
+                            <i class="fas fa-plus"></i> 新增
+                        </button>
+                        <button class="btn btn-warning" onclick="handleExport('report')">
+                            <i class="fas fa-download"></i> 导出
+                        </button>
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">序号</th>
+                            <th>调用方名称</th>
+                            <th>调用方编码</th>
+                            <th>访问权限</th>
+                            <th>数据格式</th>
+                            <th>访问IP白名单</th>
+                            <th>状态</th>
+                            <th style="width: 200px;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportTableBody"></tbody>
+                </table>
+                <div class="pagination">
+                    <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+                    <span class="page-info">共 2 页</span>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="modal" id="configModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">新增代理配置</h3>
+                <button class="modal-close" onclick="Modal.close('configModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="configForm">
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label required">调用方名称</label>
+                                <input type="text" class="form-input" id="modalCallerName" placeholder="请输入调用方名称">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label required">调用方编码</label>
+                                <input type="text" class="form-input" id="modalCallerCode" placeholder="请输入调用方编码">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label required">访问权限</label>
+                                <select class="form-select" id="modalPermission">
+                                    <option value="">请选择访问权限</option>
+                                    <option value="read">只读</option>
+                                    <option value="write">读写</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label required">数据格式</label>
+                                <select class="form-select" id="modalFormat">
+                                    <option value="">请选择数据格式</option>
+                                    <option value="json">JSON</option>
+                                    <option value="xml">XML</option>
+                                    <option value="hl7">HL7</option>
+                                    <option value="dicom">DICOM</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">访问IP白名单</label>
+                        <textarea class="form-textarea" id="modalIpList" rows="3" placeholder="请输入允许的IP地址，多个IP用逗号分隔"></textarea>
+                        <span class="form-hint">例如：192.168.1.100, 192.168.1.101</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">接口密钥</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" class="form-input" id="modalApiKey" placeholder="点击生成密钥" readonly style="flex: 1;">
+                            <button type="button" class="btn btn-default" onclick="generateApiKey()">
+                                <i class="fas fa-key"></i> 生成
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">备注</label>
+                        <textarea class="form-textarea" id="modalRemark" rows="2" placeholder="请输入备注信息"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">状态</label>
+                        <select class="form-select" id="modalStatus">
+                            <option value="normal">启用</option>
+                            <option value="disabled">停用</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('configModal')">取消</button>
+                <button class="btn btn-primary" onclick="handleSave()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="deleteModal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h3 class="modal-title">确认删除</h3>
+                <button class="modal-close" onclick="Modal.close('deleteModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="text-align: center; padding: 20px;">确定要删除该代理配置吗？</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('deleteModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        const PageData = {
+            image: {
+                list: [
+                    { id: 1, name: '市第一人民医院PACS', code: 'PACS001', permission: 'write', permissionText: '读写', format: 'dicom', formatText: 'DICOM', ipList: '192.168.1.100, 192.168.1.101', status: 'normal' },
+                    { id: 2, name: '市中心医院影像系统', code: 'PACS002', permission: 'read', permissionText: '只读', format: 'dicom', formatText: 'DICOM', ipList: '192.168.2.100', status: 'normal' },
+                    { id: 3, name: '第三方影像平台', code: 'PACS003', permission: 'read', permissionText: '只读', format: 'json', formatText: 'JSON', ipList: '10.0.0.100', status: 'disabled' }
+                ],
+                editId: null,
+                deleteId: null
+            },
+            report: {
+                list: [
+                    { id: 1, name: '市第一人民医院HIS', code: 'HIS001', permission: 'write', permissionText: '读写', format: 'hl7', formatText: 'HL7', ipList: '192.168.1.200', status: 'normal' },
+                    { id: 2, name: '区域健康平台', code: 'PLATFORM001', permission: 'read', permissionText: '只读', format: 'json', formatText: 'JSON', ipList: '192.168.10.100, 192.168.10.101', status: 'normal' },
+                    { id: 3, name: '医保对接系统', code: 'INSURANCE001', permission: 'read', permissionText: '只读', format: 'xml', formatText: 'XML', ipList: '172.16.0.100', status: 'normal' }
+                ],
+                editId: null,
+                deleteId: null
+            },
+            currentTab: 'image'
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable('image', PageData.image.list);
+            renderTable('report', PageData.report.list);
+            Modal.initClickOutside('configModal');
+            Modal.initClickOutside('deleteModal');
+        });
+
+        function switchTab(tab) {
+            PageData.currentTab = tab;
+            document.querySelectorAll('.tab-item').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.closest('.tab-item').classList.add('active');
+            document.getElementById(tab + 'Tab').classList.add('active');
+        }
+
+        function renderTable(type, data) {
+            const containerId = type === 'image' ? 'imageTableBody' : 'reportTableBody';
+            const totalId = type === 'image' ? 'imageTotalCount' : 'reportTotalCount';
+            
+            Table.render({
+                containerId: containerId,
+                data: data,
+                rowRenderer: (item, index) => {
+                    const permClass = item.permission === 'read' ? 'perm-read' : 'perm-write';
+                    const statusClass = item.status === 'normal' ? 'status-normal' : 'status-disabled';
+                    const statusText = item.status === 'normal' ? '启用' : '停用';
+                    const statusIcon = item.status === 'normal' ? 'fa-check-circle' : 'fa-ban';
+                    return `
+                        <td>${index + 1}</td>
+                        <td>${item.name}</td>
+                        <td>${item.code}</td>
+                        <td><span class="permission-badge ${permClass}">${item.permissionText}</span></td>
+                        <td>${item.formatText}</td>
+                        <td>${item.ipList}</td>
+                        <td><span class="status-badge ${statusClass}"><i class="fas ${statusIcon}"></i> ${statusText}</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn action-btn-edit" onclick="handleEdit('${type}', ${item.id})">
+                                    <i class="fas fa-edit"></i> 编辑
+                                </button>
+                                <button class="action-btn action-btn-delete" onclick="handleDelete('${type}', ${item.id})">
+                                    <i class="fas fa-trash"></i> 删除
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                }
+            });
+            Table.updateCount(totalId, data.length);
+        }
+
+        function handleSearch(type) {
+            const name = document.getElementById(type + 'CallerName').value.toLowerCase();
+            const permission = document.getElementById(type + 'Permission').value;
+            const status = document.getElementById(type + 'Status').value;
+            
+            const filtered = PageData[type].list.filter(item => {
+                return (!name || item.name.toLowerCase().includes(name)) &&
+                       (!permission || item.permission === permission) &&
+                       (!status || item.status === status);
+            });
+            renderTable(type, filtered);
+        }
+
+        function handleReset(type) {
+            document.getElementById(type + 'CallerName').value = '';
+            document.getElementById(type + 'Permission').value = '';
+            document.getElementById(type + 'Status').value = '';
+            renderTable(type, PageData[type].list);
+        }
+
+        function handleAdd(type) {
+            PageData[type].editId = null;
+            document.getElementById('modalTitle').textContent = '新增代理配置';
+            document.getElementById('configForm').reset();
+            Modal.open('configModal');
+        }
+
+        function handleEdit(type, id) {
+            PageData[type].editId = id;
+            const item = PageData[type].list.find(i => i.id === id);
+            if (item) {
+                document.getElementById('modalTitle').textContent = '编辑代理配置';
+                document.getElementById('modalCallerName').value = item.name;
+                document.getElementById('modalCallerCode').value = item.code;
+                document.getElementById('modalPermission').value = item.permission;
+                document.getElementById('modalFormat').value = item.format;
+                document.getElementById('modalIpList').value = item.ipList;
+                document.getElementById('modalStatus').value = item.status;
+                Modal.open('configModal');
+            }
+        }
+
+        function handleSave() {
+            const name = document.getElementById('modalCallerName').value;
+            const code = document.getElementById('modalCallerCode').value;
+            
+            if (!name || !code) {
+                alert('请填写必填项');
+                return;
+            }
+            
+            Modal.close('configModal');
+            alert('保存成功');
+        }
+
+        function handleDelete(type, id) {
+            PageData[type].deleteId = id;
+            Modal.open('deleteModal');
+        }
+
+        function confirmDelete() {
+            Modal.close('deleteModal');
+            alert('删除成功');
+        }
+
+        function generateApiKey() {
+            const key = 'key_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            document.getElementById('modalApiKey').value = key;
+        }
+
+        function handleExport(type) {
+            alert('导出功能开发中...');
+        }
+    </script>
+</body>
+</html>

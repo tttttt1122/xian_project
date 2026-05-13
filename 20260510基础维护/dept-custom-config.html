@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>医疗机构科室自定义配置</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <style>
+        .config-type {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-block;
+        }
+        .type-dept {
+            background: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+        }
+        .type-project {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .status-normal {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+        .status-disabled {
+            background: #fff1f0;
+            color: #ff4d4f;
+            border: 1px solid #ffa39e;
+        }
+        .dept-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #666;
+        }
+        .select-multiple {
+            width: 100%;
+            min-height: 120px;
+            padding: 8px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .select-multiple option {
+            padding: 6px 8px;
+        }
+        .select-multiple option:hover {
+            background: #e6f7ff;
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <h1 class="page-title"><i class="fas fa-cogs"></i>医疗机构科室自定义配置</h1>
+    </header>
+
+    <section class="search-area">
+        <div class="search-form">
+            <div class="form-group">
+                <label class="form-label">医疗机构</label>
+                <select class="form-select" id="orgSelect">
+                    <option value="">全部机构</option>
+                    <option value="1">市第一人民医院</option>
+                    <option value="2">市中心医院</option>
+                    <option value="3">市中医院</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">科室名称</label>
+                <input type="text" class="form-input" id="deptName" placeholder="请输入科室名称">
+            </div>
+            <div class="form-group">
+                <label class="form-label">自定义类型</label>
+                <select class="form-select" id="typeSelect">
+                    <option value="">全部类型</option>
+                    <option value="dept">按科室</option>
+                    <option value="project">按项目</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">状态</label>
+                <select class="form-select" id="statusSelect">
+                    <option value="">全部状态</option>
+                    <option value="normal">启用</option>
+                    <option value="disabled">停用</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-success" onclick="handleSearch()">
+                    <i class="fas fa-search"></i> 查询
+                </button>
+                <button class="btn btn-default" onclick="handleReset()">
+                    <i class="fas fa-redo"></i> 重置
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="table-container">
+        <div class="table-toolbar">
+            <div class="toolbar-left">
+                <span class="table-title">科室自定义配置列表</span>
+                <span class="record-count">共 <strong id="totalCount">0</strong> 条记录</span>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn btn-primary" onclick="handleAdd()">
+                    <i class="fas fa-plus"></i> 新增
+                </button>
+                <button class="btn btn-warning" onclick="handleExport()">
+                    <i class="fas fa-download"></i> 导出
+                </button>
+            </div>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">序号</th>
+                    <th>医疗机构</th>
+                    <th>科室名称</th>
+                    <th>自定义类型</th>
+                    <th>配置内容</th>
+                    <th>状态</th>
+                    <th>创建时间</th>
+                    <th style="width: 200px;">操作</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <div class="pagination">
+            <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+            <span class="page-info">共 2 页</span>
+        </div>
+    </section>
+
+    <div class="modal" id="configModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">新增科室自定义配置</h3>
+                <button class="modal-close" onclick="Modal.close('configModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="configForm">
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label required">医疗机构</label>
+                                <select class="form-select" id="modalOrg">
+                                    <option value="">请选择医疗机构</option>
+                                    <option value="1">市第一人民医院</option>
+                                    <option value="2">市中心医院</option>
+                                    <option value="3">市中医院</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label required">科室</label>
+                                <select class="form-select" id="modalDept">
+                                    <option value="">请选择科室</option>
+                                    <option value="1">检验科</option>
+                                    <option value="2">影像科</option>
+                                    <option value="3">心内科</option>
+                                    <option value="4">外科</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">自定义类型</label>
+                        <select class="form-select" id="modalType" onchange="toggleConfigGroup()">
+                            <option value="">请选择类型</option>
+                            <option value="dept">按科室</option>
+                            <option value="project">按项目</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="deptConfigGroup" style="display: none;">
+                        <label class="form-label">选择互认科室</label>
+                        <select class="select-multiple" multiple>
+                            <option value="1">检验科</option>
+                            <option value="2">影像科</option>
+                            <option value="3">心内科</option>
+                            <option value="4">外科</option>
+                            <option value="5">内科</option>
+                            <option value="6">儿科</option>
+                        </select>
+                        <span class="form-hint">选择可与本科室互认的其他科室</span>
+                    </div>
+                    <div class="form-group" id="projectConfigGroup" style="display: none;">
+                        <label class="form-label">选择互认项目</label>
+                        <select class="select-multiple" multiple>
+                            <option value="1">血常规检查</option>
+                            <option value="2">尿常规检查</option>
+                            <option value="3">肝功能检查</option>
+                            <option value="4">肾功能检查</option>
+                            <option value="5">心电图检查</option>
+                            <option value="6">胸部X光检查</option>
+                            <option value="7">CT检查</option>
+                            <option value="8">核磁共振</option>
+                        </select>
+                        <span class="form-hint">选择本科室可互认的检查项目</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">配置说明</label>
+                        <textarea class="form-textarea" id="modalDesc" rows="2" placeholder="请输入配置说明"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">状态</label>
+                        <select class="form-select" id="modalStatus">
+                            <option value="normal">启用</option>
+                            <option value="disabled">停用</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('configModal')">取消</button>
+                <button class="btn btn-primary" onclick="handleSave()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="deleteModal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h3 class="modal-title">确认删除</h3>
+                <button class="modal-close" onclick="Modal.close('deleteModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="text-align: center; padding: 20px;">确定要删除该科室自定义配置吗？</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('deleteModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        const PageData = {
+            list: [
+                { id: 1, org: '市第一人民医院', dept: '检验科', type: 'dept', typeText: '按科室', content: '仅与影像科、心内科互认', status: 'normal', createTime: '2024-01-15 10:30:00' },
+                { id: 2, org: '市第一人民医院', dept: '影像科', type: 'project', typeText: '按项目', content: 'CT、核磁共振不参与互认', status: 'normal', createTime: '2024-01-14 15:20:00' },
+                { id: 3, org: '市中心医院', dept: '心内科', type: 'dept', typeText: '按科室', content: '仅与检验科互认', status: 'disabled', createTime: '2024-01-13 09:15:00' },
+                { id: 4, org: '市中医院', dept: '外科', type: 'project', typeText: '按项目', content: '常规检查项目均可互认', status: 'normal', createTime: '2024-01-12 14:45:00' }
+            ],
+            editId: null,
+            deleteId: null
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable(PageData.list);
+            Modal.initClickOutside('configModal');
+            Modal.initClickOutside('deleteModal');
+        });
+
+        function toggleConfigGroup() {
+            const type = document.getElementById('modalType').value;
+            document.getElementById('deptConfigGroup').style.display = type === 'dept' ? 'block' : 'none';
+            document.getElementById('projectConfigGroup').style.display = type === 'project' ? 'block' : 'none';
+        }
+
+        function renderTable(data) {
+            Table.render({
+                containerId: 'tableBody',
+                data: data,
+                rowRenderer: (item, index) => {
+                    const typeClass = item.type === 'dept' ? 'type-dept' : 'type-project';
+                    const statusClass = item.status === 'normal' ? 'status-normal' : 'status-disabled';
+                    const statusText = item.status === 'normal' ? '启用' : '停用';
+                    const statusIcon = item.status === 'normal' ? 'fa-check-circle' : 'fa-ban';
+                    return `
+                        <td>${index + 1}</td>
+                        <td>${item.org}</td>
+                        <td><span class="dept-tag"><i class="fas fa-hospital-user"></i> ${item.dept}</span></td>
+                        <td><span class="config-type ${typeClass}">${item.typeText}</span></td>
+                        <td>${item.content}</td>
+                        <td><span class="status-badge ${statusClass}"><i class="fas ${statusIcon}"></i> ${statusText}</span></td>
+                        <td>${item.createTime}</td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn action-btn-edit" onclick="handleEdit(${item.id})">
+                                    <i class="fas fa-edit"></i> 编辑
+                                </button>
+                                <button class="action-btn action-btn-delete" onclick="handleDelete(${item.id})">
+                                    <i class="fas fa-trash"></i> 删除
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                }
+            });
+            Table.updateCount('totalCount', data.length);
+        }
+
+        function handleSearch() {
+            const org = document.getElementById('orgSelect').value;
+            const deptName = document.getElementById('deptName').value.toLowerCase();
+            const type = document.getElementById('typeSelect').value;
+            const status = document.getElementById('statusSelect').value;
+            
+            const filtered = PageData.list.filter(item => {
+                return (!org || item.org.includes(org === '1' ? '第一' : org === '2' ? '中心' : '中医')) &&
+                       (!deptName || item.dept.toLowerCase().includes(deptName)) &&
+                       (!type || item.type === type) &&
+                       (!status || item.status === status);
+            });
+            renderTable(filtered);
+        }
+
+        function handleReset() {
+            document.getElementById('orgSelect').value = '';
+            document.getElementById('deptName').value = '';
+            document.getElementById('typeSelect').value = '';
+            document.getElementById('statusSelect').value = '';
+            renderTable(PageData.list);
+        }
+
+        function handleAdd() {
+            PageData.editId = null;
+            document.getElementById('modalTitle').textContent = '新增科室自定义配置';
+            document.getElementById('configForm').reset();
+            document.getElementById('deptConfigGroup').style.display = 'none';
+            document.getElementById('projectConfigGroup').style.display = 'none';
+            Modal.open('configModal');
+        }
+
+        function handleEdit(id) {
+            PageData.editId = id;
+            const item = PageData.list.find(i => i.id === id);
+            if (item) {
+                document.getElementById('modalTitle').textContent = '编辑科室自定义配置';
+                document.getElementById('modalOrg').value = '1';
+                document.getElementById('modalDept').value = '1';
+                document.getElementById('modalType').value = item.type;
+                document.getElementById('modalStatus').value = item.status;
+                toggleConfigGroup();
+                Modal.open('configModal');
+            }
+        }
+
+        function handleSave() {
+            const org = document.getElementById('modalOrg').value;
+            const dept = document.getElementById('modalDept').value;
+            const type = document.getElementById('modalType').value;
+            
+            if (!org || !dept || !type) {
+                alert('请填写必填项');
+                return;
+            }
+            
+            Modal.close('configModal');
+            alert(PageData.editId ? '修改成功' : '新增成功');
+            renderTable(PageData.list);
+        }
+
+        function handleDelete(id) {
+            PageData.deleteId = id;
+            Modal.open('deleteModal');
+        }
+
+        function confirmDelete() {
+            if (PageData.deleteId) {
+                PageData.list = PageData.list.filter(i => i.id !== PageData.deleteId);
+                renderTable(PageData.list);
+            }
+            Modal.close('deleteModal');
+        }
+
+        function handleExport() {
+            alert('导出功能开发中...');
+        }
+    </script>
+</body>
+</html>

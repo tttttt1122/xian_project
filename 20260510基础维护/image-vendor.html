@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>影像厂商维护</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="page-container">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-industry"></i>
+                影像厂商维护
+            </h1>
+        </div>
+
+        <!-- 搜索区域 -->
+        <div class="search-area">
+            <div class="search-form">
+                <div class="form-group">
+                    <label class="form-label">厂商名称</label>
+                    <input type="text" class="form-input" id="vendorName" placeholder="请输入厂商名称">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">产品类型</label>
+                    <select class="form-select" id="productType">
+                        <option value="">全部类型</option>
+                        <option value="pacs">PACS系统</option>
+                        <option value="ris">RIS系统</option>
+                        <option value="device">影像设备</option>
+                        <option value="storage">存储设备</option>
+                        <option value="cloud">云服务</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">状态</label>
+                    <select class="form-select" id="statusSelect">
+                        <option value="">全部状态</option>
+                        <option value="normal">合作中</option>
+                        <option value="disabled">已停用</option>
+                    </select>
+                </div>
+                <div class="form-group search-btns">
+                    <button class="btn btn-primary" onclick="handleSearch()">
+                        <i class="fas fa-search"></i> 查询
+                    </button>
+                    <button class="btn btn-default" onclick="handleReset()">
+                        <i class="fas fa-redo"></i> 重置
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="action-bar">
+            <button class="btn btn-success" onclick="handleAdd()">
+                <i class="fas fa-plus"></i> 新增
+            </button>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">序号</th>
+                        <th>厂商名称</th>
+                        <th>产品类型</th>
+                        <th>服务内容</th>
+                        <th>联系人</th>
+                        <th>联系电话</th>
+                        <th>状态</th>
+                        <th style="width: 200px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination-container" id="pagination"></div>
+    </div>
+
+    <!-- 新增/编辑模态框 -->
+    <div class="modal" id="vendorModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">新增影像厂商</h3>
+                <button class="modal-close" onclick="Modal.close('vendorModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="vendorForm">
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label required">厂商名称</label>
+                            <input type="text" class="form-input" id="modalName" placeholder="请输入厂商名称">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label required">产品类型</label>
+                            <select class="form-select" id="modalType">
+                                <option value="">请选择产品类型</option>
+                                <option value="pacs">PACS系统</option>
+                                <option value="ris">RIS系统</option>
+                                <option value="device">影像设备</option>
+                                <option value="storage">存储设备</option>
+                                <option value="cloud">云服务</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">服务内容</label>
+                        <textarea class="form-textarea" id="modalService" rows="3" placeholder="请输入服务内容描述"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label required">联系人</label>
+                            <input type="text" class="form-input" id="modalContact" placeholder="请输入联系人姓名">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label required">联系电话</label>
+                            <input type="text" class="form-input" id="modalPhone" placeholder="请输入联系电话">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">联系邮箱</label>
+                        <input type="email" class="form-input" id="modalEmail" placeholder="请输入联系邮箱">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">厂商地址</label>
+                        <input type="text" class="form-input" id="modalAddress" placeholder="请输入厂商地址">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">备注</label>
+                        <textarea class="form-textarea" id="modalRemark" rows="2" placeholder="请输入备注信息"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">状态</label>
+                        <select class="form-select" id="modalStatus">
+                            <option value="normal">合作中</option>
+                            <option value="disabled">已停用</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('vendorModal')">取消</button>
+                <button class="btn btn-primary" onclick="handleSave()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认模态框 -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3 class="modal-title">确认删除</h3>
+                <button class="modal-close" onclick="Modal.close('deleteModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="text-align: center; padding: 20px;">
+                    <i class="fas fa-exclamation-triangle" style="color: #f59e0b; font-size: 48px;"></i>
+                </p>
+                <p style="text-align: center;">确定要删除该影像厂商信息吗？<br>删除后将无法恢复。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="Modal.close('deleteModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        // 页面数据
+        const PageData = {
+            list: [
+                { id: 1, name: '联影医疗', type: 'device', typeText: '影像设备', service: 'CT、MRI、DR等医学影像设备供应及维护', contact: '张经理', phone: '13800138001', email: 'zhang@united-imaging.com', address: '上海市嘉定区', status: 'normal' },
+                { id: 2, name: '东软医疗', type: 'pacs', typeText: 'PACS系统', service: 'PACS/RIS系统开发、部署及运维服务', contact: '李经理', phone: '13800138002', email: 'li@neusoft.com', address: '沈阳市浑南区', status: 'normal' },
+                { id: 3, name: '卫宁健康', type: 'pacs', typeText: 'PACS系统', service: '医疗信息化解决方案，影像云存储服务', contact: '王经理', phone: '13800138003', email: 'wang@winning.com.cn', address: '上海市浦东新区', status: 'normal' },
+                { id: 4, name: '飞利浦医疗', type: 'device', typeText: '影像设备', service: '高端CT、MRI、超声设备供应', contact: '陈经理', phone: '13800138004', email: 'chen@philips.com', address: '北京市朝阳区', status: 'normal' },
+                { id: 5, name: '阿里云医疗', type: 'cloud', typeText: '云服务', service: '医疗影像云存储、AI辅助诊断服务', contact: '刘经理', phone: '13800138005', email: 'liu@aliyun.com', address: '杭州市西湖区', status: 'disabled' }
+            ],
+            editId: null,
+            deleteId: null
+        };
+
+        // 产品类型样式
+        const typeStyles = {
+            'pacs': { class: 'tag-blue', icon: 'fa-server' },
+            'ris': { class: 'tag-green', icon: 'fa-clipboard-list' },
+            'device': { class: 'tag-orange', icon: 'fa-x-ray' },
+            'storage': { class: 'tag-purple', icon: 'fa-hdd' },
+            'cloud': { class: 'tag-cyan', icon: 'fa-cloud' }
+        };
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable(PageData.list);
+        });
+
+        // 渲染表格
+        function renderTable(data) {
+            Table.render({
+                containerId: 'tableBody',
+                data: data,
+                rowRenderer: (item, index) => {
+                    const style = typeStyles[item.type] || { class: 'tag-gray', icon: 'fa-circle' };
+                    const statusClass = item.status === 'normal' ? 'status-normal' : 'status-disabled';
+                    const statusText = item.status === 'normal' ? '合作中' : '已停用';
+                    const statusIcon = item.status === 'normal' ? 'fa-check-circle' : 'fa-ban';
+                    return `
+                        <td>${index + 1}</td>
+                        <td><strong>${item.name}</strong></td>
+                        <td><span class="tag ${style.class}"><i class="fas ${style.icon}"></i> ${item.typeText}</span></td>
+                        <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.service}">${item.service}</td>
+                        <td><i class="fas fa-user-tie" style="color: #94a3b8; margin-right: 5px;"></i>${item.contact}</td>
+                        <td><span class="code-tag">${item.phone}</span></td>
+                        <td><span class="status-tag ${statusClass}"><i class="fas ${statusIcon}"></i> ${statusText}</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn action-btn-edit" onclick="handleEdit(${item.id})">
+                                    <i class="fas fa-edit"></i> 编辑
+                                </button>
+                                <button class="action-btn action-btn-delete" onclick="handleDelete(${item.id})">
+                                    <i class="fas fa-trash"></i> 删除
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                }
+            });
+        }
+
+        // 搜索
+        function handleSearch() {
+            const name = document.getElementById('vendorName').value;
+            const type = document.getElementById('productType').value;
+            const status = document.getElementById('statusSelect').value;
+            
+            let filtered = PageData.list.filter(item => {
+                if (name && !item.name.includes(name)) return false;
+                if (type && item.type !== type) return false;
+                if (status && item.status !== status) return false;
+                return true;
+            });
+            
+            renderTable(filtered);
+        }
+
+        // 重置
+        function handleReset() {
+            document.getElementById('vendorName').value = '';
+            document.getElementById('productType').value = '';
+            document.getElementById('statusSelect').value = '';
+            renderTable(PageData.list);
+        }
+
+        // 新增
+        function handleAdd() {
+            PageData.editId = null;
+            document.getElementById('modalTitle').textContent = '新增影像厂商';
+            document.getElementById('vendorForm').reset();
+            Modal.open('vendorModal');
+        }
+
+        // 编辑
+        function handleEdit(id) {
+            PageData.editId = id;
+            const item = PageData.list.find(i => i.id === id);
+            if (item) {
+                document.getElementById('modalTitle').textContent = '编辑影像厂商';
+                document.getElementById('modalName').value = item.name;
+                document.getElementById('modalType').value = item.type;
+                document.getElementById('modalService').value = item.service;
+                document.getElementById('modalContact').value = item.contact;
+                document.getElementById('modalPhone').value = item.phone;
+                document.getElementById('modalEmail').value = item.email;
+                document.getElementById('modalAddress').value = item.address;
+                document.getElementById('modalStatus').value = item.status;
+                Modal.open('vendorModal');
+            }
+        }
+
+        // 保存
+        function handleSave() {
+            const name = document.getElementById('modalName');
+            const type = document.getElementById('modalType');
+            const service = document.getElementById('modalService');
+            const contact = document.getElementById('modalContact');
+            const phone = document.getElementById('modalPhone');
+            
+            if (!name.value) {
+                alert('请输入厂商名称');
+                return;
+            }
+            if (!type.value) {
+                alert('请选择产品类型');
+                return;
+            }
+            if (!service.value) {
+                alert('请输入服务内容');
+                return;
+            }
+            if (!contact.value) {
+                alert('请输入联系人');
+                return;
+            }
+            if (!phone.value) {
+                alert('请输入联系电话');
+                return;
+            }
+            
+            Modal.close('vendorModal');
+            alert(PageData.editId ? '修改成功' : '新增成功');
+            renderTable(PageData.list);
+        }
+
+        // 删除
+        function handleDelete(id) {
+            PageData.deleteId = id;
+            Modal.open('deleteModal');
+        }
+
+        // 确认删除
+        function confirmDelete() {
+            Modal.close('deleteModal');
+            alert('删除成功');
+        }
+    </script>
+</body>
+</html>

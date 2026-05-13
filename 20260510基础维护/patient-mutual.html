@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>患者可互认信息查询</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <style>
+        /* 页面特有样式 */
+        .mutual-status {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-block;
+        }
+
+        .status-yes {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+
+        .status-no {
+            background: #fff1f0;
+            color: #ff4d4f;
+            border: 1px solid #ffa39e;
+        }
+
+        .status-pending {
+            background: #fff7e6;
+            color: #faad14;
+            border: 1px solid #ffd591;
+        }
+
+        .view-report-btn {
+            padding: 6px 14px;
+            background: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .view-report-btn:hover {
+            background: #1890ff;
+            color: #fff;
+        }
+
+        /* 报告弹窗特有样式 */
+        .modal-content.modal-lg {
+            width: 900px;
+        }
+
+        .tab-nav {
+            display: flex;
+            border-bottom: 1px solid #f0f0f0;
+            background: #fff;
+        }
+
+        .tab-item {
+            padding: 15px 30px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-item:hover {
+            color: #2d8cff;
+        }
+
+        .tab-item.active {
+            color: #2d8cff;
+            border-bottom-color: #2d8cff;
+            font-weight: 500;
+        }
+
+        .tab-content {
+            padding: 20px;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 报告内容样式 */
+        .report-content {
+            background: #fafafa;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .report-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e8e8e8;
+        }
+
+        .report-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .report-subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .report-info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .report-info-item {
+            display: flex;
+            gap: 8px;
+        }
+
+        .report-info-label {
+            color: #999;
+            font-size: 13px;
+        }
+
+        .report-info-value {
+            color: #333;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .report-section {
+            margin-bottom: 20px;
+        }
+
+        .report-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            padding-left: 10px;
+            border-left: 3px solid #2d8cff;
+        }
+
+        .report-text {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.8;
+            padding: 15px;
+            background: #fff;
+            border-radius: 6px;
+        }
+
+        /* 检验报告表格 */
+        .lab-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .lab-table th {
+            background: #f0f0f0;
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .lab-table td {
+            padding: 12px;
+            font-size: 13px;
+            color: #666;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .lab-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .result-normal {
+            color: #52c41a;
+        }
+
+        .result-abnormal {
+            color: #ff4d4f;
+            font-weight: 500;
+        }
+
+        /* 影像展示 */
+        .image-viewer {
+            background: #000;
+            border-radius: 8px;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .image-placeholder {
+            text-align: center;
+            color: #666;
+        }
+
+        .image-placeholder i {
+            font-size: 64px;
+            color: #444;
+            margin-bottom: 15px;
+        }
+
+        .image-placeholder p {
+            font-size: 14px;
+        }
+
+        .image-toolbar {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            background: rgba(255,255,255,0.9);
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+
+        .image-toolbar button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+            font-size: 16px;
+            padding: 5px 10px;
+        }
+
+        .image-toolbar button:hover {
+            color: #2d8cff;
+        }
+    </style>
+</head>
+<body>
+    <!-- 页面头部 -->
+    <header class="page-header">
+        <h1 class="page-title"><i class="fas fa-user-injured"></i>患者可互认信息查询</h1>
+    </header>
+
+    <!-- 搜索区域 -->
+    <section class="search-area">
+        <div class="search-form">
+            <div class="form-group">
+                <label class="form-label">患者姓名：</label>
+                <input type="text" class="form-input" id="searchName" placeholder="请输入姓名">
+            </div>
+            <div class="form-group">
+                <label class="form-label">证件号/就诊号：</label>
+                <input type="text" class="form-input" id="searchId" placeholder="请输入证件号">
+            </div>
+            <div class="form-group">
+                <label class="form-label">检查机构：</label>
+                <select class="form-select" id="searchOrg">
+                    <option value="">全部机构</option>
+                    <option value="市第一人民医院">市第一人民医院</option>
+                    <option value="中心医院">中心医院</option>
+                    <option value="中医院">中医院</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">时间范围：</label>
+                <div class="date-range">
+                    <input type="date" class="date-input" id="startDate">
+                    <span>至</span>
+                    <input type="date" class="date-input" id="endDate">
+                </div>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-success" onclick="handleSearch()">
+                    <i class="fas fa-search"></i> 查询
+                </button>
+                <button class="btn btn-default" onclick="handleReset()">
+                    <i class="fas fa-redo"></i> 重置
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 表格区域 -->
+    <section class="table-container">
+        <div class="table-toolbar">
+            <div class="toolbar-left">
+                <span class="table-title">患者可互认信息列表</span>
+                <span class="record-count">共 <strong id="totalCount">0</strong> 条记录</span>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn btn-warning" onclick="handleExport()">
+                    <i class="fas fa-download"></i> 导出
+                </button>
+            </div>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width: 50px;">序号</th>
+                    <th>患者姓名</th>
+                    <th>身份证号</th>
+                    <th>检查/检验项目</th>
+                    <th>报告时间</th>
+                    <th>机构名称</th>
+                    <th>互认状态</th>
+                    <th style="width: 120px;">操作</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <div class="pagination">
+            <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+            <span class="page-info">共 2 页</span>
+        </div>
+    </section>
+
+    <!-- 报告查看弹窗 -->
+    <div class="modal" id="reportModal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-file-medical-alt" style="margin-right: 10px; color: #2d8cff;"></i>报告详情</h3>
+                <button class="modal-close" onclick="Modal.close('reportModal')">&times;</button>
+            </div>
+            <div class="tab-nav">
+                <div class="tab-item active" onclick="switchTab('exam', this)">检查报告</div>
+                <div class="tab-item" onclick="switchTab('lab', this)">检验报告</div>
+                <div class="tab-item" onclick="switchTab('image', this)">影像图像</div>
+            </div>
+            <div class="modal-body" style="padding: 0;">
+                <!-- 检查报告 -->
+                <div class="tab-content active" id="examTab">
+                    <div class="report-content">
+                        <div class="report-header">
+                            <div class="report-title">CT检查报告单</div>
+                            <div class="report-subtitle">检查号：CT202401150001</div>
+                        </div>
+                        <div class="report-info-grid">
+                            <div class="report-info-item">
+                                <span class="report-info-label">患者姓名：</span>
+                                <span class="report-info-value">张三</span>
+                            </div>
+                            <div class="report-info-item">
+                                <span class="report-info-label">性别：</span>
+                                <span class="report-info-value">男</span>
+                            </div>
+                            <div class="report-info-item">
+                                <span class="report-info-label">年龄：</span>
+                                <span class="report-info-value">45岁</span>
+                            </div>
+                            <div class="report-info-item">
+                                <span class="report-info-label">检查项目：</span>
+                                <span class="report-info-value">颅脑CT平扫</span>
+                            </div>
+                            <div class="report-info-item">
+                                <span class="report-info-label">检查时间：</span>
+                                <span class="report-info-value">2024-01-15 09:30</span>
+                            </div>
+                            <div class="report-info-item">
+                                <span class="report-info-label">检查医师：</span>
+                                <span class="report-info-value">李医生</span>
+                            </div>
+                        </div>
+                        <div class="report-section">
+                            <div class="report-section-title">检查所见</div>
+                            <div class="report-text">
+                                脑实质内未见明显异常密度影，脑室系统形态、大小及位置正常，脑沟、脑裂未见增宽，中线结构居中。
+                                颅骨骨质未见明显异常。
+                            </div>
+                        </div>
+                        <div class="report-section">
+                            <div class="report-section-title">诊断意见</div>
+                            <div class="report-text">
+                                颅脑CT平扫未见明显异常。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 检验报告 -->
+                <div class="tab-content" id="labTab">
+                    <div class="report-content">
+                        <div class="report-header">
+                            <div class="report-title">检验报告单</div>
+                            <div class="report-subtitle">检验号：LAB202401150001</div>
+                        </div>
+                        <div class="report-info-grid">
+                            <div class="report-info-item">
+                                <span class="report-info-label">患者姓名：</span>
+                                <span class="report-info-value">张三</span>
+                            </div>
+                            <div class="report-info-item">
+                                <span class="report-info-label">样本类型：</span>
+                                <span class="report-info-value">静脉血</span>
+                            </div>
+                            <div class="report-info-item">
+                                <span class="report-info-label">检验时间：</span>
+                                <span class="report-info-value">2024-01-15 08:00</span>
+                            </div>
+                        </div>
+                        <div class="report-section">
+                            <div class="report-section-title">血常规检验结果</div>
+                            <table class="lab-table">
+                                <thead>
+                                    <tr>
+                                        <th>项目名称</th>
+                                        <th>结果</th>
+                                        <th>参考范围</th>
+                                        <th>单位</th>
+                                        <th>提示</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>白细胞计数</td>
+                                        <td>6.5</td>
+                                        <td>4.0-10.0</td>
+                                        <td>10^9/L</td>
+                                        <td class="result-normal">正常</td>
+                                    </tr>
+                                    <tr>
+                                        <td>红细胞计数</td>
+                                        <td>4.8</td>
+                                        <td>4.0-5.5</td>
+                                        <td>10^12/L</td>
+                                        <td class="result-normal">正常</td>
+                                    </tr>
+                                    <tr>
+                                        <td>血红蛋白</td>
+                                        <td>145</td>
+                                        <td>120-160</td>
+                                        <td>g/L</td>
+                                        <td class="result-normal">正常</td>
+                                    </tr>
+                                    <tr>
+                                        <td>血小板计数</td>
+                                        <td>280</td>
+                                        <td>100-300</td>
+                                        <td>10^9/L</td>
+                                        <td class="result-normal">正常</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 影像图像 -->
+                <div class="tab-content" id="imageTab">
+                    <div class="image-viewer">
+                        <div class="image-placeholder">
+                            <i class="fas fa-x-ray"></i>
+                            <p>DICOM影像查看器</p>
+                            <p style="font-size: 12px; color: #888; margin-top: 10px;">影像数据加载中...</p>
+                        </div>
+                        <div class="image-toolbar">
+                            <button title="放大"><i class="fas fa-search-plus"></i></button>
+                            <button title="缩小"><i class="fas fa-search-minus"></i></button>
+                            <button title="旋转"><i class="fas fa-sync-alt"></i></button>
+                            <button title="翻转"><i class="fas fa-arrows-alt-h"></i></button>
+                            <button title="测量"><i class="fas fa-ruler"></i></button>
+                            <button title="窗宽窗位"><i class="fas fa-adjust"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        // 页面数据
+        const PageData = {
+            list: [
+                { id: 1, name: '张三', idCard: '110101198001011234', project: '颅脑CT平扫', reportTime: '2024-01-15 10:30', org: '市第一人民医院', status: 'yes' },
+                { id: 2, name: '李四', idCard: '110101198502023456', project: '血常规检查', reportTime: '2024-01-15 09:15', org: '中心医院', status: 'yes' },
+                { id: 3, name: '王五', idCard: '110101199003035678', project: '腹部超声检查', reportTime: '2024-01-14 16:45', org: '中医院', status: 'pending' },
+                { id: 4, name: '赵六', idCard: '110101197510104321', project: '胸部X线摄影', reportTime: '2024-01-14 14:20', org: '市第一人民医院', status: 'yes' },
+                { id: 5, name: '孙七', idCard: '110101199510105432', project: '肝功能检查', reportTime: '2024-01-13 11:00', org: '中心医院', status: 'no' },
+                { id: 6, name: '周八', idCard: '110101198808086543', project: '心电图检查', reportTime: '2024-01-13 08:30', org: '中医院', status: 'yes' }
+            ]
+        };
+
+        // 状态映射
+        const statusMap = {
+            'yes': { class: 'status-yes', text: '可互认' },
+            'no': { class: 'status-no', text: '不可互认' },
+            'pending': { class: 'status-pending', text: '审核中' }
+        };
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable(PageData.list);
+            Modal.initClickOutside('reportModal');
+        });
+
+        // 渲染表格
+        function renderTable(data) {
+            Table.render({
+                containerId: 'tableBody',
+                data: data,
+                rowRenderer: (item, index) => {
+                    const status = statusMap[item.status];
+                    return `
+                        <td>${index + 1}</td>
+                        <td>${item.name}</td>
+                        <td>${item.idCard}</td>
+                        <td>${item.project}</td>
+                        <td>${item.reportTime}</td>
+                        <td>${item.org}</td>
+                        <td><span class="mutual-status ${status.class}">${status.text}</span></td>
+                        <td>
+                            <button class="view-report-btn" onclick="handleViewReport(${item.id})">
+                                <i class="fas fa-eye"></i> 查看报告
+                            </button>
+                        </td>
+                    `;
+                }
+            });
+            Table.updateCount('totalCount', data.length);
+        }
+
+        // 查看报告
+        function handleViewReport(id) {
+            Modal.open('reportModal');
+            // 重置到第一个tab
+            const firstTab = document.querySelector('.tab-item');
+            if (firstTab) switchTab('exam', firstTab);
+        }
+
+        // 切换Tab
+        function switchTab(tab, element) {
+            // 移除所有active
+            document.querySelectorAll('.tab-item').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // 添加active到当前tab
+            if (element) element.classList.add('active');
+            document.getElementById(tab + 'Tab').classList.add('active');
+        }
+
+        // 搜索
+        function handleSearch() {
+            const conditions = Search.getConditions(['searchName', 'searchId', 'searchOrg']);
+            
+            const filtered = PageData.list.filter(item => {
+                const matchName = !conditions.searchName || item.name.toLowerCase().includes(conditions.searchName);
+                const matchId = !conditions.searchId || item.idCard.toLowerCase().includes(conditions.searchId);
+                const matchOrg = !conditions.searchOrg || item.org === conditions.searchOrg;
+                return matchName && matchId && matchOrg;
+            });
+            
+            renderTable(filtered);
+        }
+
+        // 重置搜索
+        function handleReset() {
+            Search.reset(['searchName', 'searchId', 'searchOrg', 'startDate', 'endDate']);
+            renderTable(PageData.list);
+        }
+
+        // 导出
+        function handleExport() {
+            alert('患者可互认信息导出成功！');
+        }
+    </script>
+</body>
+</html>
