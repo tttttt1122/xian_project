@@ -703,7 +703,6 @@
                                     <th>报卡单位</th>
                                     <th>根本死因</th>
                                     <th>死亡日期</th>
-                                    <th>状态</th>
                                     <th>操作</th>
                                 </tr>
                             </thead>
@@ -1113,9 +1112,6 @@
 
             const table = document.getElementById('todoTable');
             table.innerHTML = pageData.map(item => {
-                const statusText = item.status === 'pending' ? '待处理' : '已处理';
-                const statusClass = item.status === 'pending' ? 'tag-pending' : 'tag-processed';
-                
                 return `
                     <tr>
                         <td>${item.name}</td>
@@ -1126,7 +1122,6 @@
                         <td>${item.org}</td>
                         <td>${item.cause}</td>
                         <td>${item.deathDate}</td>
-                        <td><span class="tag ${statusClass}">${statusText}</span></td>
                         <td>
                             <div class="btn-group">
                                 <button class="btn btn-primary" onclick="openClaimantModal()">申领人登记</button>
