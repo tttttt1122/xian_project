@@ -857,7 +857,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-default" onclick="closeModal('compareModal')">关闭</button>
-                <button class="btn btn-primary" onclick="goToComparePage()">跳转到对比页面</button>
+                
             </div>
         </div>
     </div>
@@ -1206,9 +1206,9 @@
                 `;
             }).join('');
             
-            // 更新弹窗标题中的数量
+            // 更新弹窗标题中的数量（使用实际对比的数据条数）
             const modalBody = document.querySelector('#compareModal .modal-body');
-            modalBody.querySelector('h4').innerHTML = `已选择 <span style="color: #ff4d4f;">${selectedIndexes.length}</span> 个指标进行对比`;
+            modalBody.querySelector('h4').innerHTML = `共 <span style="color: #ff4d4f;">${filteredData.length}</span> 个指标进行对比`;
             
             renderCompareModalPagination(totalPages, page);
         }
@@ -1299,12 +1299,8 @@
                 }
             });
 
-            // 加载已保存的选择
-            const saved = localStorage.getItem('selectedIndexes');
-            if (saved) {
-                selectedIndexes = JSON.parse(saved);
-                renderIndexTable();
-            }
+            // 页面加载时默认所有按钮为未选中状态
+            selectedIndexes = [];
         });
     </script>
 </body>
