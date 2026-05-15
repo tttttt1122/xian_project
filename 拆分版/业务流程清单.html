@@ -18,65 +18,9 @@
             overflow: hidden;
         }
 
-        .header {
-            height: 64px;
-            background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-        }
-
-        .header-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #fff;
-            letter-spacing: 1px;
-        }
-
-        .header-right {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            color: #fff;
-        }
-
-        .header-user {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            padding: 8px 12px;
-            border-radius: 4px;
-            transition: background 0.3s;
-        }
-
-        .header-user:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #1890ff;
-            font-weight: bold;
-        }
-
         .content {
             padding: 24px;
-            margin-top: 64px;
-            height: calc(100vh - 64px);
+            height: 100vh;
             overflow: auto;
             background: #f0f2f5;
         }
@@ -189,6 +133,15 @@
             background: #ff7875;
         }
 
+        .btn-info {
+            background: #13c2c2;
+            color: #fff;
+        }
+
+        .btn-info:hover {
+            background: #36cfc9;
+        }
+
         .btn-default {
             background: #fff;
             color: #595959;
@@ -245,22 +198,22 @@
             font-weight: 500;
         }
 
-        .tag-draft {
+        .tag-success {
             background: #f6ffed;
             color: #52c41a;
             border: 1px solid #b7eb8f;
         }
 
-        .tag-published {
-            background: #e6f7ff;
-            color: #1890ff;
-            border: 1px solid #91d5ff;
+        .tag-running {
+            background: #fff7e6;
+            color: #fa8c16;
+            border: 1px solid #ffc53d;
         }
 
-        .tag-offline {
-            background: #f5f5f5;
-            color: #8c8c8c;
-            border: 1px solid #d9d9d9;
+        .tag-failed {
+            background: #fff2f0;
+            color: #ff4d4f;
+            border: 1px solid #ffccc7;
         }
 
         .toolbar {
@@ -268,16 +221,10 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 16px;
-        }
-
-        .toolbar-left {
-            display: flex;
-            gap: 12px;
-        }
-
-        .toolbar-right {
-            color: #8c8c8c;
-            font-size: 13px;
+            padding: 16px 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
         }
 
         .pagination {
@@ -285,7 +232,7 @@
             justify-content: flex-end;
             align-items: center;
             gap: 8px;
-            margin-top: 24px;
+            margin-top: 16px;
             padding-top: 16px;
             border-top: 1px solid #f0f0f0;
         }
@@ -317,7 +264,6 @@
             opacity: 0.5;
         }
 
-        /* 弹窗样式 */
         .modal {
             display: none;
             position: fixed;
@@ -347,22 +293,16 @@
         }
 
         @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .modal-header {
-            padding: 16px 24px;
-            border-bottom: 1px solid #f0f0f0;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 16px 24px;
+            border-bottom: 1px solid #f0f0f0;
         }
 
         .modal-title {
@@ -372,22 +312,21 @@
         }
 
         .modal-close {
-            font-size: 20px;
-            color: #8c8c8c;
+            font-size: 24px;
+            color: #999;
             cursor: pointer;
-            background: none;
             border: none;
+            background: none;
             padding: 0;
             width: 24px;
             height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: color 0.3s;
         }
 
         .modal-close:hover {
-            color: #262626;
+            color: #666;
         }
 
         .modal-body {
@@ -403,469 +342,620 @@
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         .form-group label {
             display: block;
             margin-bottom: 8px;
             font-size: 14px;
-            color: #262626;
-            font-weight: 500;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #d9d9d9;
-            border-radius: 4px;
-            font-size: 14px;
-            font-family: inherit;
-            transition: all 0.3s;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #1890ff;
-            box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1);
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .modal-large {
-            max-width: 1200px;
-        }
-
-        .view-section {
-            margin-bottom: 24px;
-        }
-
-        .flow-viewer {
-            background: #f5f5f5;
-            border: 1px solid #e8e8e8;
-            border-radius: 4px;
-            padding: 20px;
-            min-height: 150px;
+            color: #595959;
         }
     </style>
 </head>
 <body>
-    <!-- <header class="header">
-        <div class="header-title">全民健康信息平台</div>
-        <div class="header-right">
-            <div class="header-user">
-                <div class="user-avatar">管</div>
-                <span>管理员</span>
-            </div>
-        </div>
-    </header> -->
-
-    <!-- <main class="content">
-        <div class="content-header">
+    <main class="content">
+        <!-- <div class="content-header">
             <div class="content-title">业务流程清单</div>
-            <div class="content-subtitle">查看和管理所有业务流程的详细清单</div>
+            <div class="content-subtitle">查看和管理所有业务流程的执行记录</div>
         </div> -->
 
         <div class="content-body">
-            <div class="search-form">
+            <div id="flowListSearch" class="search-form">
                 <div class="form-item">
                     <span class="form-label">业务域</span>
-                    <select class="form-select">
+                    <select class="form-select" id="flowListDomain">
                         <option value="">全部</option>
-                        <option value="medical">医疗服务</option>
-                        <option value="public">公共卫生</option>
-                        <option value="population">人口健康</option>
-                        <option value="management">综合管理</option>
+                        <option value="医疗服务">医疗服务</option>
+                        <option value="公共卫生">公共卫生</option>
+                        <option value="人口健康">人口健康</option>
+                        <option value="综合管理">综合管理</option>
                     </select>
                 </div>
                 <div class="form-item">
-                    <span class="form-label">发布状态</span>
-                    <select class="form-select">
+                    <span class="form-label">应用归属</span>
+                    <select class="form-select" id="flowListApp">
                         <option value="">全部</option>
-                        <option value="draft">草稿</option>
-                        <option value="published">已发布</option>
-                        <option value="offline">已下线</option>
+                        <option value="卫生健康智慧大脑">卫生健康智慧大脑</option>
+                        <option value="电子健康档案系统">电子健康档案系统</option>
+                        <option value="公共卫生系统">公共卫生系统</option>
+                        <option value="政务服务平台">政务服务平台</option>
                     </select>
                 </div>
                 <div class="form-item">
-                    <span class="form-label">归属应用</span>
-                    <select class="form-select">
-                        <option value="">全部</option>
-                        <option value="app1">卫生健康智慧大脑</option>
-                        <option value="app2">电子健康档案系统</option>
-                        <option value="app3">公共卫生系统</option>
-                        <option value="app4">政务服务平台</option>
-                    </select>
+                    <span class="form-label">发布应用名称</span>
+                    <input type="text" class="form-input" id="flowListPubApp" placeholder="请输入发布应用名称">
                 </div>
                 <div class="form-item">
                     <span class="form-label">流程名称</span>
-                    <input type="text" class="form-input" placeholder="请输入流程名称">
+                    <input type="text" class="form-input" id="flowListName" placeholder="请输入流程名称">
                 </div>
                 <div class="form-item">
-                    <button class="btn btn-primary" onclick="searchFlow()">查询</button>
-                    <button class="btn btn-default" onclick="resetSearch()">重置</button>
+                    <span class="form-label">流水号</span>
+                    <input type="text" class="form-input" id="flowListSerial" placeholder="请输入流水号">
+                </div>
+                <div class="form-item">
+                    <span class="form-label">姓名</span>
+                    <input type="text" class="form-input" id="flowListNameSearch" placeholder="请输入姓名">
+                </div>
+                <div class="form-item">
+                    <span class="form-label">身份证号码</span>
+                    <input type="text" class="form-input" id="flowListIdCard" placeholder="请输入身份证号码">
+                </div>
+                <div class="form-item">
+                    <span class="form-label">执行开始时间</span>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="datetime-local" class="form-input" id="flowListStartTimeFrom" placeholder="开始">
+                        <span style="color: #999;">-</span>
+                        <input type="datetime-local" class="form-input" id="flowListStartTimeTo" placeholder="结束">
+                    </div>
+                </div>
+                <div class="form-item">
+                    <button class="btn btn-primary" onclick="searchFlowList()">查询</button>
+                    <button class="btn btn-default" onclick="resetFlowListSearch()">重置</button>
+                    <button class="btn btn-default" onclick="showSearchSettingsModal()">设置</button>
                 </div>
             </div>
 
             <div class="toolbar">
-                <div class="toolbar-left">
-                    <button class="btn btn-success" onclick="openCreateFlowStep1()">+ 新建流程</button>
+                <div>
+                    <button class="btn btn-sm btn-primary" onclick="showTableSettingsModal()">表格设置</button>
                 </div>
-                <div class="toolbar-right">共 12 条记录</div>
+                <div style="color: #999; font-size: 12px;">共 50 条记录</div>
             </div>
 
             <div class="table-container">
-                <table class="data-table">
+                <table id="flowListTable" class="data-table">
                     <thead>
                         <tr>
                             <th>流程名称</th>
-                            <th>流程编码</th>
-                            <th>归属应用</th>
+                            <th>状态</th>
+                            <th>执行时间</th>
+                            <th>流水号</th>
+                            <th>姓名</th>
+                            <th>身份证号</th>
                             <th>业务域</th>
-                            <th>流程描述</th>
-                            <th>发布状态</th>
+                            <th>应用归属</th>
+                            <th>发布应用名称</th>
                             <th>操作</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="flowListBody">
                         <tr>
                             <td>检查检验结果互认流程</td>
-                            <td>MED-001</td>
-                            <td>卫生健康智慧大脑</td>
+                            <td><span class="tag tag-success">成功</span></td>
+                            <td>2024-01-15 10:30:25</td>
+                            <td>LSH202401150001</td>
+                            <td>张三</td>
+                            <td>610101199001011234</td>
                             <td>医疗服务</td>
-                            <td>跨医疗机构检查检验结果互认审批流程</td>
-                            <td><span class="tag tag-published">已发布</span></td>
+                            <td>卫生健康智慧大脑</td>
+                            <td>全民健康信息平台</td>
                             <td class="actions">
-                                <button class="btn btn-sm btn-primary" onclick="viewFlow()">查看</button>
-                                <button class="btn btn-sm btn-default" onclick="editFlow()">编辑</button>
+                                <button class="btn btn-sm btn-primary" onclick="showTestModal('MED-001')">测试</button>
+                                <button class="btn btn-sm btn-default" onclick="showFlowDetail('MED-001')">详情</button>
+                                <button class="btn btn-sm btn-info" onclick="showFlowTestRecords('MED-001')">查看测试记录</button>
                             </td>
                         </tr>
                         <tr>
-                            <td>电子健康档案调阅流程</td>
-                            <td>MED-002</td>
-                            <td>电子健康档案系统</td>
+                            <td>居民健康档案开放流程</td>
+                            <td><span class="tag tag-success">成功</span></td>
+                            <td>2024-01-14 14:20:18</td>
+                            <td>LSH202401140002</td>
+                            <td>李四</td>
+                            <td>610102199102022345</td>
                             <td>人口健康</td>
-                            <td>居民健康档案查询开放申请审批</td>
-                            <td><span class="tag tag-published">已发布</span></td>
+                            <td>电子健康档案系统</td>
+                            <td>全民健康信息平台</td>
                             <td class="actions">
-                                <button class="btn btn-sm btn-primary" onclick="viewFlow()">查看</button>
-                                <button class="btn btn-sm btn-default" onclick="editFlow()">编辑</button>
+                                <button class="btn btn-sm btn-primary" onclick="showTestModal('MED-002')">测试</button>
+                                <button class="btn btn-sm btn-default" onclick="showFlowDetail('MED-002')">详情</button>
+                                <button class="btn btn-sm btn-info" onclick="showFlowTestRecords('MED-002')">查看测试记录</button>
                             </td>
                         </tr>
                         <tr>
-                            <td>疫苗接种登记流程</td>
-                            <td>PUB-001</td>
-                            <td>公共卫生系统</td>
+                            <td>疫苗接种预约流程</td>
+                            <td><span class="tag tag-running">执行中</span></td>
+                            <td>2024-01-13 09:15:42</td>
+                            <td>LSH202401130003</td>
+                            <td>王五</td>
+                            <td>610103199203033456</td>
                             <td>公共卫生</td>
-                            <td>儿童疫苗接种在线预约与提醒</td>
-                            <td><span class="tag tag-published">已发布</span></td>
+                            <td>公共卫生系统</td>
+                            <td>政务服务平台</td>
                             <td class="actions">
-                                <button class="btn btn-sm btn-primary" onclick="viewFlow()">查看</button>
-                                <button class="btn btn-sm btn-default" onclick="editFlow()">编辑</button>
+                                <button class="btn btn-sm btn-primary" onclick="showTestModal('PUB-003')">测试</button>
+                                <button class="btn btn-sm btn-default" onclick="showFlowDetail('PUB-003')">详情</button>
+                                <button class="btn btn-sm btn-info" onclick="showFlowTestRecords('PUB-003')">查看测试记录</button>
                             </td>
                         </tr>
                         <tr>
                             <td>慢病管理随访流程</td>
-                            <td>POP-001</td>
-                            <td>电子健康档案系统</td>
+                            <td><span class="tag tag-failed">失败</span></td>
+                            <td>2024-01-12 16:00:33</td>
+                            <td>LSH202401120004</td>
+                            <td>赵六</td>
+                            <td>610104199304044567</td>
                             <td>人口健康</td>
-                            <td>慢性病患者的定期随访管理</td>
-                            <td><span class="tag tag-draft">草稿</span></td>
+                            <td>电子健康档案系统</td>
+                            <td>全民健康信息平台</td>
                             <td class="actions">
-                                <button class="btn btn-sm btn-primary" onclick="viewFlow()">查看</button>
-                                <button class="btn btn-sm btn-default" onclick="editFlow()">编辑</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>健康教育推送流程</td>
-                            <td>MGT-001</td>
-                            <td>卫生健康智慧大脑</td>
-                            <td>综合管理</td>
-                            <td>健康知识与健康教育信息推送</td>
-                            <td><span class="tag tag-published">已发布</span></td>
-                            <td class="actions">
-                                <button class="btn btn-sm btn-primary" onclick="viewFlow()">查看</button>
-                                <button class="btn btn-sm btn-default" onclick="editFlow()">编辑</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>预约挂号流程</td>
-                            <td>MED-003</td>
-                            <td>卫生健康智慧大脑</td>
-                            <td>医疗服务</td>
-                            <td>医疗机构在线预约挂号</td>
-                            <td><span class="tag tag-published">已发布</span></td>
-                            <td class="actions">
-                                <button class="btn btn-sm btn-primary" onclick="viewFlow()">查看</button>
-                                <button class="btn btn-sm btn-default" onclick="editFlow()">编辑</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>死亡证明办理流程</td>
-                            <td>PUB-002</td>
-                            <td>政务服务平台</td>
-                            <td>公共卫生</td>
-                            <td>死亡证明在线申请与审批</td>
-                            <td><span class="tag tag-published">已发布</span></td>
-                            <td class="actions">
-                                <button class="btn btn-sm btn-primary" onclick="viewFlow()">查看</button>
-                                <button class="btn btn-sm btn-default" onclick="editFlow()">编辑</button>
+                                <button class="btn btn-sm btn-primary" onclick="showTestModal('POP-001')">测试</button>
+                                <button class="btn btn-sm btn-default" onclick="showFlowDetail('POP-001')">详情</button>
+                                <button class="btn btn-sm btn-info" onclick="showFlowTestRecords('POP-001')">查看测试记录</button>
                             </td>
                         </tr>
                         <tr>
                             <td>健康证办理流程</td>
-                            <td>PUB-003</td>
-                            <td>公共卫生系统</td>
+                            <td><span class="tag tag-success">成功</span></td>
+                            <td>2024-01-11 11:30:55</td>
+                            <td>LSH202401110005</td>
+                            <td>钱七</td>
+                            <td>610105199405055678</td>
                             <td>公共卫生</td>
-                            <td>从业人员健康证申请与发放</td>
-                            <td><span class="tag tag-offline">已下线</span></td>
+                            <td>公共卫生系统</td>
+                            <td>政务服务平台</td>
                             <td class="actions">
-                                <button class="btn btn-sm btn-primary" onclick="viewFlow()">查看</button>
-                                <button class="btn btn-sm btn-default" onclick="editFlow()">编辑</button>
+                                <button class="btn btn-sm btn-primary" onclick="showTestModal('PUB-004')">测试</button>
+                                <button class="btn btn-sm btn-default" onclick="showFlowDetail('PUB-004')">详情</button>
+                                <button class="btn btn-sm btn-info" onclick="showFlowTestRecords('PUB-004')">查看测试记录</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>死亡证明办理流程</td>
+                            <td><span class="tag tag-success">成功</span></td>
+                            <td>2024-01-10 10:00:12</td>
+                            <td>LSH202401100006</td>
+                            <td>孙八</td>
+                            <td>610106199506066789</td>
+                            <td>公共卫生</td>
+                            <td>政务服务平台</td>
+                            <td>全民健康信息平台</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-primary" onclick="showTestModal('PUB-002')">测试</button>
+                                <button class="btn btn-sm btn-default" onclick="showFlowDetail('PUB-002')">详情</button>
+                                <button class="btn btn-sm btn-info" onclick="showFlowTestRecords('PUB-002')">查看测试记录</button>
                             </td>
                         </tr>
                         <tr>
                             <td>行政决策支持流程</td>
-                            <td>MGT-002</td>
-                            <td>卫生健康智慧大脑</td>
+                            <td><span class="tag tag-success">成功</span></td>
+                            <td>2024-01-09 09:30:40</td>
+                            <td>LSH202401090007</td>
+                            <td>周九</td>
+                            <td>610107199607077890</td>
                             <td>综合管理</td>
-                            <td>卫生健康行政决策数据分析</td>
-                            <td><span class="tag tag-published">已发布</span></td>
+                            <td>卫生健康智慧大脑</td>
+                            <td>全民健康信息平台</td>
                             <td class="actions">
-                                <button class="btn btn-sm btn-primary" onclick="viewFlow()">查看</button>
-                                <button class="btn btn-sm btn-default" onclick="editFlow()">编辑</button>
+                                <button class="btn btn-sm btn-primary" onclick="showTestModal('MGT-001')">测试</button>
+                                <button class="btn btn-sm btn-default" onclick="showFlowDetail('MGT-001')">详情</button>
+                                <button class="btn btn-sm btn-info" onclick="showFlowTestRecords('MGT-001')">查看测试记录</button>
                             </td>
                         </tr>
                         <tr>
                             <td>医保结算审核流程</td>
-                            <td>MED-004</td>
-                            <td>政务服务平台</td>
+                            <td><span class="tag tag-running">执行中</span></td>
+                            <td>2024-01-08 14:20:15</td>
+                            <td>LSH202401080008</td>
+                            <td>吴十</td>
+                            <td>610108199708088901</td>
                             <td>医疗服务</td>
-                            <td>医保费用结算审核与支付</td>
-                            <td><span class="tag tag-published">已发布</span></td>
+                            <td>卫生健康智慧大脑</td>
+                            <td>全民健康信息平台</td>
                             <td class="actions">
-                                <button class="btn btn-sm btn-primary" onclick="viewFlow()">查看</button>
-                                <button class="btn btn-sm btn-default" onclick="editFlow()">编辑</button>
+                                <button class="btn btn-sm btn-primary" onclick="showTestModal('MED-003')">测试</button>
+                                <button class="btn btn-sm btn-default" onclick="showFlowDetail('MED-003')">详情</button>
+                                <button class="btn btn-sm btn-info" onclick="showFlowTestRecords('MED-003')">查看测试记录</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>药品集中采购流程</td>
+                            <td><span class="tag tag-success">成功</span></td>
+                            <td>2024-01-06 09:00:30</td>
+                            <td>LSH202401060009</td>
+                            <td>王十二</td>
+                            <td>610109199809099012</td>
+                            <td>医疗服务</td>
+                            <td>政务服务平台</td>
+                            <td>全民健康信息平台</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-primary" onclick="showTestModal('MED-004')">测试</button>
+                                <button class="btn btn-sm btn-default" onclick="showFlowDetail('MED-004')">详情</button>
+                                <button class="btn btn-sm btn-info" onclick="showFlowTestRecords('MED-004')">查看测试记录</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>医疗资源调配流程</td>
+                            <td><span class="tag tag-failed">失败</span></td>
+                            <td>2024-01-07 10:15:22</td>
+                            <td>LSH202401070010</td>
+                            <td>郑十一</td>
+                            <td>610110199910100123</td>
+                            <td>综合管理</td>
+                            <td>卫生健康智慧大脑</td>
+                            <td>政务服务平台</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-primary" onclick="showTestModal('MGT-002')">测试</button>
+                                <button class="btn btn-sm btn-default" onclick="showFlowDetail('MGT-002')">详情</button>
+                                <button class="btn btn-sm btn-info" onclick="showFlowTestRecords('MGT-002')">查看测试记录</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="pagination">
+                    <button class="page-btn" disabled>上一页</button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">3</button>
+                    <button class="page-btn">4</button>
+                    <button class="page-btn">5</button>
+                    <button class="page-btn">下一页</button>
+                    <span style="margin-left: 16px; font-size: 12px; color: #999;">共 50 条，每页 10 条</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="tableSettingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">表格设置</span>
+                <button class="modal-close" onclick="closeModal('tableSettingsModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 16px;">
+                    <h4 style="margin-bottom: 12px; color: #1890ff;">列显示设置</h4>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                        <label><input type="checkbox" checked> 流程名称</label>
+                        <label><input type="checkbox" checked> 状态</label>
+                        <label><input type="checkbox" checked> 执行时间</label>
+                        <label><input type="checkbox" checked> 流水号</label>
+                        <label><input type="checkbox" checked> 姓名</label>
+                        <label><input type="checkbox" checked> 身份证号</label>
+                        <label><input type="checkbox" checked> 业务域</label>
+                        <label><input type="checkbox" checked> 应用归属</label>
+                        <label><input type="checkbox" checked> 发布应用名称</label>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <button class="btn btn-primary" onclick="closeModal('tableSettingsModal')">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="flowDetailModal" class="modal">
+        <div class="modal-content" style="width: 800px;">
+            <div class="modal-header">
+                <span class="modal-title">流程详情</span>
+                <button class="modal-close" onclick="closeModal('flowDetailModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 12px; color: #1890ff;">流程信息</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label>流程名称</label>
+                            <input type="text" readonly class="form-input" value="检查检验结果互认流程">
+                        </div>
+                        <div class="form-group">
+                            <label>流水号</label>
+                            <input type="text" readonly class="form-input" value="LSH202401150001">
+                        </div>
+                        <div class="form-group">
+                            <label>业务域</label>
+                            <input type="text" readonly class="form-input" value="医疗服务">
+                        </div>
+                        <div class="form-group">
+                            <label>应用归属</label>
+                            <input type="text" readonly class="form-input" value="卫生健康智慧大脑">
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <button class="btn btn-primary" onclick="closeModal('flowDetailModal')">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="searchSettingsModal" class="modal">
+        <div class="modal-content" style="width: 450px;">
+            <div class="modal-header">
+                <span class="modal-title">查询条件设置</span>
+                <button class="modal-close" onclick="closeModal('searchSettingsModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                    <label><input type="checkbox" checked>业务域</label>
+                    <label><input type="checkbox" checked>应用归属</label>
+                    <label><input type="checkbox" checked>发布应用名称</label>
+                    <label><input type="checkbox" checked>流程名称</label>
+                    <label><input type="checkbox" checked>流水号</label>
+                    <label><input type="checkbox" checked>姓名</label>
+                    <label><input type="checkbox" checked>身份证号码</label>
+                    <label><input type="checkbox" checked>执行开始时间</label>
+                    <label><input type="checkbox" checked>执行结束时间</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('searchSettingsModal')">关闭</button>
+                <button class="btn btn-primary" onclick="saveSearchSettings()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="testRecordsModal" class="modal">
+        <div class="modal-content" style="width: 95%; max-width: 1100px; max-height: 85vh;">
+            <div class="modal-header">
+                <span class="modal-title">测试记录</span>
+                <button class="modal-close" onclick="closeModal('testRecordsModal')">×</button>
+            </div>
+            <div class="modal-body" style="max-height: calc(85vh - 120px); overflow-y: auto;">
+                <div class="search-form" style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #e8e8e8;">
+                    <div class="form-item">
+                        <span class="form-label">执行状态</span>
+                        <select class="form-select" id="testRecordStatus">
+                            <option value="">全部</option>
+                            <option value="success">成功</option>
+                            <option value="failed">失败</option>
+                        </select>
+                    </div>
+                    <div class="form-item">
+                        <button class="btn btn-primary" onclick="searchTestRecords()">查询</button>
+                        <button class="btn btn-default" onclick="resetTestRecordsSearch()">重置</button>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <button class="btn btn-sm btn-primary" onclick="showTestRecordTableSettingsModal()">表格设置</button>
+                    <button class="btn btn-sm btn-default" onclick="refreshTestRecords()">刷新</button>
+                </div>
+                <table class="data-table" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>流程名称</th>
+                            <th>流水号</th>
+                            <th>执行状态</th>
+                            <th>执行时间</th>
+                            <th>耗时</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="testRecordsBody">
+                        <tr>
+                            <td>检查检验结果互认流程</td>
+                            <td>LSH202401150001</td>
+                            <td><span class="tag tag-success">成功</span></td>
+                            <td>2024-01-15 10:35:20</td>
+                            <td>156ms</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-default" onclick="showTestRecordDetail(1)">详情</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteTestRecord(1)">删除</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>居民健康档案开放流程</td>
+                            <td>LSH202401140002</td>
+                            <td><span class="tag tag-success">成功</span></td>
+                            <td>2024-01-14 15:22:10</td>
+                            <td>128ms</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-default" onclick="showTestRecordDetail(2)">详情</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteTestRecord(2)">删除</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>疫苗接种预约流程</td>
+                            <td>LSH202401130003</td>
+                            <td><span class="tag tag-success">成功</span></td>
+                            <td>2024-01-13 10:45:30</td>
+                            <td>98ms</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-default" onclick="showTestRecordDetail(3)">详情</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteTestRecord(3)">删除</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>慢病管理随访流程</td>
+                            <td>LSH202401120004</td>
+                            <td><span class="tag tag-failed">失败</span></td>
+                            <td>2024-01-12 17:30:00</td>
+                            <td>320ms</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-default" onclick="showTestRecordDetail(4)">详情</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteTestRecord(4)">删除</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>健康证办理流程</td>
+                            <td>LSH202401110005</td>
+                            <td><span class="tag tag-success">成功</span></td>
+                            <td>2024-01-11 14:15:45</td>
+                            <td>76ms</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-default" onclick="showTestRecordDetail(5)">详情</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteTestRecord(5)">删除</button>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-
-            <div class="pagination">
-                <button class="page-btn" disabled>上一页</button>
-                <button class="page-btn active">1</button>
-                <button class="page-btn">2</button>
-                <button class="page-btn">下一页</button>
-            </div>
-        </div>
-    <!-- </main> -->
-
-    <!-- 查看流程弹窗 -->
-    <div id="viewFlowModal" class="modal">
-        <div class="modal-content modal-large">
-            <div class="modal-header">
-                <span class="modal-title">流程详情</span>
-                <button class="modal-close" onclick="closeModal('viewFlowModal')">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="view-section">
-                    <h3 style="margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #e8e8e8; color: #1890ff;">第一步：基本信息</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                        <div class="form-group">
-                            <label>流程名称</label>
-                            <input type="text" value="检查检验结果互认流程" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label>流程编码</label>
-                            <input type="text" value="MED-001" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label>归属应用</label>
-                            <input type="text" value="卫生健康智慧大脑" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label>发布应用</label>
-                            <input type="text" value="全民健康信息平台" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label>业务域</label>
-                            <input type="text" value="医疗服务" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label>发布状态</label>
-                            <input type="text" value="已发布" readonly>
-                        </div>
-                    </div>
-                    <div class="form-group" style="margin-top: 16px;">
-                        <label>流程描述</label>
-                        <textarea readonly style="min-height: 80px;">跨医疗机构检查检验结果互认审批流程，实现检验报告共享</textarea>
-                    </div>
-                </div>
-                
-                <div class="view-section">
-                    <h3 style="margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #e8e8e8; color: #1890ff;">第二步：流程建模</h3>
-                    <div class="flow-viewer">
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap;">
-                            <div style="text-align: center;">
-                                <div style="width: 80px; height: 40px; background: #52c41a; color: #fff; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px;">开始节点</div>
-                            </div>
-                            <div style="color: #999;">→</div>
-                            <div style="text-align: center;">
-                                <div style="width: 100px; height: 60px; background: #1890ff; color: #fff; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px;">待办任务<br>申请提交</div>
-                            </div>
-                            <div style="color: #999;">→</div>
-                            <div style="text-align: center;">
-                                <div style="width: 100px; height: 60px; background: #faad14; color: #fff; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px;">判断节点<br>资质审核</div>
-                            </div>
-                            <div style="color: #999;">→</div>
-                            <div style="text-align: center;">
-                                <div style="width: 100px; height: 60px; background: #1890ff; color: #fff; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px;">业务服务<br>结果互认</div>
-                            </div>
-                            <div style="color: #999;">→</div>
-                            <div style="text-align: center;">
-                                <div style="width: 80px; height: 40px; background: #ff4d4f; color: #fff; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px;">结束节点</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
             <div class="modal-footer">
-                <button class="btn btn-default" onclick="closeModal('viewFlowModal')">关闭</button>
+                <button class="btn btn-default" onclick="closeModal('testRecordsModal')">返回</button>
             </div>
         </div>
     </div>
 
-    <!-- 新建流程第一步弹窗 -->
-    <div id="createFlowStep1Modal" class="modal">
-        <div class="modal-content">
+    <div id="testRecordDetailModal" class="modal">
+        <div class="modal-content" style="width: 600px;">
             <div class="modal-header">
-                <span class="modal-title">新建流程 - 第一步：基本信息</span>
-                <button class="modal-close" onclick="closeModal('createFlowStep1Modal')">×</button>
+                <span class="modal-title">测试记录详情</span>
+                <button class="modal-close" onclick="closeModal('testRecordDetailModal')">×</button>
             </div>
             <div class="modal-body">
-                <form id="createFlowForm">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                     <div class="form-group">
-                        <label>流程名称 *</label>
-                        <input type="text" id="flowName" placeholder="请输入流程名称">
+                        <label>流程名称</label>
+                        <input type="text" readonly class="form-input" value="检查检验结果互认流程">
                     </div>
                     <div class="form-group">
-                        <label>流程编码 *</label>
-                        <input type="text" id="flowCode" placeholder="请输入流程编码">
+                        <label>流水号</label>
+                        <input type="text" readonly class="form-input" value="LSH202401150001">
                     </div>
                     <div class="form-group">
-                        <label>归属应用 *</label>
-                        <select id="flowApp">
-                            <option value="">请选择归属应用</option>
-                            <option value="health">卫生健康智慧大脑</option>
-                            <option value="portal">政务服务平台</option>
-                            <option value="ehr">电子健康档案系统</option>
-                        </select>
+                        <label>执行状态</label>
+                        <input type="text" readonly class="form-input" value="成功">
                     </div>
                     <div class="form-group">
-                        <label>发布应用 *</label>
-                        <select id="publishApp">
-                            <option value="">请选择发布应用</option>
-                            <option value="pub1">全民健康信息平台</option>
-                            <option value="pub2">卫生健康智慧大脑</option>
-                            <option value="pub3">政务服务平台</option>
-                        </select>
+                        <label>执行时间</label>
+                        <input type="text" readonly class="form-input" value="2024-01-15 10:35:20">
                     </div>
                     <div class="form-group">
-                        <label>业务域 *</label>
-                        <select id="businessDomain">
-                            <option value="">请选择业务域</option>
-                            <option value="medical">医疗服务</option>
-                            <option value="public">公共卫生</option>
-                            <option value="population">人口健康</option>
-                            <option value="management">综合管理</option>
-                        </select>
+                        <label>耗时</label>
+                        <input type="text" readonly class="form-input" value="156ms">
                     </div>
                     <div class="form-group">
-                        <label>流程描述</label>
-                        <textarea id="flowDesc" placeholder="请输入流程描述"></textarea>
+                        <label>测试人员</label>
+                        <input type="text" readonly class="form-input" value="系统测试员">
                     </div>
-                </form>
+                </div>
+                <div class="form-group" style="margin-top: 16px;">
+                    <label>测试结果</label>
+                    <textarea readonly style="min-height: 80px; width: 100%; padding: 8px; border: 1px solid #d9d9d9; border-radius: 4px; resize: none;">测试通过：流程执行正常，数据处理正确，接口调用成功。</textarea>
+                </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-default" onclick="closeModal('createFlowStep1Modal')">取消</button>
-                <button class="btn btn-primary" onclick="goToStep2()">下一步</button>
+                <button class="btn btn-default" onclick="closeModal('testRecordDetailModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="testRecordTableSettingsModal" class="modal">
+        <div class="modal-content" style="width: 450px;">
+            <div class="modal-header">
+                <span class="modal-title">表格设置</span>
+                <button class="modal-close" onclick="closeModal('testRecordTableSettingsModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                    <label><input type="checkbox" checked>流程名称</label>
+                    <label><input type="checkbox" checked>流水号</label>
+                    <label><input type="checkbox" checked>执行状态</label>
+                    <label><input type="checkbox" checked>执行时间</label>
+                    <label><input type="checkbox" checked>耗时</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('testRecordTableSettingsModal')">关闭</button>
+                <button class="btn btn-primary" onclick="closeModal('testRecordTableSettingsModal')">确定</button>
             </div>
         </div>
     </div>
 
     <script>
-        let flowBasicInfo = {};
-
-        function searchFlow() {
+        function searchFlowList() {
             alert('查询功能演示');
         }
 
-        function resetSearch() {
-            document.querySelectorAll('.search-form input, .search-form select').forEach(el => {
-                el.value = '';
-            });
+        function resetFlowListSearch() {
+            document.getElementById('flowListDomain').value = '';
+            document.getElementById('flowListApp').value = '';
+            document.getElementById('flowListPubApp').value = '';
+            document.getElementById('flowListName').value = '';
+            document.getElementById('flowListSerial').value = '';
+            document.getElementById('flowListNameSearch').value = '';
+            document.getElementById('flowListIdCard').value = '';
+            document.getElementById('flowListStartTimeFrom').value = '';
+            document.getElementById('flowListStartTimeTo').value = '';
         }
 
-        function viewFlow() {
-            document.getElementById('viewFlowModal').classList.add('show');
+        function showTableSettingsModal() {
+            document.getElementById('tableSettingsModal').classList.add('show');
         }
 
-        function openCreateFlowStep1() {
-            document.getElementById('createFlowStep1Modal').classList.add('show');
+        function showSearchSettingsModal() {
+            document.getElementById('searchSettingsModal').classList.add('show');
         }
 
-        function goToStep2() {
-            flowBasicInfo = {
-                name: document.getElementById('flowName').value,
-                code: document.getElementById('flowCode').value,
-                app: document.getElementById('flowApp').value,
-                publishApp: document.getElementById('publishApp').value,
-                domain: document.getElementById('businessDomain').value,
-                desc: document.getElementById('flowDesc').value
+        function saveSearchSettings() {
+            closeModal('searchSettingsModal');
+        }
+
+        function showTestModal(code) {
+            alert('测试流程: ' + code);
+        }
+
+        function showFlowDetail(code) {
+            document.getElementById('flowDetailModal').classList.add('show');
+        }
+
+        function showFlowTestRecords(flowCode) {
+            var flowNames = {
+                'MED-001': '检查检验结果互认流程',
+                'MED-002': '居民健康档案开放流程',
+                'PUB-003': '疫苗接种预约流程',
+                'POP-001': '慢病管理随访流程',
+                'PUB-004': '健康证办理流程',
+                'PUB-002': '死亡证明办理流程',
+                'MGT-001': '行政决策支持流程',
+                'MED-003': '医保结算审核流程',
+                'MED-004': '药品集中采购流程',
+                'MGT-002': '医疗资源调配流程'
             };
-            
-            if (!flowBasicInfo.name || !flowBasicInfo.code || !flowBasicInfo.app || !flowBasicInfo.publishApp || !flowBasicInfo.domain) {
-                alert('请填写必填项！');
-                return;
-            }
-            
-            closeModal('createFlowStep1Modal');
-            alert('流程基本信息已保存，进入流程设计器');
-        }
-
-        function editFlow() {
-            document.getElementById('flowName').value = '检查检验结果互认流程';
-            document.getElementById('flowCode').value = 'MED-001';
-            document.getElementById('flowApp').value = 'health';
-            document.getElementById('publishApp').value = 'pub1';
-            document.getElementById('businessDomain').value = 'medical';
-            document.getElementById('flowDesc').value = '跨医疗机构检查检验结果互认审批流程，实现检验报告共享';
-            
-            document.querySelector('#createFlowStep1Modal .modal-title').textContent = '编辑流程';
-            const nextBtn = document.querySelector('#createFlowStep1Modal .modal-footer .btn-primary');
-            nextBtn.textContent = '保存';
-            nextBtn.onclick = function() {
-                goToStep2();
-            };
-            
-            document.getElementById('createFlowStep1Modal').classList.add('show');
+            var flowName = flowNames[flowCode] || flowCode;
+            document.querySelector('#testRecordsModal .modal-title').textContent = '测试记录 - ' + flowName;
+            document.getElementById('testRecordsModal').classList.add('show');
         }
 
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('show');
         }
 
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.classList.remove('show');
+        function searchTestRecords() {
+            alert('查询测试记录');
+        }
+
+        function resetTestRecordsSearch() {
+            document.getElementById('testRecordStatus').value = '';
+        }
+
+        function refreshTestRecords() {
+            alert('刷新测试记录');
+        }
+
+        function showTestRecordTableSettingsModal() {
+            document.getElementById('testRecordTableSettingsModal').classList.add('show');
+        }
+
+        function showTestRecordDetail(id) {
+            document.getElementById('testRecordDetailModal').classList.add('show');
+        }
+
+        function deleteTestRecord(id) {
+            if (confirm('确定要删除这条测试记录吗？')) {
+                alert('测试记录已删除');
             }
         }
     </script>
