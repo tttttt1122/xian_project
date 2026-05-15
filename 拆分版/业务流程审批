@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全民健康信息平台 - 业务流程审批</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            overflow: hidden;
+        }
+
+        .header {
+            height: 64px;
+            background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .header-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            color: #fff;
+        }
+
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .header-user:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1890ff;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 24px;
+            margin-top: 64px;
+            height: calc(100vh - 64px);
+            overflow: auto;
+            background: #f0f2f5;
+        }
+
+        .content-header {
+            background: #fff;
+            padding: 20px 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .content-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 8px;
+        }
+
+        .content-subtitle {
+            font-size: 14px;
+            color: #8c8c8c;
+        }
+
+        .content-body {
+            background: #fff;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #f0f0f0;
+            margin-bottom: 24px;
+        }
+
+        .tab-item {
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #8c8c8c;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-item.active {
+            color: #1890ff;
+            border-bottom-color: #1890ff;
+        }
+
+        .tab-item:hover {
+            color: #1890ff;
+        }
+
+        .approval-tab-panel {
+            display: none;
+        }
+
+        .approval-tab-panel.active {
+            display: block;
+        }
+
+        .search-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 8px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .form-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            color: #595959;
+            white-space: nowrap;
+        }
+
+        .form-input,
+        .form-select {
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 180px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+        }
+
+        .btn-success {
+            background: #52c41a;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #73d13d;
+        }
+
+        .btn-danger {
+            background: #ff4d4f;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #ff7875;
+        }
+
+        .btn-default {
+            background: #fff;
+            color: #595959;
+            border: 1px solid #d9d9d9;
+        }
+
+        .btn-default:hover {
+            color: #40a9ff;
+            border-color: #40a9ff;
+        }
+
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 13px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .data-table th {
+            background: #fafafa;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .data-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .data-table .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .tag-pending {
+            background: #fff7e6;
+            color: #fa8c16;
+            border: 1px solid #ffd591;
+        }
+
+        .tag-approved {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+
+        .tag-rejected {
+            background: #fff1f0;
+            color: #ff4d4f;
+            border: 1px solid #ffa39e;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .toolbar-left {
+            display: flex;
+            gap: 12px;
+        }
+
+        .toolbar-right {
+            color: #8c8c8c;
+            font-size: 13px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .page-btn {
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #595959;
+            transition: all 0.3s;
+        }
+
+        .page-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        .page-btn.active {
+            background: #1890ff;
+            color: #fff;
+            border-color: #1890ff;
+        }
+
+        .page-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .modal-close {
+            font-size: 20px;
+            color: #8c8c8c;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: #262626;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #262626;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-large {
+            max-width: 1200px;
+        }
+
+        .view-section {
+            margin-bottom: 24px;
+        }
+
+        .flow-viewer {
+            background: #f5f5f5;
+            border: 1px solid #e8e8e8;
+            border-radius: 4px;
+            padding: 20px;
+            min-height: 150px;
+        }
+    </style>
+</head>
+<body>
+    <!-- <header class="header"> -->
+        <!-- <div class="header-title">全民健康信息平台</div>
+        <div class="header-right">
+            <div class="header-user">
+                <div class="user-avatar">管</div>
+                <span>管理员</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="content">
+        <div class="content-header">
+            <div class="content-title">业务流程审批</div>
+            <div class="content-subtitle">审批管理业务流程，包括待审批、已通过、已拒绝</div>
+        </div> -->
+
+        <div class="content-body">
+            <div class="tabs">
+                <div class="tab-item active" onclick="switchApprovalTab('pending')">待审批</div>
+                <div class="tab-item" onclick="switchApprovalTab('passed')">已通过</div>
+                <div class="tab-item" onclick="switchApprovalTab('rejected')">已拒绝</div>
+            </div>
+
+            <!-- 待审批 -->
+            <div id="approval-tab-pending" class="approval-tab-panel active">
+                <div class="search-form">
+                    <div class="form-item">
+                        <span class="form-label">业务域</span>
+                        <select id="approval-pending-domain" class="form-select">
+                            <option value="">全部</option>
+                            <option value="medical">医疗服务</option>
+                            <option value="public">公共卫生</option>
+                            <option value="population">人口健康</option>
+                            <option value="management">综合管理</option>
+                        </select>
+                    </div>
+                    <div class="form-item">
+                        <span class="form-label">应用归属</span>
+                        <select id="approval-pending-app" class="form-select">
+                            <option value="">全部</option>
+                            <option value="app1">卫生健康智慧大脑</option>
+                            <option value="app2">电子健康档案系统</option>
+                        </select>
+                    </div>
+                    <div class="form-item">
+                        <span class="form-label">发布应用</span>
+                        <select id="approval-pending-pub" class="form-select">
+                            <option value="">全部</option>
+                            <option value="pub1">全民健康信息平台</option>
+                            <option value="pub2">卫生健康智慧大脑</option>
+                        </select>
+                    </div>
+                    <div class="form-item">
+                        <span class="form-label">流程名称</span>
+                        <input id="approval-pending-name" type="text" class="form-input" placeholder="请输入流程名称">
+                    </div>
+                    <div class="form-item">
+                        <button class="btn btn-primary" onclick="searchApprovalPending()">查询</button>
+                        <button class="btn btn-default" onclick="resetApprovalPending()">重置</button>
+                    </div>
+                </div>
+
+                <div class="toolbar">
+                    <div class="toolbar-right">共 5 条待审批记录</div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>流程名称</th>
+                                <th>流程编码</th>
+                                <th>归属应用</th>
+                                <th>业务域</th>
+                                <th>提交时间</th>
+                                <th>提交人</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="approval-pending-body">
+                            <tr>
+                                <td>居民健康档案开放流程</td>
+                                <td>MED-002</td>
+                                <td>电子健康档案系统</td>
+                                <td>人口健康</td>
+                                <td>2024-01-15 10:30:00</td>
+                                <td>李四</td>
+                                <td class="actions">
+                                    <button class="btn btn-sm btn-primary" onclick="viewFlow()">查看</button>
+                                    <button class="btn btn-sm btn-success" onclick="approveFlow('MED-002')">通过</button>
+                                    <button class="btn btn-sm btn-danger" onclick="rejectFlow('MED-002')">拒绝</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>疫苗接种预约流程</td>
+                                <td>PUB-003</td>
+                                <td>公共卫生系统</td>
+                                <td>公共卫生</td>
+                                <td>2024-01-15 09:15:00</td>
+                                <td>王五</td>
+                                <td class="actions">
+                                    <button class="btn btn-sm btn-primary" onclick="viewFlow()">查看</button>
+                                    <button class="btn btn-sm btn-success" onclick="approveFlow('PUB-003')">通过</button>
+                                    <button class="btn btn-sm btn-danger" onclick="rejectFlow('PUB-003')">拒绝</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>慢病管理随访流程</td>
+                                <td>POP-001</td>
+                                <td>电子健康档案系统</td>
+                                <td>人口健康</td>
+                                <td>2024-01-14 16:45:00</td>
+                                <td>赵六</td>
+                                <td class="actions">
+                                    <button class="btn btn-sm btn-primary" onclick="viewFlow()">查看</button>
+                                    <button class="btn btn-sm btn-success" onclick="approveFlow('POP-001')">通过</button>
+                                    <button class="btn btn-sm btn-danger" onclick="rejectFlow('POP-001')">拒绝</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>健康证办理流程</td>
+                                <td>PUB-004</td>
+                                <td>公共卫生系统</td>
+                                <td>公共卫生</td>
+                                <td>2024-01-14 14:20:00</td>
+                                <td>张三</td>
+                                <td class="actions">
+                                    <button class="btn btn-sm btn-primary" onclick="viewFlow()">查看</button>
+                                    <button class="btn btn-sm btn-success" onclick="approveFlow('PUB-004')">通过</button>
+                                    <button class="btn btn-sm btn-danger" onclick="rejectFlow('PUB-004')">拒绝</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>药品集中采购流程</td>
+                                <td>MED-005</td>
+                                <td>政务服务平台</td>
+                                <td>医疗服务</td>
+                                <td>2024-01-13 11:00:00</td>
+                                <td>李四</td>
+                                <td class="actions">
+                                    <button class="btn btn-sm btn-primary" onclick="viewFlow()">查看</button>
+                                    <button class="btn btn-sm btn-success" onclick="approveFlow('MED-005')">通过</button>
+                                    <button class="btn btn-sm btn-danger" onclick="rejectFlow('MED-005')">拒绝</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination">
+                    <button class="page-btn" disabled>上一页</button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">下一页</button>
+                </div>
+            </div>
+
+            <!-- 已通过 -->
+            <div id="approval-tab-passed" class="approval-tab-panel">
+                <div class="search-form">
+                    <div class="form-item">
+                        <span class="form-label">业务域</span>
+                        <select id="approval-passed-domain" class="form-select">
+                            <option value="">全部</option>
+                            <option value="medical">医疗服务</option>
+                            <option value="public">公共卫生</option>
+                        </select>
+                    </div>
+                    <div class="form-item">
+                        <span class="form-label">流程名称</span>
+                        <input id="approval-passed-name" type="text" class="form-input" placeholder="请输入流程名称">
+                    </div>
+                    <div class="form-item">
+                        <button class="btn btn-primary" onclick="searchApprovalPassed()">查询</button>
+                        <button class="btn btn-default" onclick="resetApprovalPassed()">重置</button>
+                    </div>
+                </div>
+
+                <div class="toolbar">
+                    <div class="toolbar-right">共 8 条已通过记录</div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>流程名称</th>
+                                <th>流程编码</th>
+                                <th>归属应用</th>
+                                <th>业务域</th>
+                                <th>审批时间</th>
+                                <th>审批人</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>检查检验结果互认流程</td>
+                                <td>MED-001</td>
+                                <td>卫生健康智慧大脑</td>
+                                <td>医疗服务</td>
+                                <td>2024-01-12 15:30:00</td>
+                                <td>管理员</td>
+                                <td class="actions">
+                                    <button class="btn btn-sm btn-primary" onclick="viewFlow()">查看</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>死亡证明办理流程</td>
+                                <td>PUB-002</td>
+                                <td>政务服务平台</td>
+                                <td>公共卫生</td>
+                                <td>2024-01-11 14:20:00</td>
+                                <td>管理员</td>
+                                <td class="actions">
+                                    <button class="btn btn-sm btn-primary" onclick="viewFlow()">查看</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>行政决策支持流程</td>
+                                <td>MGT-001</td>
+                                <td>卫生健康智慧大脑</td>
+                                <td>综合管理</td>
+                                <td>2024-01-10 10:15:00</td>
+                                <td>管理员</td>
+                                <td class="actions">
+                                    <button class="btn btn-sm btn-primary" onclick="viewFlow()">查看</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>医保结算审核流程</td>
+                                <td>MED-004</td>
+                                <td>卫生健康智慧大脑</td>
+                                <td>医疗服务</td>
+                                <td>2024-01-09 16:45:00</td>
+                                <td>管理员</td>
+                                <td class="actions">
+                                    <button class="btn btn-sm btn-primary" onclick="viewFlow()">查看</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination">
+                    <button class="page-btn" disabled>上一页</button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">下一页</button>
+                </div>
+            </div>
+
+            <!-- 已拒绝 -->
+            <div id="approval-tab-rejected" class="approval-tab-panel">
+                <div class="search-form">
+                    <div class="form-item">
+                        <span class="form-label">业务域</span>
+                        <select id="approval-rejected-domain" class="form-select">
+                            <option value="">全部</option>
+                            <option value="medical">医疗服务</option>
+                            <option value="public">公共卫生</option>
+                        </select>
+                    </div>
+                    <div class="form-item">
+                        <span class="form-label">流程名称</span>
+                        <input id="approval-rejected-name" type="text" class="form-input" placeholder="请输入流程名称">
+                    </div>
+                    <div class="form-item">
+                        <button class="btn btn-primary" onclick="searchApprovalRejected()">查询</button>
+                        <button class="btn btn-default" onclick="resetApprovalRejected()">重置</button>
+                    </div>
+                </div>
+
+                <div class="toolbar">
+                    <div class="toolbar-right">共 2 条已拒绝记录</div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>流程名称</th>
+                                <th>流程编码</th>
+                                <th>归属应用</th>
+                                <th>业务域</th>
+                                <th>拒绝时间</th>
+                                <th>拒绝原因</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>死亡上报流程</td>
+                                <td>PUB-001</td>
+                                <td>公共卫生系统</td>
+                                <td>公共卫生</td>
+                                <td>2024-01-13 09:30:00</td>
+                                <td>流程设计不完善，需重新设计</td>
+                                <td class="actions">
+                                    <button class="btn btn-sm btn-primary" onclick="viewFlow()">查看</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>医疗资源调配流程</td>
+                                <td>MGT-002</td>
+                                <td>卫生健康智慧大脑</td>
+                                <td>综合管理</td>
+                                <td>2024-01-12 11:20:00</td>
+                                <td>审批流程不完整</td>
+                                <td class="actions">
+                                    <button class="btn btn-sm btn-primary" onclick="viewFlow()">查看</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination">
+                    <button class="page-btn" disabled>上一页</button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn" disabled>下一页</button>
+                </div>
+            </div>
+        </div>
+    <!-- </main> -->
+
+    <!-- 查看流程弹窗 -->
+    <div id="viewFlowModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <span class="modal-title">流程详情</span>
+                <button class="modal-close" onclick="closeModal('viewFlowModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="view-section">
+                    <h3 style="margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #e8e8e8; color: #1890ff;">第一步：基本信息</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label>流程名称</label>
+                            <input type="text" value="检查检验结果互认流程" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>流程编码</label>
+                            <input type="text" value="MED-001" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>归属应用</label>
+                            <input type="text" value="卫生健康智慧大脑" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>发布应用</label>
+                            <input type="text" value="全民健康信息平台" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>业务域</label>
+                            <input type="text" value="医疗服务" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>发布状态</label>
+                            <input type="text" value="待审批" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label>流程描述</label>
+                        <textarea readonly style="min-height: 80px;">跨医疗机构检查检验结果互认审批流程，实现检验报告共享</textarea>
+                    </div>
+                </div>
+                
+                <div class="view-section">
+                    <h3 style="margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #e8e8e8; color: #1890ff;">第二步：流程建模</h3>
+                    <div class="flow-viewer">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                            <div style="text-align: center;">
+                                <div style="width: 80px; height: 40px; background: #52c41a; color: #fff; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px;">开始节点</div>
+                            </div>
+                            <div style="color: #999;">→</div>
+                            <div style="text-align: center;">
+                                <div style="width: 100px; height: 60px; background: #1890ff; color: #fff; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px;">待办任务<br>申请提交</div>
+                            </div>
+                            <div style="color: #999;">→</div>
+                            <div style="text-align: center;">
+                                <div style="width: 100px; height: 60px; background: #faad14; color: #fff; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px;">判断节点<br>资质审核</div>
+                            </div>
+                            <div style="color: #999;">→</div>
+                            <div style="text-align: center;">
+                                <div style="width: 100px; height: 60px; background: #1890ff; color: #fff; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px;">业务服务<br>结果互认</div>
+                            </div>
+                            <div style="color: #999;">→</div>
+                            <div style="text-align: center;">
+                                <div style="width: 80px; height: 40px; background: #ff4d4f; color: #fff; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px;">结束节点</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('viewFlowModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 审批通过确认弹窗 -->
+    <div id="approveConfirmModal" class="modal">
+        <div class="modal-content" style="width: 400px;">
+            <div class="modal-header">
+                <span class="modal-title">确认通过</span>
+                <button class="modal-close" onclick="closeModal('approveConfirmModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="approveFlowCode">
+                <p style="margin-bottom: 16px;">确认通过该流程的审批？</p>
+                <div style="padding: 12px; background: #f5f5f5; border-radius: 4px;">
+                    <div><strong>流程编码：</strong><span id="approveCodeText"></span></div>
+                    <div><strong>流程名称：</strong><span id="approveNameText"></span></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('approveConfirmModal')">取消</button>
+                <button class="btn btn-success" onclick="confirmApprove()">确认通过</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 拒绝原因弹窗 -->
+    <div id="rejectModal" class="modal">
+        <div class="modal-content" style="width: 500px;">
+            <div class="modal-header">
+                <span class="modal-title">拒绝审批</span>
+                <button class="modal-close" onclick="closeModal('rejectModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="rejectFlowCode">
+                <div style="padding: 12px; background: #f5f5f5; border-radius: 4px; margin-bottom: 16px;">
+                    <div><strong>流程编码：</strong><span id="rejectCodeText"></span></div>
+                    <div><strong>流程名称：</strong><span id="rejectNameText"></span></div>
+                </div>
+                <div class="form-group">
+                    <label>拒绝原因 <span style="color: #ff4d4f;">*</span></label>
+                    <textarea id="rejectReason" placeholder="请输入拒绝原因" rows="4"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('rejectModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmReject()">确认拒绝</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchApprovalTab(tab) {
+            document.querySelectorAll('.approval-tab-panel').forEach(panel => {
+                panel.classList.add('hidden');
+            });
+            document.querySelectorAll('.tab-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            document.getElementById('approval-tab-' + tab).classList.remove('hidden');
+        }
+
+        function searchApprovalPending() {
+            alert('查询待审批功能演示');
+        }
+
+        function resetApprovalPending() {
+            document.getElementById('approval-pending-domain').value = '';
+            document.getElementById('approval-pending-app').value = '';
+            document.getElementById('approval-pending-pub').value = '';
+            document.getElementById('approval-pending-name').value = '';
+        }
+
+        function searchApprovalPassed() {
+            alert('查询已通过功能演示');
+        }
+
+        function resetApprovalPassed() {
+            document.getElementById('approval-passed-domain').value = '';
+            document.getElementById('approval-passed-name').value = '';
+        }
+
+        function searchApprovalRejected() {
+            alert('查询已拒绝功能演示');
+        }
+
+        function resetApprovalRejected() {
+            document.getElementById('approval-rejected-domain').value = '';
+            document.getElementById('approval-rejected-name').value = '';
+        }
+
+        function viewFlow() {
+            document.getElementById('viewFlowModal').classList.add('show');
+        }
+
+        function approveFlow(code) {
+            var row = findApprovalRow(code, 'approval-pending-body');
+            if (row) {
+                document.getElementById('approveFlowCode').value = code;
+                document.getElementById('approveCodeText').textContent = code;
+                document.getElementById('approveNameText').textContent = row.cells[0].textContent;
+            }
+            document.getElementById('approveConfirmModal').classList.add('show');
+        }
+
+        function confirmApprove() {
+            var code = document.getElementById('approveFlowCode').value;
+            closeModal('approveConfirmModal');
+            alert('已通过流程 ' + code + ' 的审批');
+        }
+
+        function rejectFlow(code) {
+            var row = findApprovalRow(code, 'approval-pending-body');
+            if (row) {
+                document.getElementById('rejectFlowCode').value = code;
+                document.getElementById('rejectCodeText').textContent = code;
+                document.getElementById('rejectNameText').textContent = row.cells[0].textContent;
+            }
+            document.getElementById('rejectReason').value = '';
+            document.getElementById('rejectModal').classList.add('show');
+        }
+
+        function confirmReject() {
+            var code = document.getElementById('rejectFlowCode').value;
+            var reason = document.getElementById('rejectReason').value;
+            if (!reason) {
+                alert('请输入拒绝原因');
+                return;
+            }
+            closeModal('rejectModal');
+            alert('已拒绝流程 ' + code + ' 的审批');
+        }
+
+        function findApprovalRow(code, bodyId) {
+            var body = document.getElementById(bodyId);
+            if (!body) return null;
+            var rows = body.querySelectorAll('tr');
+            for (var i = 0; i < rows.length; i++) {
+                if (rows[i].cells[1].textContent === code) {
+                    return rows[i];
+                }
+            }
+            return null;
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('show');
+            }
+        }
+    </script>
+</body>
+</html>
