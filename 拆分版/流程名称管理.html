@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全民健康信息平台 - 流程名称管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            overflow: hidden;
+        }
+
+        .header {
+            height: 64px;
+            background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .header-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            color: #fff;
+        }
+
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .header-user:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1890ff;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 24px;
+            margin-top: 64px;
+            height: calc(100vh - 64px);
+            overflow: auto;
+            background: #f0f2f5;
+        }
+
+        .content-header {
+            background: #fff;
+            padding: 20px 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .content-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 8px;
+        }
+
+        .content-subtitle {
+            font-size: 14px;
+            color: #8c8c8c;
+        }
+
+        .content-body {
+            background: #fff;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .search-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 8px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .form-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            color: #595959;
+            white-space: nowrap;
+        }
+
+        .form-input,
+        .form-select {
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 180px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+        }
+
+        .btn-success {
+            background: #52c41a;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #73d13d;
+        }
+
+        .btn-danger {
+            background: #ff4d4f;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #ff7875;
+        }
+
+        .btn-default {
+            background: #fff;
+            color: #595959;
+            border: 1px solid #d9d9d9;
+        }
+
+        .btn-default:hover {
+            color: #40a9ff;
+            border-color: #40a9ff;
+        }
+
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 13px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .data-table th {
+            background: #fafafa;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .data-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .data-table .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .tag-enable {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+
+        .tag-disable {
+            background: #fff1f0;
+            color: #ff4d4f;
+            border: 1px solid #ffa39e;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .toolbar-left {
+            display: flex;
+            gap: 12px;
+        }
+
+        .toolbar-right {
+            color: #8c8c8c;
+            font-size: 13px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .page-btn {
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #595959;
+            transition: all 0.3s;
+        }
+
+        .page-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        .page-btn.active {
+            background: #1890ff;
+            color: #fff;
+            border-color: #1890ff;
+        }
+
+        .page-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .modal-close {
+            font-size: 20px;
+            color: #8c8c8c;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: #262626;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #262626;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 16px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- <header class="header">
+        <div class="header-title">全民健康信息平台</div>
+        <div class="header-right">
+            <div class="header-user">
+                <div class="user-avatar">管</div>
+                <span>管理员</span>
+            </div>
+        </div>
+    </header> -->
+
+    <!-- <main class="content"> -->
+        <!-- <div class="content-header">
+            <div class="content-title">流程名称管理</div>
+            <div class="content-subtitle">管理业务流程的名称信息和状态</div>
+        </div> -->
+
+        <div class="content-body">
+            <div class="search-form">
+                <div class="form-item">
+                    <span class="form-label">流程名称</span>
+                    <input type="text" class="form-input" placeholder="请输入流程名称">
+                </div>
+                <div class="form-item">
+                    <span class="form-label">状态</span>
+                    <select class="form-select">
+                        <option value="">全部</option>
+                        <option value="enable">启用</option>
+                        <option value="disable">禁用</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <button class="btn btn-primary" onclick="searchFlow()">查询</button>
+                    <button class="btn btn-default" onclick="resetSearch()">重置</button>
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <button class="btn btn-success" onclick="openModal('name')">+ 新增流程名称</button>
+                </div>
+                <div class="toolbar-right">共 8 条记录</div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>流程名称</th>
+                            <th>创建时间</th>
+                            <th>创建人</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>检查检验结果互认流程</td>
+                            <td>2024-01-10 14:30:00</td>
+                            <td>张三</td>
+                            <td><span class="tag tag-enable">启用</span></td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-primary" onclick="editItem('name')">编辑</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteItem('name')">删除</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>电子健康档案调阅流程</td>
+                            <td>2024-01-09 10:20:00</td>
+                            <td>李四</td>
+                            <td><span class="tag tag-enable">启用</span></td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-primary" onclick="editItem('name')">编辑</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteItem('name')">删除</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>疫苗接种登记流程</td>
+                            <td>2024-01-08 09:15:00</td>
+                            <td>王五</td>
+                            <td><span class="tag tag-enable">启用</span></td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-primary" onclick="editItem('name')">编辑</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteItem('name')">删除</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>慢病管理随访流程</td>
+                            <td>2024-01-07 16:45:00</td>
+                            <td>赵六</td>
+                            <td><span class="tag tag-disable">禁用</span></td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-primary" onclick="editItem('name')">编辑</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteItem('name')">删除</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>健康教育推送流程</td>
+                            <td>2024-01-06 11:30:00</td>
+                            <td>张三</td>
+                            <td><span class="tag tag-enable">启用</span></td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-primary" onclick="editItem('name')">编辑</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteItem('name')">删除</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>预约挂号流程</td>
+                            <td>2024-01-05 15:20:00</td>
+                            <td>李四</td>
+                            <td><span class="tag tag-enable">启用</span></td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-primary" onclick="editItem('name')">编辑</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteItem('name')">删除</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>死亡证明办理流程</td>
+                            <td>2024-01-04 10:00:00</td>
+                            <td>王五</td>
+                            <td><span class="tag tag-enable">启用</span></td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-primary" onclick="editItem('name')">编辑</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteItem('name')">删除</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>健康证办理流程</td>
+                            <td>2024-01-03 14:15:00</td>
+                            <td>赵六</td>
+                            <td><span class="tag tag-disable">禁用</span></td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-primary" onclick="editItem('name')">编辑</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteItem('name')">删除</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination">
+                <button class="page-btn" disabled>上一页</button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">下一页</button>
+            </div>
+        </div>
+    <!-- </main> -->
+
+    <!-- 通用弹窗 -->
+    <div id="commonModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title" id="modalTitle">新增流程名称</span>
+                <button class="modal-close" onclick="closeModal('commonModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="modalForm">
+                    <div class="form-group">
+                        <label>流程名称</label>
+                        <input type="text" placeholder="请输入流程名称">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('commonModal')">取消</button>
+                <button class="btn btn-primary" onclick="saveForm()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function searchFlow() {
+            alert('查询功能演示');
+        }
+
+        function resetSearch() {
+            document.querySelectorAll('.search-form input, .search-form select').forEach(el => {
+                el.value = '';
+            });
+        }
+
+        function openModal(type) {
+            const modal = document.getElementById('commonModal');
+            const title = document.getElementById('modalTitle');
+            const form = document.getElementById('modalForm');
+
+            const typeConfig = {
+                'name': { title: '新增流程名称', fields: ['流程名称'] },
+                'code': { title: '新增流程编码', fields: ['流程编码', '对应流程'] },
+                'app': { title: '新增归属应用', fields: ['应用名称', '应用标识', '应用描述'] },
+                'desc': { title: '新增流程描述', fields: ['流程名称', '流程描述'] },
+                'head': { title: '新增Head参数', fields: ['参数名', '参数值', '描述'] },
+                'url': { title: '新增URL', fields: ['地址', '描述', '请求方式'] },
+                'bod': { title: '新增BOD模板', fields: ['模板名称', '内容类型', '内容'] },
+                'judge': { title: '新增判断节点', fields: ['节点名称', '条件表达式', '路由目标'] },
+                'map': { title: '新增映射节点', fields: ['节点名称', '源字段', '目标字段', '转换规则'] },
+                'task': { title: '新增待办任务节点', fields: ['节点名称', '待办标题', '责任人表达式', '处理表单路径', '超时时间'] },
+                'service': { title: '新增服务接口', fields: ['接口名称', 'URL', '方法', '请求参数模板'] },
+                'start': { title: '新增开始节点', fields: ['节点名称', '触发条件', '预置变量列表'] },
+                'end': { title: '新增结束节点', fields: ['节点名称', '后置动作', '回调地址'] }
+            };
+
+            const config = typeConfig[type];
+            if (config) {
+                title.textContent = config.title;
+                form.innerHTML = config.fields.map(field => `
+                    <div class="form-group">
+                        <label>${field}</label>
+                        <input type="text" placeholder="请输入${field}">
+                    </div>
+                `).join('');
+            }
+
+            modal.classList.add('show');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        function saveForm() {
+            alert('保存成功！');
+            closeModal('commonModal');
+        }
+
+        function editItem(type) {
+            openModal(type);
+            document.getElementById('modalTitle').textContent = document.getElementById('modalTitle').textContent.replace('新增', '编辑');
+        }
+
+        function deleteItem(type) {
+            if (confirm('确定要删除此项吗？')) {
+                alert('删除成功！');
+            }
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('show');
+            }
+        }
+    </script>
+</body>
+</html>
