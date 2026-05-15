@@ -1,0 +1,1684 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>死亡证明管理</title>
+    <style>
+        /* 全局样式重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            overflow: hidden;
+        }
+
+        /* 顶部导航栏 */
+        .header {
+            height: 64px;
+            background: url('./header-bg.png') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .header-logo {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            font-size: 28px;
+            color: #fff;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .header-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            color: #fff;
+        }
+
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .header-user:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1890ff;
+            font-weight: bold;
+        }
+
+        /* 主体布局 */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 64px);
+            margin-top: 64px;
+        }
+
+        /* 左侧菜单 */
+        .sidebar {
+            width: 220px;
+            background: #ffffff;
+            overflow-y: auto;
+            overflow-x: hidden;
+            transition: width 0.3s;
+            border-right: 1px solid #e8e8e8;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
+        }
+
+        /* 菜单样式 */
+        .menu {
+            padding: 8px 0;
+        }
+
+        .menu-item {
+            position: relative;
+        }
+
+        .menu-parent {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .menu-parent:hover {
+            color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .menu-parent.active {
+            color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .menu-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .menu-parent:hover .menu-icon,
+        .menu-parent.active .menu-icon {
+            color: #1890ff;
+        }
+
+        .menu-arrow {
+            margin-left: auto;
+            font-size: 10px;
+            color: #999;
+            transition: transform 0.3s;
+        }
+
+        .menu-parent.expanded .menu-arrow {
+            transform: rotate(90deg);
+        }
+
+        .submenu {
+            display: none;
+            background: #fafafa;
+        }
+
+        .submenu.show {
+            display: block;
+        }
+
+        .submenu-item {
+            padding: 10px 16px 10px 48px;
+            color: #595959;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+        }
+
+        .submenu-item:hover {
+            color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .submenu-item.active {
+            color: #1890ff;
+            background: #e6f7ff;
+            font-weight: 500;
+        }
+
+        /* 右侧内容区域 */
+        .content {
+            flex: 1;
+            overflow: auto;
+            padding: 24px;
+            background: #f0f2f5;
+        }
+
+        .content-body {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        /* 搜索区域 */
+        .search-area {
+            background: #fafafa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .search-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .search-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-item label {
+            font-size: 13px;
+            color: #595959;
+            white-space: nowrap;
+        }
+
+        .search-item input,
+        .search-item select {
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 13px;
+            width: 180px;
+        }
+
+        .search-item input:focus,
+        .search-item select:focus {
+            outline: none;
+            border-color: #1890ff;
+        }
+
+        .search-item input[type="date"] {
+            width: 160px;
+        }
+
+        .btn {
+            padding: 6px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+        }
+
+        .btn-default {
+            background: #fff;
+            color: #595959;
+            border: 1px solid #d9d9d9;
+        }
+
+        .btn-default:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        .btn-success {
+            background: #52c41a;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #73d13d;
+        }
+
+        .btn-warning {
+            background: #fa8c16;
+            color: #fff;
+        }
+
+        .btn-warning:hover {
+            background: #ffa940;
+        }
+
+        /* 表格样式 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .data-table th {
+            background: #fafafa;
+            font-weight: 500;
+            color: #595959;
+        }
+
+        .data-table tr:hover {
+            background: #fafafa;
+        }
+
+        /* 操作按钮组 */
+        .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-group .btn {
+            padding: 4px 10px;
+            font-size: 12px;
+        }
+
+        /* 分页样式 */
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .page-btn {
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #595959;
+            transition: all 0.3s;
+        }
+
+        .page-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        .page-btn.active {
+            background: #1890ff;
+            color: #fff;
+            border-color: #1890ff;
+        }
+
+        .page-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .page-info {
+            font-size: 13px;
+            color: #595959;
+            margin-right: 8px;
+        }
+
+        /* Tab样式 */
+        .tab-container {
+            margin-bottom: 24px;
+        }
+
+        .tab-content {
+            margin-top: 20px;
+        }
+
+        .tab-header {
+            display: flex;
+            border-bottom: 2px solid #e8e8e8;
+        }
+
+        .tab-btn {
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #595959;
+            background: none;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            margin-right: 32px;
+            transition: color 0.3s;
+        }
+
+        .tab-btn:hover {
+            color: #1890ff;
+        }
+
+        .tab-btn.active {
+            color: #1890ff;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #1890ff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 标签样式 */
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .tag-pending {
+            background: #fff7e6;
+            color: #fa8c16;
+        }
+
+        .tag-processed {
+            background: #e6fffb;
+            color: #13c2c2;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            color: #262626;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            margin-bottom: 16px;
+        }
+
+        .form-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-item label {
+            font-size: 13px;
+            color: #595959;
+        }
+
+        .form-item input,
+        .form-item select,
+        .form-item textarea {
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 13px;
+            width: 220px;
+        }
+
+        .form-item textarea {
+            width: 400px;
+            height: 80px;
+            resize: vertical;
+        }
+
+        .form-item input:focus,
+        .form-item select:focus,
+        .form-item textarea:focus {
+            outline: none;
+            border-color: #1890ff;
+        }
+
+        /* 附件列表 */
+        .attachment-list {
+            margin-top: 12px;
+        }
+
+        .attachment-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            background: #fafafa;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .attachment-name {
+            flex: 1;
+            font-size: 13px;
+            color: #595959;
+        }
+
+        /* 日志列表 */
+        .log-list {
+            margin-top: 12px;
+        }
+
+        .log-item {
+            padding: 12px;
+            background: #fafafa;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .log-user {
+            font-size: 13px;
+            font-weight: 500;
+            color: #262626;
+        }
+
+        .log-time {
+            font-size: 12px;
+            color: #8c8c8c;
+        }
+
+        .log-content {
+            font-size: 13px;
+            color: #595959;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 8px;
+            width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .modal-close {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+
+        .modal-close:hover {
+            background: #f0f0f0;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header class="header">
+        
+        <div class="header-title">全民健康信息平台</div>
+        <div class="header-right">
+            <div class="header-user">
+                <div class="user-avatar">管</div>
+                <span>管理员</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主体布局 -->
+    <div class="main-container">
+        <!-- 左侧菜单 -->
+        <aside class="sidebar">
+            <nav class="menu">
+             
+                <!-- 2.7.1 基础支撑管理（可展开） -->
+                <div class="menu-item">
+                    <div class="menu-parent" onclick="toggleSubMenu(this)">
+                        <span class="menu-icon">▸</span>
+                        <span>基础支撑管理</span>
+                        <span class="menu-arrow">▶</span>
+                    </div>
+                    <div class="submenu">
+                        <div class="submenu-item" onclick="handleMenuClick(this)">基础支撑管理内容</div>
+                    </div>
+                </div>
+                
+                <!-- 2.7.2 死亡证明电子照信息库（可展开） -->
+                <div class="menu-item">
+                    <div class="menu-parent" onclick="toggleSubMenu(this)">
+                        <span class="menu-icon">▸</span>
+                        <span>死亡证明电子照信息库</span>
+                        <span class="menu-arrow">▶</span>
+                    </div>
+                    <div class="submenu">
+                        <div class="submenu-item" onclick="handleMenuClick(this)">电子照信息库内容</div>
+                    </div>
+                </div>
+                
+                <!-- 2.7.3 死亡证明编码申请 -->
+                <div class="menu-item">
+                    <div class="menu-parent" onclick="handleMenuClick(this)">
+                        <span class="menu-icon">▸</span>
+                        <span>死亡证明编码申请</span>
+                    </div>
+                </div>
+                
+                <!-- 2.7.4 死亡证明办理 -->
+                <div class="menu-item">
+                    <div class="menu-parent expanded" onclick="toggleSubMenu(this)">
+                        <span class="menu-icon">▸</span>
+                        <span>死亡证明办理</span>
+                        <span class="menu-arrow">▶</span>
+                    </div>
+                    <div class="submenu show">
+                        <div class="submenu-item active" id="menu-todo" onclick="switchMenu('todo')">死亡证明待办</div>
+                        <div class="submenu-item" onclick="handleMenuClick(this)">死亡证明办理</div>
+                        <div class="submenu-item" onclick="handleMenuClick(this)">死亡证明办理证明文件附件保存</div>
+                        <div class="submenu-item" onclick="handleMenuClick(this)">死亡证明修改、订正</div>
+                        <div class="submenu-item" onclick="handleMenuClick(this)">死亡证明废弃、激活</div>
+                        <div class="submenu-item" onclick="handleMenuClick(this)">死亡证明审核</div>
+                        <div class="submenu-item" onclick="handleMenuClick(this)">死亡证明发放登记</div>
+                        <div class="submenu-item" onclick="handleMenuClick(this)">死亡证明签发打印</div>
+                        <div class="submenu-item" onclick="handleMenuClick(this)">死亡证明补发打印</div>
+                        <div class="submenu-item" onclick="handleMenuClick(this)">死亡证明日志</div>
+                        <div class="submenu-item" id="menu-reissue" onclick="switchMenu('reissue')">死亡证明重办</div>
+                        <div class="submenu-item" onclick="handleMenuClick(this)">死亡证明回收</div>
+                        <div class="submenu-item" onclick="handleMenuClick(this)">死亡证明办理记录</div>
+                        <div class="submenu-item" onclick="handleMenuClick(this)">死亡证明综合查询</div>
+                    </div>
+                </div>
+                
+                <!-- 2.7.5 死亡监测管理（可展开） -->
+                <div class="menu-item">
+                    <div class="menu-parent" onclick="toggleSubMenu(this)">
+                        <span class="menu-icon">▸</span>
+                        <span>死亡监测管理</span>
+                        <span class="menu-arrow">▶</span>
+                    </div>
+                    <div class="submenu">
+                        <div class="submenu-item" onclick="handleMenuClick(this)">死亡监测管理内容</div>
+                    </div>
+                </div>
+                
+                <!-- 2.7.6 无名尸管理（可展开） -->
+                <div class="menu-item">
+                    <div class="menu-parent" onclick="toggleSubMenu(this)">
+                        <span class="menu-icon">▸</span>
+                        <span>无名尸管理</span>
+                        <span class="menu-arrow">▶</span>
+                    </div>
+                    <div class="submenu">
+                        <div class="submenu-item" onclick="handleMenuClick(this)">无名尸管理内容</div>
+                    </div>
+                </div>
+                
+                <!-- 2.7.7 死亡信息核对管理（可展开） -->
+                <div class="menu-item">
+                    <div class="menu-parent" onclick="toggleSubMenu(this)">
+                        <span class="menu-icon">▸</span>
+                        <span>死亡信息核对管理</span>
+                        <span class="menu-arrow">▶</span>
+                    </div>
+                    <div class="submenu">
+                        <div class="submenu-item" onclick="handleMenuClick(this)">死亡信息核对管理内容</div>
+                    </div>
+                </div>
+                
+                <!-- 2.7.8 死亡报告管理（可展开） -->
+                <div class="menu-item">
+                    <div class="menu-parent" onclick="toggleSubMenu(this)">
+                        <span class="menu-icon">▸</span>
+                        <span>死亡报告管理</span>
+                        <span class="menu-arrow">▶</span>
+                    </div>
+                    <div class="submenu">
+                        <div class="submenu-item" onclick="handleMenuClick(this)">死亡报告管理内容</div>
+                    </div>
+                </div>
+                
+                <!-- 2.7.9 死亡证明在线服务（可展开） -->
+                <div class="menu-item">
+                    <div class="menu-parent" onclick="toggleSubMenu(this)">
+                        <span class="menu-icon">▸</span>
+                        <span>死亡证明在线服务</span>
+                        <span class="menu-arrow">▶</span>
+                    </div>
+                    <div class="submenu">
+                        <div class="submenu-item" onclick="handleMenuClick(this)">在线服务内容</div>
+                    </div>
+                </div>
+                
+                <!-- 2.7.10 数据交换管理（可展开） -->
+                <div class="menu-item">
+                    <div class="menu-parent" onclick="toggleSubMenu(this)">
+                        <span class="menu-icon">▸</span>
+                        <span>数据交换管理</span>
+                        <span class="menu-arrow">▶</span>
+                    </div>
+                    <div class="submenu">
+                        <div class="submenu-item" onclick="handleMenuClick(this)">数据交换管理内容</div>
+                    </div>
+                </div>
+                
+                <!-- 2.7.11 死亡统计分析（可展开） -->
+                <div class="menu-item">
+                    <div class="menu-parent" onclick="toggleSubMenu(this)">
+                        <span class="menu-icon">▸</span>
+                        <span>死亡统计分析</span>
+                        <span class="menu-arrow">▶</span>
+                    </div>
+                    <div class="submenu">
+                        <div class="submenu-item" onclick="handleMenuClick(this)">死亡统计分析内容</div>
+                    </div>
+                </div>
+                
+                <!-- 2.7.12 工作量统计（可展开） -->
+                <div class="menu-item">
+                    <div class="menu-parent" onclick="toggleSubMenu(this)">
+                        <span class="menu-icon">▸</span>
+                        <span>工作量统计</span>
+                        <span class="menu-arrow">▶</span>
+                    </div>
+                    <div class="submenu">
+                        <div class="submenu-item" onclick="handleMenuClick(this)">工作量统计内容</div>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 右侧内容区域 -->
+        <main class="content">
+            <!-- 死亡证明待办页面 -->
+            <div id="todo-page" class="content-body">
+               
+                
+                <!-- Tab容器 -->
+                <div class="tab-container">
+                    <div class="tab-header">
+                        <button class="tab-btn active" onclick="switchTodoTab('local')">死亡证明待办</button>
+                        <button class="tab-btn" onclick="switchTodoTab('remote')">异地死亡证明查询</button>
+                    </div>
+                    
+                    <!-- Tab内容：死亡证明待办 -->
+                    <div class="tab-content active" id="tab-local">
+                        <!-- 查询条件 -->
+                        <div class="search-area">
+                            <div class="search-row">
+                                <div class="search-item">
+                                    <label>报告地址</label>
+                                    <input type="text" id="todo-address" placeholder="请输入报告地址">
+                                </div>
+                                <div class="search-item">
+                                    <label>县区</label>
+                                    <select id="todo-district">
+                                        <option value="">全部</option>
+                                        <option value="雁塔区">雁塔区</option>
+                                        <option value="未央区">未央区</option>
+                                        <option value="新城区">新城区</option>
+                                        <option value="碑林区">碑林区</option>
+                                    </select>
+                                </div>
+                                <div class="search-item">
+                                    <label>报告机构</label>
+                                    <input type="text" id="todo-org" placeholder="请输入报告机构">
+                                </div>
+                                <div class="search-item">
+                                    <label>根本死因</label>
+                                    <input type="text" id="todo-cause" placeholder="请输入根本死因">
+                                </div>
+                            </div>
+                            <div class="search-row">
+                                <div class="search-item">
+                                    <label>姓名</label>
+                                    <input type="text" id="todo-name" placeholder="请输入姓名">
+                                </div>
+                                <div class="search-item">
+                                    <label>身份证号码</label>
+                                    <input type="text" id="todo-idcard" placeholder="请输入身份证号码">
+                                </div>
+                                <div class="search-item">
+                                    <label>死亡日期</label>
+                                    <input type="date" id="todo-death-date">
+                                </div>
+                                <div class="search-item" style="margin-left: auto;">
+                                    <button class="btn btn-primary" onclick="searchTodo()">查询</button>
+                                    <button class="btn btn-default" onclick="resetTodoSearch()">重置</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 待办列表 -->
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>姓名</th>
+                                    <th>性别</th>
+                                    <th>年龄</th>
+                                    <th>身份证号码</th>
+                                    <th>生前居住地址</th>
+                                    <th>报卡单位</th>
+                                    <th>根本死因</th>
+                                    <th>死亡日期</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="todoTable">
+                                <!-- 模拟数据 -->
+                            </tbody>
+                        </table>
+
+                        <!-- 分页 -->
+                        <div class="pagination" id="todoPagination"></div>
+                    </div>
+                    
+                    <!-- Tab内容：异地死亡证明查询 -->
+                    <div class="tab-content" id="tab-remote">
+                        <div class="search-area">
+                            <div class="search-row">
+                                <div class="search-item">
+                                    <label>姓名</label>
+                                    <input type="text" id="remote-name" placeholder="请输入姓名">
+                                </div>
+                                <div class="search-item">
+                                    <label>身份证号码</label>
+                                    <input type="text" id="remote-idcard" placeholder="请输入身份证号码">
+                                </div>
+                                <div class="search-item">
+                                    <label>死亡日期</label>
+                                    <input type="date" id="remote-death-date">
+                                </div>
+                                <div class="search-item" style="margin-left: auto;">
+                                    <button class="btn btn-primary" onclick="searchRemote()">查询</button>
+                                    <button class="btn btn-default" onclick="resetRemoteSearch()">重置</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 异地查询结果列表 -->
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>姓名</th>
+                                    <th>性别</th>
+                                    <th>年龄</th>
+                                    <th>身份证号码</th>
+                                    <th>生前居住地址</th>
+                                    <th>报卡单位</th>
+                                    <th>根本死因</th>
+                                    <th>死亡日期</th>
+                                    <th>报告机构</th>
+                                </tr>
+                            </thead>
+                            <tbody id="remoteTable">
+                                <!-- 模拟数据 -->
+                            </tbody>
+                        </table>
+
+                        <!-- 分页 -->
+                        <div class="pagination" id="remotePagination"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 死亡证明重办页面 -->
+            <div id="reissue-page" class="content-body" style="display: none;">
+            
+                
+                <!-- 查询条件 -->
+                <div class="search-area">
+                    <div class="search-row">
+                        <div class="search-item">
+                            <label>报告地址</label>
+                            <input type="text" id="reissue-address" placeholder="请输入报告地址">
+                        </div>
+                        <div class="search-item">
+                            <label>县区</label>
+                            <select id="reissue-district">
+                                <option value="">全部</option>
+                                <option value="雁塔区">雁塔区</option>
+                                <option value="未央区">未央区</option>
+                                <option value="新城区">新城区</option>
+                                <option value="碑林区">碑林区</option>
+                            </select>
+                        </div>
+                        <div class="search-item">
+                            <label>报告机构</label>
+                            <input type="text" id="reissue-org" placeholder="请输入报告机构">
+                        </div>
+                        <div class="search-item">
+                            <label>根本死因</label>
+                            <input type="text" id="reissue-cause" placeholder="请输入根本死因">
+                        </div>
+                    </div>
+                    <div class="search-row">
+                        <div class="search-item">
+                            <label>姓名</label>
+                            <input type="text" id="reissue-name" placeholder="请输入姓名">
+                        </div>
+                        <div class="search-item">
+                            <label>身份证号码</label>
+                            <input type="text" id="reissue-idcard" placeholder="请输入身份证号码">
+                        </div>
+                        <div class="search-item">
+                            <label>死亡日期</label>
+                            <input type="date" id="reissue-death-date">
+                        </div>
+                        <div class="search-item" style="margin-left: auto;">
+                            <button class="btn btn-primary" onclick="searchReissue()">查询</button>
+                            <button class="btn btn-default" onclick="resetReissueSearch()">重置</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 重办列表 -->
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>姓名</th>
+                            <th>生前居住地址</th>
+                            <th>报卡单位</th>
+                            <th>年龄</th>
+                            <th>根本死因</th>
+                            <th>死亡日期</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reissueTable">
+                        <!-- 模拟数据 -->
+                    </tbody>
+                </table>
+
+                <!-- 分页 -->
+                <div class="pagination" id="reissuePagination"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 申领人登记弹窗 -->
+    <div class="modal-overlay" id="claimant-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">申领人登记</div>
+                <div class="modal-close" onclick="closeModal('claimant-modal')">×</div>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-item">
+                        <label>申领人姓名</label>
+                        <input type="text" id="claimant-name" placeholder="请输入姓名">
+                    </div>
+                    <div class="form-item">
+                        <label>身份证号码</label>
+                        <input type="text" id="claimant-idcard" placeholder="请输入身份证号码">
+                    </div>
+                    <div class="form-item">
+                        <label>与死者关系</label>
+                        <select id="claimant-relation">
+                            <option value="">请选择</option>
+                            <option value="配偶">配偶</option>
+                            <option value="子女">子女</option>
+                            <option value="父母">父母</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-item">
+                        <label>联系电话</label>
+                        <input type="text" id="claimant-phone" placeholder="请输入联系电话">
+                    </div>
+                    <div class="form-item">
+                        <label>联系地址</label>
+                        <input type="text" id="claimant-address" placeholder="请输入联系地址">
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label>备注</label>
+                    <textarea id="claimant-remark" placeholder="请输入备注信息"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('claimant-modal')">取消</button>
+                <button class="btn btn-primary" onclick="saveClaimant()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 附件管理弹窗 -->
+    <div class="modal-overlay" id="attachment-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">附件管理</div>
+                <div class="modal-close" onclick="closeModal('attachment-modal')">×</div>
+            </div>
+            <div class="modal-body">
+                <div class="card" style="margin-bottom: 16px;">
+                    <div style="font-size: 14px; font-weight: 500; margin-bottom: 12px;">上传附件</div>
+                    <input type="file" multiple style="width: 100%;" id="attachment-file">
+                </div>
+                <div class="attachment-list" id="attachment-list">
+                    <div class="attachment-item">
+                        <span class="attachment-name">死亡证明申请表.pdf</span>
+                        <button class="btn btn-default" style="font-size: 12px; padding: 2px 8px;">下载</button>
+                        <button class="btn btn-warning" style="font-size: 12px; padding: 2px 8px;">删除</button>
+                    </div>
+                    <div class="attachment-item">
+                        <span class="attachment-name">身份证明复印件.jpg</span>
+                        <button class="btn btn-default" style="font-size: 12px; padding: 2px 8px;">下载</button>
+                        <button class="btn btn-warning" style="font-size: 12px; padding: 2px 8px;">删除</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('attachment-modal')">关闭</button>
+                <button class="btn btn-primary" onclick="uploadAttachment()">上传</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 日志填写弹窗 -->
+    <div class="modal-overlay" id="log-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">日志填写</div>
+                <div class="modal-close" onclick="closeModal('log-modal')">×</div>
+            </div>
+            <div class="modal-body">
+                <div class="form-item">
+                    <label>日志内容</label>
+                    <textarea id="log-content" placeholder="请输入日志内容" style="width: 100%;"></textarea>
+                </div>
+                <div style="margin-top: 16px;">
+                    <div style="font-size: 14px; font-weight: 500; margin-bottom: 12px;">操作日志</div>
+                    <div class="log-list">
+                        <div class="log-item">
+                            <div class="log-header">
+                                <span class="log-user">管理员</span>
+                                <span class="log-time">2026-05-14 10:30:00</span>
+                            </div>
+                            <div class="log-content">已完成申领人登记</div>
+                        </div>
+                        <div class="log-item">
+                            <div class="log-header">
+                                <span class="log-user">管理员</span>
+                                <span class="log-time">2026-05-14 10:15:00</span>
+                            </div>
+                            <div class="log-content">收到死亡证明申请</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('log-modal')">取消</button>
+                <button class="btn btn-primary" onclick="saveLog()">保存日志</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 重办申请人登记弹窗 -->
+    <div class="modal-overlay" id="reissue-applicant-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">申请人登记</div>
+                <div class="modal-close" onclick="closeModal('reissue-applicant-modal')">×</div>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-item">
+                        <label>申请人姓名</label>
+                        <input type="text" id="reissue-app-name" placeholder="请输入申请人姓名">
+                    </div>
+                    <div class="form-item">
+                        <label>身份证号码</label>
+                        <input type="text" id="reissue-app-idcard" placeholder="请输入身份证号码">
+                    </div>
+                    <div class="form-item">
+                        <label>与死者关系</label>
+                        <select id="reissue-app-relation">
+                            <option value="">请选择</option>
+                            <option value="配偶">配偶</option>
+                            <option value="子女">子女</option>
+                            <option value="父母">父母</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-item">
+                        <label>联系电话</label>
+                        <input type="text" id="reissue-app-phone" placeholder="请输入联系电话">
+                    </div>
+                    <div class="form-item">
+                        <label>住址</label>
+                        <input type="text" id="reissue-app-address" placeholder="请输入住址">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('reissue-applicant-modal')">取消</button>
+                <button class="btn btn-primary" onclick="saveReissueApplicant()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 重办确认弹窗 -->
+    <div class="modal-overlay" id="reissue-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">死亡证明重办</div>
+                <div class="modal-close" onclick="closeModal('reissue-modal')">×</div>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-item">
+                        <label>重办原因</label>
+                        <select id="reissue-reason">
+                            <option value="">请选择</option>
+                            <option value="丢失">证明丢失</option>
+                            <option value="损毁">证明损毁</option>
+                            <option value="信息错误">信息错误</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                    <div class="form-item">
+                        <label>重办次数</label>
+                        <input type="text" id="reissue-count" placeholder="请输入重办次数" value="1" readonly>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label>备注</label>
+                    <textarea id="reissue-remark" placeholder="请输入备注信息"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('reissue-modal')">取消</button>
+                <button class="btn btn-success" onclick="confirmReissue()">确认重办</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟待办数据
+        const todoData = [
+            { id: '1', name: '张三', gender: '男', age: 65, idcard: '61010219610305****', address: '雁塔区科技路100号', org: '西安市第一医院', cause: '心脏病', deathDate: '2026-05-10', status: 'pending' },
+            { id: '2', name: '李四', gender: '女', age: 78, idcard: '61010319480712****', address: '未央区凤城八路88号', org: '西安市第三医院', cause: '脑出血', deathDate: '2026-05-12', status: 'pending' },
+            { id: '3', name: '王五', gender: '男', age: 52, idcard: '61010419740115****', address: '新城区解放路56号', org: '西京医院', cause: '肺癌', deathDate: '2026-05-11', status: 'pending' },
+            { id: '4', name: '赵六', gender: '女', age: 82, idcard: '61010519440920****', address: '碑林区东大街23号', org: '省人民医院', cause: '呼吸衰竭', deathDate: '2026-05-09', status: 'processed' },
+            { id: '5', name: '孙七', gender: '男', age: 45, idcard: '61010619810428****', address: '雁塔区高新二路12号', org: '高新医院', cause: '交通事故', deathDate: '2026-05-13', status: 'pending' }
+        ];
+
+        // 模拟重办数据
+        const reissueData = [
+            { id: '1', name: '张三', address: '雁塔区科技路100号', org: '西安市第一医院', age: 65, cause: '心脏病', deathDate: '2026-05-10' },
+            { id: '2', name: '李四', address: '未央区凤城八路88号', org: '西安市第三医院', age: 78, cause: '脑出血', deathDate: '2026-05-12' },
+            { id: '3', name: '王五', address: '新城区解放路56号', org: '西京医院', age: 52, cause: '肺癌', deathDate: '2026-05-11' },
+            { id: '4', name: '赵六', address: '碑林区东大街23号', org: '省人民医院', age: 82, cause: '呼吸衰竭', deathDate: '2026-05-09' },
+            { id: '5', name: '孙七', address: '雁塔区高新二路12号', org: '高新医院', age: 45, cause: '交通事故', deathDate: '2026-05-13' }
+        ];
+
+        // 模拟异地死亡证明数据
+        const remoteData = [
+            { id: '1', name: '周八', gender: '男', age: 58, idcard: '61020219680615****', address: '宝鸡市金台区中山路12号', org: '宝鸡市中心医院', cause: '心肌梗死', deathDate: '2026-05-10', reportOrg: '宝鸡市中心医院' },
+            { id: '2', name: '吴九', gender: '女', age: 66, idcard: '61030219600320****', address: '咸阳市秦都区人民路88号', org: '咸阳市第一人民医院', cause: '糖尿病并发症', deathDate: '2026-05-11', reportOrg: '咸阳市第一人民医院' },
+            { id: '3', name: '郑十', gender: '男', age: 72, idcard: '61040219540818****', address: '渭南市临渭区东风街56号', org: '渭南市中心医院', cause: '脑梗死', deathDate: '2026-05-09', reportOrg: '渭南市中心医院' }
+        ];
+
+        let currentTodoPage = 1;
+        const todoPageSize = 10;
+        let currentReissuePage = 1;
+        const reissuePageSize = 10;
+        let currentRemotePage = 1;
+        const remotePageSize = 10;
+
+        // 切换二级菜单展开/收起
+        function toggleSubMenu(el) {
+            el.classList.toggle('expanded');
+            const nextEl = el.nextElementSibling;
+            if (nextEl && nextEl.classList.contains('submenu')) {
+                nextEl.classList.toggle('show');
+            }
+        }
+
+        // 处理菜单点击（非功能菜单）
+        function handleMenuClick(el) {
+            // 其他菜单点击无反应
+        }
+
+        // 切换菜单
+        function switchMenu(page) {
+            // 移除所有子菜单的active状态
+            document.querySelectorAll('.submenu-item').forEach(item => item.classList.remove('active'));
+            document.getElementById('todo-page').style.display = 'none';
+            document.getElementById('reissue-page').style.display = 'none';
+
+            if (page === 'todo') {
+                document.getElementById('menu-todo').classList.add('active');
+                document.getElementById('todo-page').style.display = 'block';
+                renderTodoTable(todoData, 1);
+                renderRemoteTable(remoteData, 1);
+                return;
+            }
+            
+            document.getElementById('menu-reissue').classList.add('active');
+            document.getElementById('reissue-page').style.display = 'block';
+            renderReissueTable(reissueData, 1);
+        }
+
+        // 切换待办页面的Tab
+        function switchTodoTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`.tab-btn[onclick="switchTodoTab('${tab}')"]`).classList.add('active');
+            document.getElementById(`tab-${tab}`).classList.add('active');
+        }
+
+        // 渲染待办表格
+        function renderTodoTable(data, page) {
+            const start = (page - 1) * todoPageSize;
+            const end = start + todoPageSize;
+            const pageData = data.slice(start, end);
+            const totalPages = Math.ceil(data.length / todoPageSize);
+
+            const table = document.getElementById('todoTable');
+            table.innerHTML = pageData.map(item => {
+                return `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>${item.gender}</td>
+                        <td>${item.age}</td>
+                        <td>${item.idcard}</td>
+                        <td>${item.address}</td>
+                        <td>${item.org}</td>
+                        <td>${item.cause}</td>
+                        <td>${item.deathDate}</td>
+                        <td>
+                            <div class="btn-group">
+                                <button class="btn btn-primary" onclick="openClaimantModal()">申领人登记</button>
+                                <button class="btn btn-default" onclick="openAttachmentModal()">附件管理</button>
+                                <button class="btn btn-default" onclick="openLogModal()">日志填写</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            renderTodoPagination(totalPages, page);
+        }
+
+        // 渲染重办表格
+        function renderReissueTable(data, page) {
+            const start = (page - 1) * reissuePageSize;
+            const end = start + reissuePageSize;
+            const pageData = data.slice(start, end);
+            const totalPages = Math.ceil(data.length / reissuePageSize);
+
+            const table = document.getElementById('reissueTable');
+            table.innerHTML = pageData.map(item => {
+                return `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>${item.address}</td>
+                        <td>${item.org}</td>
+                        <td>${item.age}</td>
+                        <td>${item.cause}</td>
+                        <td>${item.deathDate}</td>
+                        <td>
+                            <div class="btn-group">
+                                <button class="btn btn-primary" onclick="openReissueApplicantModal()">申请人登记</button>
+                                <button class="btn btn-success" onclick="openReissueConfirmModal()">重办</button>
+                                <button class="btn btn-default" onclick="printInference()">打印推断</button>
+                                <button class="btn btn-default" onclick="printCertificate()">打印证明</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            renderReissuePagination(totalPages, page);
+        }
+
+        // 渲染待办分页
+        function renderTodoPagination(totalPages, currentPage) {
+            const pagination = document.getElementById('todoPagination');
+            let html = '';
+
+            if (totalPages > 1) {
+                html = `
+                    <span class="page-info">第 ${currentPage} 页 / 共 ${totalPages} 页</span>
+                    <button class="page-btn" onclick="goToTodoPage(1)" ${currentPage === 1 ? 'disabled' : ''}>首页</button>
+                    <button class="page-btn" onclick="goToTodoPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>上一页</button>
+                `;
+
+                for (let i = 1; i <= totalPages; i++) {
+                    html += `<button class="page-btn ${currentPage === i ? 'active' : ''}" onclick="goToTodoPage(${i})">${i}</button>`;
+                }
+
+                html += `
+                    <button class="page-btn" onclick="goToTodoPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>下一页</button>
+                    <button class="page-btn" onclick="goToTodoPage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}>末页</button>
+                `;
+            } else {
+                html = `<span class="page-info">第 ${currentPage} 页 / 共 ${totalPages} 页</span>`;
+            }
+
+            pagination.innerHTML = html;
+        }
+
+        // 渲染重办分页
+        function renderReissuePagination(totalPages, currentPage) {
+            const pagination = document.getElementById('reissuePagination');
+            let html = '';
+
+            if (totalPages > 1) {
+                html = `
+                    <span class="page-info">第 ${currentPage} 页 / 共 ${totalPages} 页</span>
+                    <button class="page-btn" onclick="goToReissuePage(1)" ${currentPage === 1 ? 'disabled' : ''}>首页</button>
+                    <button class="page-btn" onclick="goToReissuePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>上一页</button>
+                `;
+
+                for (let i = 1; i <= totalPages; i++) {
+                    html += `<button class="page-btn ${currentPage === i ? 'active' : ''}" onclick="goToReissuePage(${i})">${i}</button>`;
+                }
+
+                html += `
+                    <button class="page-btn" onclick="goToReissuePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>下一页</button>
+                    <button class="page-btn" onclick="goToReissuePage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}>末页</button>
+                `;
+            } else {
+                html = `<span class="page-info">第 ${currentPage} 页 / 共 ${totalPages} 页</span>`;
+            }
+
+            pagination.innerHTML = html;
+        }
+
+        // 跳转待办页
+        function goToTodoPage(page) {
+            currentTodoPage = page;
+            renderTodoTable(todoData, page);
+        }
+
+        // 跳转重办页
+        function goToReissuePage(page) {
+            currentReissuePage = page;
+            renderReissueTable(reissueData, page);
+        }
+
+        // 渲染异地查询表格
+        function renderRemoteTable(data, page) {
+            const start = (page - 1) * remotePageSize;
+            const end = start + remotePageSize;
+            const pageData = data.slice(start, end);
+            const totalPages = Math.ceil(data.length / remotePageSize);
+
+            const table = document.getElementById('remoteTable');
+            table.innerHTML = pageData.map(item => {
+                return `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>${item.gender}</td>
+                        <td>${item.age}</td>
+                        <td>${item.idcard}</td>
+                        <td>${item.address}</td>
+                        <td>${item.org}</td>
+                        <td>${item.cause}</td>
+                        <td>${item.deathDate}</td>
+                        <td>${item.reportOrg}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            renderRemotePagination(totalPages, page);
+        }
+
+        // 渲染异地查询分页
+        function renderRemotePagination(totalPages, currentPage) {
+            const pagination = document.getElementById('remotePagination');
+            let html = '';
+
+            if (totalPages > 1) {
+                html = `
+                    <span class="page-info">第 ${currentPage} 页 / 共 ${totalPages} 页</span>
+                    <button class="page-btn" onclick="goToRemotePage(1)" ${currentPage === 1 ? 'disabled' : ''}>首页</button>
+                    <button class="page-btn" onclick="goToRemotePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>上一页</button>
+                `;
+
+                for (let i = 1; i <= totalPages; i++) {
+                    html += `<button class="page-btn ${currentPage === i ? 'active' : ''}" onclick="goToRemotePage(${i})">${i}</button>`;
+                }
+
+                html += `
+                    <button class="page-btn" onclick="goToRemotePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>下一页</button>
+                    <button class="page-btn" onclick="goToRemotePage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}>末页</button>
+                `;
+            } else {
+                html = `<span class="page-info">第 ${currentPage} 页 / 共 ${totalPages} 页</span>`;
+            }
+
+            pagination.innerHTML = html;
+        }
+
+        // 跳转异地查询页
+        function goToRemotePage(page) {
+            currentRemotePage = page;
+            renderRemoteTable(remoteData, page);
+        }
+
+        // 查询异地死亡证明
+        function searchRemote() {
+            const filters = {
+                name: document.getElementById('remote-name').value,
+                idcard: document.getElementById('remote-idcard').value,
+                deathDate: document.getElementById('remote-death-date').value
+            };
+
+            const filtered = remoteData.filter(item => {
+                return (!filters.name || item.name.includes(filters.name)) &&
+                       (!filters.idcard || item.idcard.includes(filters.idcard)) &&
+                       (!filters.deathDate || item.deathDate === filters.deathDate);
+            });
+
+            renderRemoteTable(filtered, 1);
+        }
+
+        // 重置异地查询条件
+        function resetRemoteSearch() {
+            document.getElementById('remote-name').value = '';
+            document.getElementById('remote-idcard').value = '';
+            document.getElementById('remote-death-date').value = '';
+            renderRemoteTable(remoteData, 1);
+        }
+
+        // 查询待办
+        function searchTodo() {
+            const filters = {
+                address: document.getElementById('todo-address').value,
+                district: document.getElementById('todo-district').value,
+                org: document.getElementById('todo-org').value,
+                cause: document.getElementById('todo-cause').value,
+                name: document.getElementById('todo-name').value,
+                idcard: document.getElementById('todo-idcard').value,
+                deathDate: document.getElementById('todo-death-date').value
+            };
+
+            const filtered = todoData.filter(item => {
+                return (!filters.address || item.address.includes(filters.address)) &&
+                       (!filters.district || item.address.includes(filters.district)) &&
+                       (!filters.org || item.org.includes(filters.org)) &&
+                       (!filters.cause || item.cause.includes(filters.cause)) &&
+                       (!filters.name || item.name.includes(filters.name)) &&
+                       (!filters.idcard || item.idcard.includes(filters.idcard)) &&
+                       (!filters.deathDate || item.deathDate === filters.deathDate);
+            });
+
+            renderTodoTable(filtered, 1);
+        }
+
+        // 重置待办查询
+        function resetTodoSearch() {
+            document.getElementById('todo-address').value = '';
+            document.getElementById('todo-district').value = '';
+            document.getElementById('todo-org').value = '';
+            document.getElementById('todo-cause').value = '';
+            document.getElementById('todo-name').value = '';
+            document.getElementById('todo-idcard').value = '';
+            document.getElementById('todo-death-date').value = '';
+            renderTodoTable(todoData, 1);
+        }
+
+        // 查询重办
+        function searchReissue() {
+            const filters = {
+                address: document.getElementById('reissue-address').value,
+                district: document.getElementById('reissue-district').value,
+                org: document.getElementById('reissue-org').value,
+                cause: document.getElementById('reissue-cause').value,
+                name: document.getElementById('reissue-name').value,
+                idcard: document.getElementById('reissue-idcard').value,
+                deathDate: document.getElementById('reissue-death-date').value
+            };
+
+            const filtered = reissueData.filter(item => {
+                return (!filters.address || item.address.includes(filters.address)) &&
+                       (!filters.district || item.address.includes(filters.district)) &&
+                       (!filters.org || item.org.includes(filters.org)) &&
+                       (!filters.cause || item.cause.includes(filters.cause)) &&
+                       (!filters.name || item.name.includes(filters.name)) &&
+                       (!filters.deathDate || item.deathDate === filters.deathDate);
+            });
+
+            renderReissueTable(filtered, 1);
+        }
+
+        // 重置重办查询
+        function resetReissueSearch() {
+            document.getElementById('reissue-address').value = '';
+            document.getElementById('reissue-district').value = '';
+            document.getElementById('reissue-org').value = '';
+            document.getElementById('reissue-cause').value = '';
+            document.getElementById('reissue-name').value = '';
+            document.getElementById('reissue-idcard').value = '';
+            document.getElementById('reissue-death-date').value = '';
+            renderReissueTable(reissueData, 1);
+        }
+
+        // 异地查询
+        function searchRemote() {
+            alert('异地死亡证明查询功能已触发');
+        }
+
+        // 打开申领人登记弹窗
+        function openClaimantModal() {
+            document.getElementById('claimant-modal').classList.add('show');
+        }
+
+        // 打开附件管理弹窗
+        function openAttachmentModal() {
+            document.getElementById('attachment-modal').classList.add('show');
+        }
+
+        // 打开日志填写弹窗
+        function openLogModal() {
+            document.getElementById('log-modal').classList.add('show');
+        }
+
+        // 打开重办申请人登记弹窗
+        function openReissueApplicantModal() {
+            document.getElementById('reissue-applicant-modal').classList.add('show');
+        }
+
+        // 打开重办确认弹窗
+        function openReissueConfirmModal() {
+            document.getElementById('reissue-modal').classList.add('show');
+        }
+
+        // 保存申请人信息
+        function saveReissueApplicant() {
+            const name = document.getElementById('reissue-app-name').value;
+            const idcard = document.getElementById('reissue-app-idcard').value;
+            const relation = document.getElementById('reissue-app-relation').value;
+            const phone = document.getElementById('reissue-app-phone').value;
+            
+            if (!name || !idcard) {
+                alert('请填写申请人姓名和身份证号码');
+                return;
+            }
+            
+            alert('申请人信息保存成功');
+            closeModal('reissue-applicant-modal');
+            
+            // 清空表单
+            document.getElementById('reissue-app-name').value = '';
+            document.getElementById('reissue-app-idcard').value = '';
+            document.getElementById('reissue-app-relation').value = '';
+            document.getElementById('reissue-app-phone').value = '';
+            document.getElementById('reissue-app-address').value = '';
+        }
+
+        // 关闭弹窗
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        // 保存申领人信息
+        function saveClaimant() {
+            alert('申领人信息已保存');
+            closeModal('claimant-modal');
+        }
+
+        // 上传附件
+        function uploadAttachment() {
+            alert('附件上传成功');
+        }
+
+        // 保存日志
+        function saveLog() {
+            alert('日志已保存');
+            closeModal('log-modal');
+        }
+
+        // 确认重办
+        function confirmReissue() {
+            alert('死亡证明重办申请已提交');
+            closeModal('reissue-modal');
+        }
+
+        // 打印死亡证明推断
+        function printInference() {
+            alert('正在打印死亡证明推断...');
+        }
+
+        // 打印死亡证明
+        function printCertificate() {
+            alert('正在打印死亡证明...');
+        }
+
+        // 初始化
+        renderTodoTable(todoData, 1);
+    </script>
+</body>
+</html>
