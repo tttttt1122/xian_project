@@ -411,6 +411,14 @@
                     </div>
                 </div>
                 <div class="form-item">
+                    <span class="form-label">执行结束时间</span>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="datetime-local" class="form-input" id="flowListEndTimeFrom" placeholder="开始">
+                        <span style="color: #999;">-</span>
+                        <input type="datetime-local" class="form-input" id="flowListEndTimeTo" placeholder="结束">
+                    </div>
+                </div>
+                <div class="form-item">
                     <button class="btn btn-primary" onclick="searchFlowList()">查询</button>
                     <button class="btn btn-default" onclick="resetFlowListSearch()">重置</button>
                     <button class="btn btn-default" onclick="showSearchSettingsModal()">设置</button>
@@ -618,34 +626,73 @@
         </div>
     </main>
 
+    <!-- 表格设置弹窗 -->
     <div id="tableSettingsModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" style="width: 700px;">
             <div class="modal-header">
                 <span class="modal-title">表格设置</span>
                 <button class="modal-close" onclick="closeModal('tableSettingsModal')">×</button>
             </div>
             <div class="modal-body">
-                <div style="margin-bottom: 16px;">
-                    <h4 style="margin-bottom: 12px; color: #1890ff;">列显示设置</h4>
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 12px; color: #1890ff; font-size: 14px;">列显隐</h4>
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-                        <label><input type="checkbox" checked> 流程名称</label>
-                        <label><input type="checkbox" checked> 状态</label>
-                        <label><input type="checkbox" checked> 执行时间</label>
-                        <label><input type="checkbox" checked> 流水号</label>
-                        <label><input type="checkbox" checked> 姓名</label>
-                        <label><input type="checkbox" checked> 身份证号</label>
-                        <label><input type="checkbox" checked> 业务域</label>
-                        <label><input type="checkbox" checked> 应用归属</label>
-                        <label><input type="checkbox" checked> 发布应用名称</label>
+                        <label><input type="checkbox" checked>流程名称</label>
+                        <label><input type="checkbox" checked>状态</label>
+                        <label><input type="checkbox" checked>执行时间</label>
+                        <label><input type="checkbox" checked>流水号</label>
+                        <label><input type="checkbox" checked>姓名</label>
+                        <label><input type="checkbox" checked>身份证号</label>
+                        <label><input type="checkbox" checked>业务域</label>
+                        <label><input type="checkbox" checked>应用归属</label>
+                        <label><input type="checkbox" checked>发布应用名称</label>
                     </div>
                 </div>
-                <div style="text-align: right;">
-                    <button class="btn btn-primary" onclick="closeModal('tableSettingsModal')">确定</button>
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 12px; color: #1890ff; font-size: 14px;">列冻结</h4>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                        <label><input type="checkbox">流程名称</label>
+                        <label><input type="checkbox">状态</label>
+                        <label><input type="checkbox">执行时间</label>
+                        <label><input type="checkbox">流水号</label>
+                        <label><input type="checkbox">姓名</label>
+                        <label><input type="checkbox">身份证号</label>
+                        <label><input type="checkbox">业务域</label>
+                        <label><input type="checkbox">应用归属</label>
+                        <label><input type="checkbox">发布应用名称</label>
+                    </div>
                 </div>
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 12px; color: #1890ff; font-size: 14px;">状态过滤</h4>
+                    <div style="display: flex; gap: 16px;">
+                        <label><input type="checkbox" checked><span class="tag tag-success" style="display: inline-block; margin-right: 4px;">成功</span></label>
+                        <label><input type="checkbox" checked><span class="tag tag-failed" style="display: inline-block; margin-right: 4px;">失败</span></label>
+                        <label><input type="checkbox" checked><span class="tag tag-running" style="display: inline-block; margin-right: 4px;">执行中</span></label>
+                    </div>
+                </div>
+                <div>
+                    <h4 style="margin-bottom: 12px; color: #1890ff; font-size: 14px;">默认排序</h4>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <select class="form-select" style="width: auto;">
+                            <option value="time">执行时间</option>
+                            <option value="name">流程名称</option>
+                            <option value="status">状态</option>
+                        </select>
+                        <select class="form-select" style="width: auto;">
+                            <option value="desc">降序</option>
+                            <option value="asc">升序</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('tableSettingsModal')">关闭</button>
+                <button class="btn btn-primary" onclick="closeModal('tableSettingsModal')">确定</button>
             </div>
         </div>
     </div>
 
+    <!-- 流程详情弹窗 -->
     <div id="flowDetailModal" class="modal">
         <div class="modal-content" style="width: 800px;">
             <div class="modal-header">
@@ -654,29 +701,144 @@
             </div>
             <div class="modal-body">
                 <div style="margin-bottom: 20px;">
-                    <h4 style="margin-bottom: 12px; color: #1890ff;">流程信息</h4>
+                    <h4 style="margin-bottom: 12px; color: #1890ff;">请求URL</h4>
+                    <input type="text" readonly class="form-input" style="width: 100%;" value="http://api.health.gov.cn/v1/flow/execute">
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 12px; color: #1890ff;">请求入参 - Head</h4>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                         <div class="form-group">
-                            <label>流程名称</label>
-                            <input type="text" readonly class="form-input" value="检查检验结果互认流程">
+                            <label>Content-Type</label>
+                            <input type="text" readonly class="form-input" value="application/json">
                         </div>
                         <div class="form-group">
-                            <label>流水号</label>
-                            <input type="text" readonly class="form-input" value="LSH202401150001">
+                            <label>Authorization</label>
+                            <input type="text" readonly class="form-input" value="Bearer token">
                         </div>
                         <div class="form-group">
-                            <label>业务域</label>
-                            <input type="text" readonly class="form-input" value="医疗服务">
+                            <label>timestamp</label>
+                            <input type="text" readonly class="form-input" value="20240115103025">
                         </div>
                         <div class="form-group">
-                            <label>应用归属</label>
-                            <input type="text" readonly class="form-input" value="卫生健康智慧大脑">
+                            <label>sign</label>
+                            <input type="text" readonly class="form-input" value="abc123def456">
                         </div>
                     </div>
                 </div>
-                <div style="text-align: right;">
-                    <button class="btn btn-primary" onclick="closeModal('flowDetailModal')">关闭</button>
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 12px; color: #1890ff;">请求入参 - Body</h4>
+                    <pre style="background: #f5f5f5; padding: 12px; border-radius: 4px; overflow-x: auto; font-family: monospace; font-size: 13px;">{
+    "flowCode": "MED-001",
+    "serialNo": "LSH202401150001",
+    "personInfo": {
+        "name": "张三",
+        "idCard": "610101199001011234",
+        "phone": "13800138000"
+    },
+    "params": {
+        "hospitalCode": "H001",
+        "deptCode": "D001",
+        "applyDate": "2024-01-15"
+    }
+}</pre>
                 </div>
+                <div>
+                    <h4 style="margin-bottom: 12px; color: #1890ff;">响应参数</h4>
+                    <pre style="background: #f5f5f5; padding: 12px; border-radius: 4px; overflow-x: auto; font-family: monospace; font-size: 13px;">{
+    "code": "0",
+    "message": "success",
+    "data": {
+        "flowCode": "MED-001",
+        "serialNo": "LSH202401150001",
+        "status": "success",
+        "result": {
+            "matched": true,
+            "hospitalName": "陕西省人民医院",
+            "reportNo": "RPT202401150001",
+            "reportDate": "2024-01-14"
+        }
+    },
+    "timestamp": "2024-01-15 10:30:28"
+}</pre>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('flowDetailModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 测试执行弹窗 -->
+    <div id="testModal" class="modal">
+        <div class="modal-content" style="width: 800px;">
+            <div class="modal-header">
+                <span class="modal-title">流程测试</span>
+                <button class="modal-close" onclick="closeModal('testModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 16px;">
+                    <h4 style="margin-bottom: 8px; color: #1890ff;">请求URL</h4>
+                    <input type="text" class="form-input" style="width: 100%;" id="testUrl" value="http://api.health.gov.cn/v1/flow/execute">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <h4 style="margin-bottom: 8px; color: #1890ff;">请求Head</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label>Content-Type</label>
+                            <input type="text" class="form-input" id="testContentType" value="application/json">
+                        </div>
+                        <div class="form-group">
+                            <label>Authorization</label>
+                            <input type="text" class="form-input" id="testAuth" value="Bearer token">
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <h4 style="margin-bottom: 8px; color: #1890ff;">请求Body</h4>
+                    <textarea class="form-input" style="width: 100%; min-height: 150px; font-family: monospace; font-size: 13px;" id="testBody">{
+    "flowCode": "MED-001",
+    "serialNo": "LSH202401150001",
+    "personInfo": {
+        "name": "张三",
+        "idCard": "610101199001011234",
+        "phone": "13800138000"
+    },
+    "params": {
+        "hospitalCode": "H001",
+        "deptCode": "D001",
+        "applyDate": "2024-01-15"
+    }
+}</textarea>
+                </div>
+                <div id="testResult" style="display: none;">
+                    <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                        <h4 style="color: #1890ff;">测试结果</h4>
+                        <div>
+                            <span style="font-size: 12px; color: #999; margin-right: 12px;">响应时间：<span id="testResponseTime">156ms</span></span>
+                            <span id="testStatus" class="tag tag-success">成功</span>
+                        </div>
+                    </div>
+                    <pre style="background: #f5f5f5; padding: 12px; border-radius: 4px; overflow-x: auto; font-family: monospace; font-size: 13px; max-height: 200px;" id="testResponseBody">{
+    "code": "0",
+    "message": "success",
+    "data": {
+        "flowCode": "MED-001",
+        "serialNo": "LSH202401150001",
+        "status": "success",
+        "result": {
+            "matched": true,
+            "hospitalName": "陕西省人民医院",
+            "reportNo": "RPT202401150001",
+            "reportDate": "2024-01-14"
+        }
+    },
+    "timestamp": "2024-01-15 10:30:28"
+}</pre>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('testModal')">取消</button>
+                <button class="btn btn-primary" onclick="sendTestRequest()">发送请求</button>
             </div>
         </div>
     </div>
@@ -808,42 +970,47 @@
         </div>
     </div>
 
+    <!-- 测试记录详情弹窗 -->
     <div id="testRecordDetailModal" class="modal">
-        <div class="modal-content" style="width: 600px;">
+        <div class="modal-content" style="width: 800px;">
             <div class="modal-header">
                 <span class="modal-title">测试记录详情</span>
                 <button class="modal-close" onclick="closeModal('testRecordDetailModal')">×</button>
             </div>
             <div class="modal-body">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                    <div class="form-group">
-                        <label>流程名称</label>
-                        <input type="text" readonly class="form-input" value="检查检验结果互认流程">
-                    </div>
-                    <div class="form-group">
-                        <label>流水号</label>
-                        <input type="text" readonly class="form-input" value="LSH202401150001">
-                    </div>
-                    <div class="form-group">
-                        <label>执行状态</label>
-                        <input type="text" readonly class="form-input" value="成功">
-                    </div>
-                    <div class="form-group">
-                        <label>执行时间</label>
-                        <input type="text" readonly class="form-input" value="2024-01-15 10:35:20">
-                    </div>
-                    <div class="form-group">
-                        <label>耗时</label>
-                        <input type="text" readonly class="form-input" value="156ms">
-                    </div>
-                    <div class="form-group">
-                        <label>测试人员</label>
-                        <input type="text" readonly class="form-input" value="系统测试员">
+                <div style="margin-bottom: 16px;">
+                    <h4 style="margin-bottom: 8px; color: #1890ff;">请求信息</h4>
+                    <div style="padding: 12px; background: #f5f5f5; border-radius: 4px;">
+                        <div style="margin-bottom: 8px;"><strong>URL：</strong>http://api.health.gov.cn/v1/flow/execute</div>
+                        <div><strong>时间：</strong>2024-01-15 10:35:20</div>
                     </div>
                 </div>
-                <div class="form-group" style="margin-top: 16px;">
-                    <label>测试结果</label>
-                    <textarea readonly style="min-height: 80px; width: 100%; padding: 8px; border: 1px solid #d9d9d9; border-radius: 4px; resize: none;">测试通过：流程执行正常，数据处理正确，接口调用成功。</textarea>
+                <div style="margin-bottom: 16px;">
+                    <h4 style="margin-bottom: 8px; color: #1890ff;">请求Body</h4>
+                    <pre style="background: #f5f5f5; padding: 12px; border-radius: 4px; overflow-x: auto; font-family: monospace; font-size: 13px;">{
+    "flowCode": "MED-001",
+    "serialNo": "LSH202401150001",
+    "personInfo": {
+        "name": "张三",
+        "idCard": "610101199001011234"
+    }
+}</pre>
+                </div>
+                <div>
+                    <h4 style="margin-bottom: 8px; color: #1890ff;">响应结果</h4>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span><strong>状态：</strong><span class="tag tag-success">成功</span></span>
+                        <span><strong>耗时：</strong>156ms</span>
+                    </div>
+                    <pre style="background: #f5f5f5; padding: 12px; border-radius: 4px; overflow-x: auto; font-family: monospace; font-size: 13px;">{
+    "code": "0",
+    "message": "success",
+    "data": {
+        "flowCode": "MED-001",
+        "serialNo": "LSH202401150001",
+        "status": "success"
+    }
+}</pre>
                 </div>
             </div>
             <div class="modal-footer">
@@ -852,19 +1019,55 @@
         </div>
     </div>
 
+    <!-- 测试记录表格设置弹窗 -->
     <div id="testRecordTableSettingsModal" class="modal">
-        <div class="modal-content" style="width: 450px;">
+        <div class="modal-content" style="width: 700px;">
             <div class="modal-header">
                 <span class="modal-title">表格设置</span>
                 <button class="modal-close" onclick="closeModal('testRecordTableSettingsModal')">×</button>
             </div>
             <div class="modal-body">
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
-                    <label><input type="checkbox" checked>流程名称</label>
-                    <label><input type="checkbox" checked>流水号</label>
-                    <label><input type="checkbox" checked>执行状态</label>
-                    <label><input type="checkbox" checked>执行时间</label>
-                    <label><input type="checkbox" checked>耗时</label>
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 12px; color: #1890ff; font-size: 14px;">列显隐</h4>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                        <label><input type="checkbox" checked>流程名称</label>
+                        <label><input type="checkbox" checked>流水号</label>
+                        <label><input type="checkbox" checked>执行状态</label>
+                        <label><input type="checkbox" checked>执行时间</label>
+                        <label><input type="checkbox" checked>耗时</label>
+                    </div>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 12px; color: #1890ff; font-size: 14px;">列冻结</h4>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                        <label><input type="checkbox">流程名称</label>
+                        <label><input type="checkbox">流水号</label>
+                        <label><input type="checkbox">执行状态</label>
+                        <label><input type="checkbox">执行时间</label>
+                        <label><input type="checkbox">耗时</label>
+                    </div>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 12px; color: #1890ff; font-size: 14px;">状态过滤</h4>
+                    <div style="display: flex; gap: 16px;">
+                        <label><input type="checkbox" checked><span class="tag tag-success" style="display: inline-block; margin-right: 4px;">成功</span></label>
+                        <label><input type="checkbox" checked><span class="tag tag-failed" style="display: inline-block; margin-right: 4px;">失败</span></label>
+                        <label><input type="checkbox" checked><span class="tag tag-running" style="display: inline-block; margin-right: 4px;">执行中</span></label>
+                    </div>
+                </div>
+                <div>
+                    <h4 style="margin-bottom: 12px; color: #1890ff; font-size: 14px;">默认排序</h4>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <select class="form-select" style="width: auto;">
+                            <option value="time">执行时间</option>
+                            <option value="name">流程名称</option>
+                            <option value="status">执行状态</option>
+                        </select>
+                        <select class="form-select" style="width: auto;">
+                            <option value="desc">降序</option>
+                            <option value="asc">升序</option>
+                        </select>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -889,6 +1092,35 @@
             document.getElementById('flowListIdCard').value = '';
             document.getElementById('flowListStartTimeFrom').value = '';
             document.getElementById('flowListStartTimeTo').value = '';
+            document.getElementById('flowListEndTimeFrom').value = '';
+            document.getElementById('flowListEndTimeTo').value = '';
+        }
+
+        // 显示测试弹窗
+        function showTestModal(code) {
+            document.getElementById('testResult').style.display = 'none';
+            document.getElementById('testModal').classList.add('show');
+        }
+
+        // 发送测试请求
+        function sendTestRequest() {
+            // 模拟发送请求
+            var responseTime = Math.floor(Math.random() * 200) + 80;
+            document.getElementById('testResponseTime').textContent = responseTime + 'ms';
+            
+            // 随机成功或失败
+            var isSuccess = Math.random() > 0.2;
+            var statusElement = document.getElementById('testStatus');
+            if (isSuccess) {
+                statusElement.className = 'tag tag-success';
+                statusElement.textContent = '成功';
+            } else {
+                statusElement.className = 'tag tag-failed';
+                statusElement.textContent = '失败';
+            }
+            
+            document.getElementById('testResult').style.display = 'block';
+            alert('测试完成！记录已保存到测试记录列表。');
         }
 
         function showTableSettingsModal() {
@@ -901,10 +1133,6 @@
 
         function saveSearchSettings() {
             closeModal('searchSettingsModal');
-        }
-
-        function showTestModal(code) {
-            alert('测试流程: ' + code);
         }
 
         function showFlowDetail(code) {
