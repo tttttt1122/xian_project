@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全民健康信息平台 - 流程发布管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            overflow: hidden;
+        }
+
+        .header {
+            height: 64px;
+            background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .header-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            color: #fff;
+        }
+
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .header-user:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1890ff;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 24px;
+            margin-top: 64px;
+            height: calc(100vh - 64px);
+            overflow: auto;
+            background: #f0f2f5;
+        }
+
+        .content-header {
+            background: #fff;
+            padding: 20px 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .content-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 8px;
+        }
+
+        .content-subtitle {
+            font-size: 14px;
+            color: #8c8c8c;
+        }
+
+        .content-body {
+            background: #fff;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .search-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 8px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .form-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            color: #595959;
+            white-space: nowrap;
+        }
+
+        .form-input,
+        .form-select {
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 180px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+        }
+
+        .btn-success {
+            background: #52c41a;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #73d13d;
+        }
+
+        .btn-danger {
+            background: #ff4d4f;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #ff7875;
+        }
+
+        .btn-default {
+            background: #fff;
+            color: #595959;
+            border: 1px solid #d9d9d9;
+        }
+
+        .btn-default:hover {
+            color: #40a9ff;
+            border-color: #40a9ff;
+        }
+
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 13px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .data-table th {
+            background: #fafafa;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .data-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .data-table .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .tag-draft {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+
+        .tag-published {
+            background: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+        }
+
+        .tag-offline {
+            background: #f5f5f5;
+            color: #8c8c8c;
+            border: 1px solid #d9d9d9;
+        }
+
+        .tag-pending {
+            background: #fff7e6;
+            color: #fa8c16;
+            border: 1px solid #ffd591;
+        }
+
+        .tag-approved {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+
+        .tag-rejected {
+            background: #fff1f0;
+            color: #ff4d4f;
+            border: 1px solid #ffa39e;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .toolbar-left {
+            display: flex;
+            gap: 12px;
+        }
+
+        .toolbar-right {
+            color: #8c8c8c;
+            font-size: 13px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .page-btn {
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #595959;
+            transition: all 0.3s;
+        }
+
+        .page-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        .page-btn.active {
+            background: #1890ff;
+            color: #fff;
+            border-color: #1890ff;
+        }
+
+        .page-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .modal-close {
+            font-size: 20px;
+            color: #8c8c8c;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: #262626;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #262626;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-large {
+            max-width: 1200px;
+        }
+
+        .flow-designer {
+            display: flex;
+            height: 600px;
+        }
+
+        .flow-sidebar {
+            width: 200px;
+            background: #fafafa;
+            border-right: 1px solid #f0f0f0;
+            padding: 16px;
+        }
+
+        .flow-sidebar-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 16px;
+        }
+
+        .flow-node-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: #fff;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            cursor: move;
+            transition: all 0.3s;
+        }
+
+        .flow-node-item:hover {
+            border-color: #1890ff;
+            box-shadow: 0 2px 8px rgba(24, 144, 255, 0.15);
+        }
+
+        .flow-node-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .flow-node-icon.start {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+
+        .flow-node-icon.end {
+            background: #fff1f0;
+            color: #ff4d4f;
+        }
+
+        .flow-node-icon.judge {
+            background: #fff7e6;
+            color: #fa8c16;
+        }
+
+        .flow-node-icon.map {
+            background: #e6fffb;
+            color: #13c2c2;
+        }
+
+        .flow-node-icon.task {
+            background: #f9f0ff;
+            color: #722ed1;
+        }
+
+        .flow-node-icon.service {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .flow-canvas {
+            flex: 1;
+            background: #fff;
+            position: relative;
+            overflow: auto;
+        }
+
+        .flow-canvas-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(to right, #f0f0f0 1px, transparent 1px),
+                linear-gradient(to bottom, #f0f0f0 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .flow-canvas-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            padding: 40px;
+        }
+
+        .flow-node {
+            position: absolute;
+            width: 140px;
+            padding: 12px;
+            background: #fff;
+            border: 2px solid #d9d9d9;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .flow-node:hover {
+            border-color: #1890ff;
+            box-shadow: 0 4px 16px rgba(24, 144, 255, 0.2);
+        }
+
+        .flow-node.selected {
+            border-color: #1890ff;
+            box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.2);
+        }
+
+        .flow-node-start {
+            border-color: #52c41a;
+            background: #f6ffed;
+        }
+
+        .flow-node-end {
+            border-color: #ff4d4f;
+            background: #fff1f0;
+        }
+
+        .flow-node-judge {
+            border-color: #fa8c16;
+            background: #fff7e6;
+            transform: rotate(45deg);
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .flow-node-judge .flow-node-text {
+            transform: rotate(-45deg);
+        }
+
+        .flow-node-task {
+            border-color: #722ed1;
+            background: #f9f0ff;
+        }
+
+        .flow-node-service {
+            border-color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .flow-node-map {
+            border-color: #13c2c2;
+            background: #e6fffb;
+        }
+
+        .flow-node-text {
+            font-size: 13px;
+            font-weight: 500;
+            color: #262626;
+        }
+
+        .flow-connection-horizontal {
+            position: absolute;
+            width: 80px;
+            height: 2px;
+            background: #8c8c8c;
+        }
+
+        .flow-connection-horizontal::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: -4px;
+            border: 5px solid transparent;
+            border-left-color: #8c8c8c;
+        }
+    </style>
+</head>
+<body>
+    <!-- <header class="header">
+        <div class="header-title">全民健康信息平台</div>
+        <div class="header-right">
+            <div class="header-user">
+                <div class="user-avatar">管</div>
+                <span>管理员</span>
+            </div>
+        </div>
+    </header> -->
+
+    <!-- <main class="content"> -->
+       
+
+        <div class="content-body">
+            <div class="search-form">
+                <div class="form-item">
+                    <span class="form-label">业务域</span>
+                    <select class="form-select">
+                        <option value="">全部</option>
+                        <option value="medical">医疗服务</option>
+                        <option value="public">公共卫生</option>
+                        <option value="population">人口健康</option>
+                        <option value="management">综合管理</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <span class="form-label">发布状态</span>
+                    <select class="form-select">
+                        <option value="">全部</option>
+                        <option value="draft">草稿</option>
+                        <option value="published">已发布</option>
+                        <option value="offline">已下线</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <span class="form-label">审批状态</span>
+                    <select class="form-select">
+                        <option value="">全部</option>
+                        <option value="pending">待审批</option>
+                        <option value="approved">通过</option>
+                        <option value="rejected">驳回</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <span class="form-label">应用归属</span>
+                    <select class="form-select">
+                        <option value="">全部</option>
+                        <option value="app1">卫生健康智慧大脑</option>
+                        <option value="app2">电子健康档案系统</option>
+                        <option value="app3">公共卫生系统</option>
+                        <option value="app4">政务服务平台</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <span class="form-label">发布应用</span>
+                    <select class="form-select">
+                        <option value="">全部</option>
+                        <option value="pub1">全民健康信息平台</option>
+                        <option value="pub2">卫生健康智慧大脑</option>
+                        <option value="pub3">政务服务平台</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <span class="form-label">流程名称</span>
+                    <input type="text" class="form-input" placeholder="请输入流程名称">
+                </div>
+                <div class="form-item">
+                    <button class="btn btn-primary" onclick="searchFlow()">查询</button>
+                    <button class="btn btn-default" onclick="resetSearch()">重置</button>
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <button class="btn btn-success" onclick="openCreateFlowStep1()">+ 新建流程</button>
+                </div>
+                <div class="toolbar-right">共 12 条记录</div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>流程名称</th>
+                            <th>流程编码</th>
+                            <th>归属应用</th>
+                            <th>流程描述</th>
+                            <th>发布状态</th>
+                            <th>审批状态</th>
+                            <th>业务域</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>检查检验结果互认流程</td>
+                            <td>MED-001</td>
+                            <td>卫生健康智慧大脑</td>
+                            <td>跨医疗机构检查检验结果互认审批流程</td>
+                            <td><span class="tag tag-published">已发布</span></td>
+                            <td><span class="tag tag-approved">通过</span></td>
+                            <td>医疗服务</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-default" onclick="viewFlow()">查看</button>
+                                <button class="btn btn-sm btn-primary" onclick="offlineFlow()">下线</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>居民健康档案开放流程</td>
+                            <td>MED-002</td>
+                            <td>电子健康档案系统</td>
+                            <td>居民健康档案查询开放申请审批</td>
+                            <td><span class="tag tag-draft">草稿</span></td>
+                            <td><span class="tag tag-pending">待审批</span></td>
+                            <td>人口健康</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-default" onclick="editFlow()">修改</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteFlow()">删除</button>
+                                <button class="btn btn-sm btn-primary" onclick="publishFlow()">发布</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>死亡上报流程</td>
+                            <td>PUB-001</td>
+                            <td>公共卫生系统</td>
+                            <td>死亡病例信息上报审核流程</td>
+                            <td><span class="tag tag-offline">已下线</span></td>
+                            <td><span class="tag tag-rejected">驳回</span></td>
+                            <td>公共卫生</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-default" onclick="editFlow()">修改</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteFlow()">删除</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>死亡证明办理流程</td>
+                            <td>PUB-002</td>
+                            <td>政务服务平台</td>
+                            <td>死亡证明在线申请与审批流程</td>
+                            <td><span class="tag tag-published">已发布</span></td>
+                            <td><span class="tag tag-approved">通过</span></td>
+                            <td>公共卫生</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-default" onclick="viewFlow()">查看</button>
+                                <button class="btn btn-sm btn-primary" onclick="offlineFlow()">下线</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>行政决策支持流程</td>
+                            <td>MGT-001</td>
+                            <td>卫生健康智慧大脑</td>
+                            <td>卫生健康行政决策数据分析与审批</td>
+                            <td><span class="tag tag-published">已发布</span></td>
+                            <td><span class="tag tag-approved">通过</span></td>
+                            <td>综合管理</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-default" onclick="viewFlow()">查看</button>
+                                <button class="btn btn-sm btn-primary" onclick="offlineFlow()">下线</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>疫苗接种预约流程</td>
+                            <td>PUB-003</td>
+                            <td>公共卫生系统</td>
+                            <td>儿童疫苗接种在线预约与提醒</td>
+                            <td><span class="tag tag-draft">草稿</span></td>
+                            <td><span class="tag tag-pending">待审批</span></td>
+                            <td>公共卫生</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-default" onclick="editFlow()">修改</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteFlow()">删除</button>
+                                <button class="btn btn-sm btn-primary" onclick="publishFlow()">发布</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>医保结算审核流程</td>
+                            <td>MED-003</td>
+                            <td>卫生健康智慧大脑</td>
+                            <td>医保费用结算审核与支付</td>
+                            <td><span class="tag tag-published">已发布</span></td>
+                            <td><span class="tag tag-approved">通过</span></td>
+                            <td>医疗服务</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-default" onclick="viewFlow()">查看</button>
+                                <button class="btn btn-sm btn-primary" onclick="offlineFlow()">下线</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>慢病管理随访流程</td>
+                            <td>POP-001</td>
+                            <td>电子健康档案系统</td>
+                            <td>慢性病患者的定期随访管理</td>
+                            <td><span class="tag tag-draft">草稿</span></td>
+                            <td><span class="tag tag-pending">待审批</span></td>
+                            <td>人口健康</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-default" onclick="editFlow()">修改</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteFlow()">删除</button>
+                                <button class="btn btn-sm btn-primary" onclick="publishFlow()">发布</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>医疗资源调配流程</td>
+                            <td>MGT-002</td>
+                            <td>卫生健康智慧大脑</td>
+                            <td>医疗资源应急调配审批</td>
+                            <td><span class="tag tag-offline">已下线</span></td>
+                            <td><span class="tag tag-rejected">驳回</span></td>
+                            <td>综合管理</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-default" onclick="editFlow()">修改</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteFlow()">删除</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>药品集中采购流程</td>
+                            <td>MED-004</td>
+                            <td>政务服务平台</td>
+                            <td>医疗机构药品集中采购审批</td>
+                            <td><span class="tag tag-published">已发布</span></td>
+                            <td><span class="tag tag-approved">通过</span></td>
+                            <td>医疗服务</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-default" onclick="viewFlow()">查看</button>
+                                <button class="btn btn-sm btn-primary" onclick="offlineFlow()">下线</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>健康证办理流程</td>
+                            <td>PUB-004</td>
+                            <td>公共卫生系统</td>
+                            <td>从业人员健康证申请与发放</td>
+                            <td><span class="tag tag-draft">草稿</span></td>
+                            <td><span class="tag tag-pending">待审批</span></td>
+                            <td>公共卫生</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-default" onclick="editFlow()">修改</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteFlow()">删除</button>
+                                <button class="btn btn-sm btn-primary" onclick="publishFlow()">发布</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination">
+                <button class="page-btn" disabled>上一页</button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn">下一页</button>
+            </div>
+        </div>
+    <!-- </main> -->
+
+    <!-- 新建流程第一步弹窗 -->
+    <div id="createFlowStep1Modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">新建流程 - 第一步：基本信息</span>
+                <button class="modal-close" onclick="closeModal('createFlowStep1Modal')">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="createFlowForm">
+                    <div class="form-group">
+                        <label>流程名称 *</label>
+                        <input type="text" id="flowName" placeholder="请输入流程名称">
+                    </div>
+                    <div class="form-group">
+                        <label>流程编码 *</label>
+                        <input type="text" id="flowCode" placeholder="请输入流程编码">
+                    </div>
+                    <div class="form-group">
+                        <label>归属应用 *</label>
+                        <select id="flowApp">
+                            <option value="">请选择归属应用</option>
+                            <option value="health">卫生健康智慧大脑</option>
+                            <option value="portal">政务服务平台</option>
+                            <option value="ehr">电子健康档案系统</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>发布应用 *</label>
+                        <select id="publishApp">
+                            <option value="">请选择发布应用</option>
+                            <option value="pub1">全民健康信息平台</option>
+                            <option value="pub2">卫生健康智慧大脑</option>
+                            <option value="pub3">政务服务平台</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>业务域 *</label>
+                        <select id="businessDomain">
+                            <option value="">请选择业务域</option>
+                            <option value="medical">医疗服务</option>
+                            <option value="public">公共卫生</option>
+                            <option value="population">人口健康</option>
+                            <option value="management">综合管理</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>流程描述</label>
+                        <textarea id="flowDesc" placeholder="请输入流程描述"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('createFlowStep1Modal')">取消</button>
+                <button class="btn btn-primary" onclick="goToStep2()">下一步</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 流程设计器弹窗 -->
+    <div id="flowDesignerModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <span class="modal-title">图形化流程建模</span>
+                <button class="modal-close" onclick="closeModal('flowDesignerModal')">×</button>
+            </div>
+            <div class="modal-body" style="padding: 0;">
+                <div class="flow-designer">
+                    <div class="flow-sidebar">
+                        <div class="flow-sidebar-title">可用节点</div>
+                        <div class="flow-node-item" draggable="true">
+                            <div class="flow-node-icon start">▶</div>
+                            <span>开始节点</span>
+                        </div>
+                        <div class="flow-node-item" draggable="true">
+                            <div class="flow-node-icon end">■</div>
+                            <span>结束节点</span>
+                        </div>
+                        <div class="flow-node-item" draggable="true">
+                            <div class="flow-node-icon judge">◆</div>
+                            <span>判断节点</span>
+                        </div>
+                        <div class="flow-node-item" draggable="true">
+                            <div class="flow-node-icon map">⇄</div>
+                            <span>映射节点</span>
+                        </div>
+                        <div class="flow-node-item" draggable="true">
+                            <div class="flow-node-icon task">☐</div>
+                            <span>待办任务节点</span>
+                        </div>
+                        <div class="flow-node-item" draggable="true">
+                            <div class="flow-node-icon service">⚙</div>
+                            <span>业务服务接口节点</span>
+                        </div>
+                    </div>
+                    <div class="flow-canvas">
+                        <div class="flow-canvas-grid"></div>
+                        <div class="flow-canvas-content">
+                            <div class="flow-node flow-node-start" style="top: 150px; left: 50px; width: 100px; height: 50px; display: flex; align-items: center; justify-content: center;" onclick="selectNode(this)">
+                                <div class="flow-node-text">开始</div>
+                            </div>
+                            <div class="flow-node flow-node-task" style="top: 135px; left: 220px; width: 130px; height: 80px; display: flex; align-items: center; justify-content: center;" onclick="selectNode(this)">
+                                <div class="flow-node-text">待办任务<br/>申请提交</div>
+                            </div>
+                            <div class="flow-node flow-node-judge" style="top: 125px; left: 400px;" onclick="selectNode(this)">
+                                <div class="flow-node-text">判断节点<br/>资质审核</div>
+                            </div>
+                            <div class="flow-node flow-node-service" style="top: 135px; left: 580px; width: 130px; height: 80px; display: flex; align-items: center; justify-content: center;" onclick="selectNode(this)">
+                                <div class="flow-node-text">业务服务<br/>结果互认</div>
+                            </div>
+                            <div class="flow-node flow-node-end" style="top: 150px; left: 780px; width: 100px; height: 50px; display: flex; align-items: center; justify-content: center;" onclick="selectNode(this)">
+                                <div class="flow-node-text">结束</div>
+                            </div>
+                            <div class="flow-connection-horizontal" style="top: 174px; left: 150px; width: 70px;"></div>
+                            <div class="flow-connection-horizontal" style="top: 174px; left: 350px; width: 50px;"></div>
+                            <div class="flow-connection-horizontal" style="top: 174px; left: 500px; width: 80px;"></div>
+                            <div class="flow-connection-horizontal" style="top: 174px; left: 710px; width: 70px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('flowDesignerModal')">取消</button>
+                <button class="btn btn-primary" onclick="saveFlow()">保存流程</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查看流程弹窗 -->
+    <div id="viewFlowModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <span class="modal-title">流程详情</span>
+                <button class="modal-close" onclick="closeModal('viewFlowModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="view-section">
+                    <h3 style="margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #e8e8e8; color: #1890ff;">第一步：基本信息</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label>流程名称</label>
+                            <input type="text" value="检查检验结果互认流程" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>流程编码</label>
+                            <input type="text" value="MED-001" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>归属应用</label>
+                            <input type="text" value="卫生健康智慧大脑" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>发布应用</label>
+                            <input type="text" value="全民健康信息平台" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>业务域</label>
+                            <input type="text" value="医疗服务" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>发布状态</label>
+                            <input type="text" value="已发布" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label>流程描述</label>
+                        <textarea readonly style="min-height: 80px;">跨医疗机构检查检验结果互认审批流程，实现检验报告共享</textarea>
+                    </div>
+                </div>
+                
+                <div class="view-section" style="margin-top: 24px;">
+                    <h3 style="margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #e8e8e8; color: #1890ff;">第二步：流程建模</h3>
+                    <div style="background: #f5f5f5; border: 1px solid #e8e8e8; border-radius: 4px; padding: 20px; min-height: 150px;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                            <div style="text-align: center;">
+                                <div style="width: 80px; height: 40px; background: #52c41a; color: #fff; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px;">开始节点</div>
+                            </div>
+                            <div style="color: #999;">→</div>
+                            <div style="text-align: center;">
+                                <div style="width: 100px; height: 60px; background: #1890ff; color: #fff; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px;">待办任务<br>申请提交</div>
+                            </div>
+                            <div style="color: #999;">→</div>
+                            <div style="text-align: center;">
+                                <div style="width: 100px; height: 60px; background: #faad14; color: #fff; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px;">判断节点<br>资质审核</div>
+                            </div>
+                            <div style="color: #999;">→</div>
+                            <div style="text-align: center;">
+                                <div style="width: 100px; height: 60px; background: #1890ff; color: #fff; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px;">业务服务<br>结果互认</div>
+                            </div>
+                            <div style="color: #999;">→</div>
+                            <div style="text-align: center;">
+                                <div style="width: 80px; height: 40px; background: #ff4d4f; color: #fff; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px;">结束节点</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('viewFlowModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let flowBasicInfo = {};
+
+        function searchFlow() {
+            alert('查询功能演示');
+        }
+
+        function resetSearch() {
+            document.querySelectorAll('.search-form input, .search-form select').forEach(el => {
+                el.value = '';
+            });
+        }
+
+        function openCreateFlowStep1() {
+            document.getElementById('createFlowStep1Modal').classList.add('show');
+        }
+
+        function goToStep2() {
+            flowBasicInfo = {
+                name: document.getElementById('flowName').value,
+                code: document.getElementById('flowCode').value,
+                app: document.getElementById('flowApp').value,
+                publishApp: document.getElementById('publishApp').value,
+                domain: document.getElementById('businessDomain').value,
+                desc: document.getElementById('flowDesc').value
+            };
+            
+            if (!flowBasicInfo.name || !flowBasicInfo.code || !flowBasicInfo.app || !flowBasicInfo.publishApp || !flowBasicInfo.domain) {
+                alert('请填写必填项！');
+                return;
+            }
+            
+            closeModal('createFlowStep1Modal');
+            document.getElementById('flowDesignerModal').classList.add('show');
+        }
+
+        function selectNode(node) {
+            document.querySelectorAll('.flow-node').forEach(n => n.classList.remove('selected'));
+            node.classList.add('selected');
+        }
+
+        function saveFlow() {
+            alert('流程保存成功！');
+            closeModal('flowDesignerModal');
+        }
+
+        function viewFlow() {
+            document.getElementById('viewFlowModal').classList.add('show');
+        }
+
+        function editFlow() {
+            document.getElementById('flowName').value = '检查检验结果互认流程';
+            document.getElementById('flowCode').value = 'MED-001';
+            document.getElementById('flowApp').value = 'health';
+            document.getElementById('publishApp').value = 'pub1';
+            document.getElementById('businessDomain').value = 'medical';
+            document.getElementById('flowDesc').value = '跨医疗机构检查检验结果互认审批流程，实现检验报告共享';
+            
+            document.querySelector('#createFlowStep1Modal .modal-title').textContent = '编辑流程 - 第一步：基本信息';
+            
+            const nextBtn = document.querySelector('#createFlowStep1Modal .modal-footer .btn-primary');
+            nextBtn.textContent = '保存并进入设计器';
+            nextBtn.onclick = function() {
+                goToStep2FromEdit();
+            };
+            
+            openCreateFlowStep1();
+        }
+        
+        function goToStep2FromEdit() {
+            flowBasicInfo = {
+                name: document.getElementById('flowName').value,
+                code: document.getElementById('flowCode').value,
+                app: document.getElementById('flowApp').value,
+                publishApp: document.getElementById('publishApp').value,
+                domain: document.getElementById('businessDomain').value,
+                desc: document.getElementById('flowDesc').value
+            };
+            
+            if (!flowBasicInfo.name || !flowBasicInfo.code || !flowBasicInfo.app || !flowBasicInfo.publishApp || !flowBasicInfo.domain) {
+                alert('请填写必填项！');
+                return;
+            }
+            
+            closeModal('createFlowStep1Modal');
+            
+            document.querySelector('#createFlowStep1Modal .modal-title').textContent = '新建流程 - 第一步：基本信息';
+            const nextBtn = document.querySelector('#createFlowStep1Modal .modal-footer .btn-primary');
+            nextBtn.textContent = '下一步';
+            nextBtn.onclick = goToStep2;
+            
+            document.getElementById('flowName').value = '';
+            document.getElementById('flowCode').value = '';
+            document.getElementById('flowApp').value = '';
+            document.getElementById('publishApp').value = '';
+            document.getElementById('businessDomain').value = '';
+            document.getElementById('flowDesc').value = '';
+            
+            document.getElementById('flowDesignerModal').classList.add('show');
+        }
+
+        function deleteFlow() {
+            if (confirm('确定要删除此流程吗？')) {
+                alert('删除成功！');
+            }
+        }
+
+        function publishFlow() {
+            alert('流程发布成功！');
+        }
+
+        function offlineFlow() {
+            if (confirm('确定要下线此流程吗？')) {
+                alert('流程已下线！');
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('show');
+            }
+        }
+    </script>
+</body>
+</html>
