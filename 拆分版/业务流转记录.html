@@ -734,9 +734,9 @@
                 </div>
                 <div>
                     <h4 style="margin-bottom: 12px; color: #1890ff;">流程图</h4>
-                    <div style="padding: 16px; background: #f5f5f5; border-radius: 4px; min-height: 150px;">
+                    <div id="flowChartContainer" style="padding: 16px; background: #f5f5f5; border-radius: 4px; min-height: 150px;">
                         <div style="text-align: center;">
-                            <div style="display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap;">
+                            <div id="flowChartContent" style="display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap;">
                                 <span class="tag tag-success" style="padding: 8px 16px;">开始</span>
                                 <span>→</span>
                                 <span class="tag tag-success" style="padding: 8px 16px;">数据校验</span>
@@ -969,42 +969,47 @@
         </div>
     </div>
 
+    <!-- 测试记录详情弹窗 -->
     <div id="recordTestRecordDetailModal" class="modal">
-        <div class="modal-content" style="width: 600px;">
+        <div class="modal-content" style="width: 800px;">
             <div class="modal-header">
                 <span class="modal-title">测试记录详情</span>
                 <button class="modal-close" onclick="closeModal('recordTestRecordDetailModal')">×</button>
             </div>
             <div class="modal-body">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                    <div class="form-group">
-                        <label>流程名称</label>
-                        <input type="text" readonly class="form-input" value="检查检验结果互认流程">
-                    </div>
-                    <div class="form-group">
-                        <label>流水号</label>
-                        <input type="text" readonly class="form-input" value="LSH202401150001">
-                    </div>
-                    <div class="form-group">
-                        <label>执行状态</label>
-                        <input type="text" readonly class="form-input" value="成功">
-                    </div>
-                    <div class="form-group">
-                        <label>执行时间</label>
-                        <input type="text" readonly class="form-input" value="2024-01-15 10:35:20">
-                    </div>
-                    <div class="form-group">
-                        <label>耗时</label>
-                        <input type="text" readonly class="form-input" value="156ms">
-                    </div>
-                    <div class="form-group">
-                        <label>测试人员</label>
-                        <input type="text" readonly class="form-input" value="系统测试员">
+                <div style="margin-bottom: 16px;">
+                    <h4 style="margin-bottom: 8px; color: #1890ff;">请求信息</h4>
+                    <div style="padding: 12px; background: #f5f5f5; border-radius: 4px;">
+                        <div style="margin-bottom: 8px;"><strong>URL：</strong>http://api.health.gov.cn/v1/flow/execute</div>
+                        <div><strong>时间：</strong>2024-01-15 10:35:20</div>
                     </div>
                 </div>
-                <div class="form-group" style="margin-top: 16px;">
-                    <label>测试结果</label>
-                    <textarea readonly style="min-height: 80px; width: 100%; padding: 8px; border: 1px solid #d9d9d9; border-radius: 4px; resize: none;">测试通过：流程执行正常，数据处理正确，接口调用成功。</textarea>
+                <div style="margin-bottom: 16px;">
+                    <h4 style="margin-bottom: 8px; color: #1890ff;">请求Body</h4>
+                    <pre style="background: #f5f5f5; padding: 12px; border-radius: 4px; overflow-x: auto; font-family: monospace; font-size: 13px;">{
+    "flowCode": "MED-001",
+    "serialNo": "LSH202401150001",
+    "personInfo": {
+        "name": "张三",
+        "idCard": "610101199001011234"
+    }
+}</pre>
+                </div>
+                <div>
+                    <h4 style="margin-bottom: 8px; color: #1890ff;">响应结果</h4>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span><strong>状态：</strong><span class="tag tag-success">成功</span></span>
+                        <span><strong>耗时：</strong>156ms</span>
+                    </div>
+                    <pre style="background: #f5f5f5; padding: 12px; border-radius: 4px; overflow-x: auto; font-family: monospace; font-size: 13px;">{
+    "code": "0",
+    "message": "success",
+    "data": {
+        "flowCode": "MED-001",
+        "serialNo": "LSH202401150001",
+        "status": "success"
+    }
+}</pre>
                 </div>
             </div>
             <div class="modal-footer">
@@ -1013,19 +1018,55 @@
         </div>
     </div>
 
+    <!-- 测试记录表格设置弹窗 -->
     <div id="recordTestTableSettingsModal" class="modal">
-        <div class="modal-content" style="width: 450px;">
+        <div class="modal-content" style="width: 700px;">
             <div class="modal-header">
                 <span class="modal-title">表格设置</span>
                 <button class="modal-close" onclick="closeModal('recordTestTableSettingsModal')">×</button>
             </div>
             <div class="modal-body">
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
-                    <label><input type="checkbox" checked>流程名称</label>
-                    <label><input type="checkbox" checked>流水号</label>
-                    <label><input type="checkbox" checked>执行状态</label>
-                    <label><input type="checkbox" checked>执行时间</label>
-                    <label><input type="checkbox" checked>耗时</label>
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 12px; color: #1890ff; font-size: 14px;">列显隐</h4>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                        <label><input type="checkbox" checked>流程名称</label>
+                        <label><input type="checkbox" checked>流水号</label>
+                        <label><input type="checkbox" checked>执行状态</label>
+                        <label><input type="checkbox" checked>执行时间</label>
+                        <label><input type="checkbox" checked>耗时</label>
+                    </div>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 12px; color: #1890ff; font-size: 14px;">列冻结</h4>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                        <label><input type="checkbox">流程名称</label>
+                        <label><input type="checkbox">流水号</label>
+                        <label><input type="checkbox">执行状态</label>
+                        <label><input type="checkbox">执行时间</label>
+                        <label><input type="checkbox">耗时</label>
+                    </div>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 12px; color: #1890ff; font-size: 14px;">状态过滤</h4>
+                    <div style="display: flex; gap: 16px;">
+                        <label><input type="checkbox" checked><span class="tag tag-success" style="display: inline-block; margin-right: 4px;">成功</span></label>
+                        <label><input type="checkbox" checked><span class="tag tag-failed" style="display: inline-block; margin-right: 4px;">失败</span></label>
+                        <label><input type="checkbox" checked><span class="tag tag-running" style="display: inline-block; margin-right: 4px;">执行中</span></label>
+                    </div>
+                </div>
+                <div>
+                    <h4 style="margin-bottom: 12px; color: #1890ff; font-size: 14px;">默认排序</h4>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <select class="form-select" style="width: auto;">
+                            <option value="time">执行时间</option>
+                            <option value="name">流程名称</option>
+                            <option value="status">执行状态</option>
+                        </select>
+                        <select class="form-select" style="width: auto;">
+                            <option value="desc">降序</option>
+                            <option value="asc">升序</option>
+                        </select>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -1064,8 +1105,176 @@
             document.getElementById('recordTableSettingsModal').classList.add('show');
         }
 
+        // 业务流转记录数据
+        var recordData = {
+            'LSH202401150001': {
+                name: '检查检验结果互认流程',
+                app归属: '卫生健康智慧大脑',
+                app名称: '全民健康信息平台',
+                status: 'success',
+                statusText: '成功',
+                duration: '28ms',
+                stagnantNode: '-',
+                stagnantDuration: '-',
+                errorMsg: '-',
+                startTime: '2024-01-15 10:30:25',
+                endTime: '2024-01-15 10:30:25',
+                currentNode: '结束'
+            },
+            'LSH202401150002': {
+                name: '电子健康档案调阅流程',
+                app归属: '公共卫生系统',
+                app名称: '政务服务平台',
+                status: 'running',
+                statusText: '执行中',
+                duration: '156ms',
+                stagnantNode: '数据校验节点',
+                stagnantDuration: '-',
+                errorMsg: '-',
+                startTime: '2024-01-15 10:32:10',
+                endTime: '-',
+                currentNode: '数据校验'
+            },
+            'LSH202401150003': {
+                name: '疫苗接种登记流程',
+                app归属: '公共卫生系统',
+                app名称: '全民健康信息平台',
+                status: 'stagnant',
+                statusText: '停滞中',
+                duration: '320ms',
+                stagnantNode: '审批节点',
+                stagnantDuration: '2小时35分',
+                errorMsg: '-',
+                startTime: '2024-01-15 09:00:00',
+                endTime: '-',
+                currentNode: '审批节点'
+            },
+            'LSH202401150004': {
+                name: '慢病管理随访流程',
+                app归属: '卫生健康智慧大脑',
+                app名称: '公共卫生系统',
+                status: 'failed',
+                statusText: '失败',
+                duration: '45ms',
+                stagnantNode: '-',
+                stagnantDuration: '-',
+                errorMsg: '接口超时：慢病管理接口超30秒未返回结果',
+                startTime: '2024-01-15 10:28:00',
+                endTime: '2024-01-15 10:28:00',
+                currentNode: '接口调用'
+            },
+            'LSH202401150005': {
+                name: '健康教育推送流程',
+                app归属: '政务服务平台',
+                app名称: '全民健康信息平台',
+                status: 'success',
+                statusText: '成功',
+                duration: '18ms',
+                stagnantNode: '-',
+                stagnantDuration: '-',
+                errorMsg: '-',
+                startTime: '2024-01-15 10:15:30',
+                endTime: '2024-01-15 10:15:30',
+                currentNode: '结束'
+            },
+            'LSH202401150006': {
+                name: '预约挂号流程',
+                app归属: '卫生健康智慧大脑',
+                app名称: '政务服务平台',
+                status: 'failed',
+                statusText: '失败',
+                duration: '12ms',
+                stagnantNode: '-',
+                stagnantDuration: '-',
+                errorMsg: '数据校验失败：患者身份证号格式不正确',
+                startTime: '2024-01-15 10:10:00',
+                endTime: '2024-01-15 10:10:00',
+                currentNode: '数据校验'
+            }
+        };
+
+        // 流程节点定义
+        var flowNodes = ['开始', '数据校验', '接口调用', '审批节点', '结果处理', '结束'];
+
         function showRecordDetail(serialNo) {
+            var record = recordData[serialNo];
+            if (!record) {
+                alert('未找到对应的流转记录');
+                return;
+            }
+
+            // 更新基本信息
+            document.querySelectorAll('#recordDetailModal .form-input')[0].value = record.name;
+            document.querySelectorAll('#recordDetailModal .form-input')[1].value = serialNo;
+            document.querySelectorAll('#recordDetailModal .form-input')[2].value = record.app归属;
+            document.querySelectorAll('#recordDetailModal .form-input')[3].value = record.app名称;
+            document.querySelectorAll('#recordDetailModal .form-input')[4].value = record.statusText;
+            document.querySelectorAll('#recordDetailModal .form-input')[5].value = record.duration;
+            document.querySelectorAll('#recordDetailModal .form-input')[6].value = record.startTime;
+            document.querySelectorAll('#recordDetailModal .form-input')[7].value = record.endTime;
+
+            // 生成流程图
+            renderFlowChart(record);
+
             document.getElementById('recordDetailModal').classList.add('show');
+        }
+
+        // 根据记录状态渲染流程图
+        function renderFlowChart(record) {
+            var container = document.getElementById('flowChartContent');
+            var currentNode = record.currentNode;
+            var status = record.status;
+            
+            // 确定每个节点的状态
+            var nodeStatuses = {};
+            flowNodes.forEach(function(node) {
+                if (node === '开始') {
+                    nodeStatuses[node] = 'success';
+                } else if (node === currentNode) {
+                    if (status === 'success') {
+                        nodeStatuses[node] = 'success';
+                    } else if (status === 'failed') {
+                        nodeStatuses[node] = 'failed';
+                    } else if (status === 'running') {
+                        nodeStatuses[node] = 'running';
+                    } else if (status === 'stagnant') {
+                        nodeStatuses[node] = 'stagnant';
+                    }
+                } else {
+                    var currentIndex = flowNodes.indexOf(currentNode);
+                    var nodeIndex = flowNodes.indexOf(node);
+                    
+                    if (nodeIndex < currentIndex) {
+                        nodeStatuses[node] = 'success';
+                    } else if (nodeIndex > currentIndex) {
+                        nodeStatuses[node] = 'pending';
+                    } else {
+                        nodeStatuses[node] = 'pending';
+                    }
+                }
+            });
+
+            // 生成流程图HTML
+            var html = '';
+            flowNodes.forEach(function(node, index) {
+                var tagClass = 'tag tag-' + nodeStatuses[node];
+                var extraStyle = '';
+                
+                if (status === 'stagnant' && node === currentNode) {
+                    extraStyle = '; box-shadow: 0 0 12px rgba(250, 173, 20, 0.6); animation: pulse 1.5s infinite;';
+                }
+                
+                html += '<span class="' + tagClass + '" style="padding: 8px 16px;' + extraStyle + '">' + node + '</span>';
+                
+                if (index < flowNodes.length - 1) {
+                    var currentIndex = flowNodes.indexOf(currentNode);
+                    if (index < currentIndex || (node === currentNode && status === 'success')) {
+                        html += '<span>→</span>';
+                    }
+                }
+            });
+
+            container.innerHTML = html;
         }
 
         function showExecutionRecord(serialNo) {
