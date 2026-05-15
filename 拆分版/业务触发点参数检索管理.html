@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>全民健康信息平台 - 业务触发点基本信息管理</title>
+    <title>全民健康信息平台 - 业务触发点参数检索管理</title>
     <style>
         * {
             margin: 0;
@@ -480,23 +480,24 @@
 
     <!-- <main class="content">
         <div class="content-header">
-            <div class="content-title">业务触发点基本信息管理</div>
-            <div class="content-subtitle">管理业务触发点的基本信息，包括Head参数、URL、BOD模板等</div>
+            <div class="content-title">业务触发点参数检索管理</div>
+            <div class="content-subtitle">管理业务触发点的参数检索配置，包括判断节点、映射节点等</div>
         </div> -->
 
         <div class="content-body">
             <div class="tabs">
-                <div class="tab-item active" onclick="switchTab(this, 'head')">Head参数管理</div>
-                <div class="tab-item" onclick="switchTab(this, 'url')">URL管理</div>
-                <div class="tab-item" onclick="switchTab(this, 'bod')">BOD模板管理</div>
+                <div class="tab-item active" onclick="switchParamTab(this, 'judge')">判断节点管理</div>
+                <div class="tab-item" onclick="switchParamTab(this, 'map')">映射节点管理</div>
+                <div class="tab-item" onclick="switchParamTab(this, 'task')">待办任务节点</div>
+                <div class="tab-item" onclick="switchParamTab(this, 'service')">服务接口节点</div>
             </div>
 
-            <!-- Head参数管理 -->
-            <div id="tab-head" class="tab-content active">
+            <!-- 判断节点管理 -->
+            <div id="tab-param-judge" class="tab-content active">
                 <div class="search-form">
                     <div class="form-item">
-                        <span class="form-label">参数名</span>
-                        <input type="text" class="form-input" placeholder="请输入参数名">
+                        <span class="form-label">节点名称</span>
+                        <input type="text" class="form-input" placeholder="请输入节点名称">
                     </div>
                     <div class="form-item">
                         <button class="btn btn-primary" onclick="searchFlow()">查询</button>
@@ -506,9 +507,9 @@
 
                 <div class="toolbar">
                     <div class="toolbar-left">
-                        <button class="btn btn-success" onclick="openModal('head')">+ 新增Head参数</button>
+                        <button class="btn btn-success" onclick="openModal('judge')">+ 新增判断节点</button>
                     </div>
-                    <div class="toolbar-right">共 15 条记录</div>
+                    <div class="toolbar-right">共 8 条记录</div>
                 </div>
 
                 <div class="table-container">
@@ -516,61 +517,207 @@
                         <thead>
                             <tr>
                                 <th>序号</th>
-                                <th>参数名</th>
-                                <th>参数值</th>
-                                <th>描述</th>
+                                <th>节点名称</th>
+                                <th>条件表达式</th>
+                                <th>路由目标</th>
                                 <th>操作</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td>1</td>
-                                <td>Content-Type</td>
-                                <td>application/json</td>
-                                <td>请求内容类型</td>
+                                <td>资质审核</td>
+                                <td>patient.age >= 18 && patient.valid</td>
+                                <td>服务接口节点</td>
                                 <td class="actions">
-                                    <button class="btn btn-sm btn-default" onclick="editItem('head')">编辑</button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('head')">删除</button>
+                                    <button class="btn btn-sm btn-default" onclick="editItem('judge')">编辑</button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('judge')">删除</button>
                                 </td>
                             </tr>
                             <tr>
                                 <td>2</td>
-                                <td>Authorization</td>
-                                <td>Bearer token</td>
-                                <td>认证令牌</td>
+                                <td>数据校验</td>
+                                <td>data.status == 'valid'</td>
+                                <td>待办任务节点</td>
                                 <td class="actions">
-                                    <button class="btn btn-sm btn-default" onclick="editItem('head')">编辑</button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('head')">删除</button>
+                                    <button class="btn btn-sm btn-default" onclick="editItem('judge')">编辑</button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('judge')">删除</button>
                                 </td>
                             </tr>
                             <tr>
                                 <td>3</td>
-                                <td>Accept</td>
-                                <td>application/json</td>
-                                <td>接受内容类型</td>
+                                <td>权限判断</td>
+                                <td>user.role == 'admin'</td>
+                                <td>结束节点</td>
                                 <td class="actions">
-                                    <button class="btn btn-sm btn-default" onclick="editItem('head')">编辑</button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('head')">删除</button>
+                                    <button class="btn btn-sm btn-default" onclick="editItem('judge')">编辑</button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('judge')">删除</button>
                                 </td>
                             </tr>
                             <tr>
                                 <td>4</td>
-                                <td>X-Request-Id</td>
-                                <td>UUID</td>
-                                <td>请求唯一标识</td>
+                                <td>流程分支</td>
+                                <td>flow.type == 'urgent'</td>
+                                <td>紧急处理节点</td>
                                 <td class="actions">
-                                    <button class="btn btn-sm btn-default" onclick="editItem('head')">编辑</button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('head')">删除</button>
+                                    <button class="btn btn-sm btn-default" onclick="editItem('judge')">编辑</button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('judge')">删除</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination">
+                    <button class="page-btn" disabled>上一页</button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">下一页</button>
+                </div>
+            </div>
+
+            <!-- 映射节点管理 -->
+            <div id="tab-param-map" class="tab-content">
+                <div class="search-form">
+                    <div class="form-item">
+                        <span class="form-label">节点名称</span>
+                        <input type="text" class="form-input" placeholder="请输入节点名称">
+                    </div>
+                    <div class="form-item">
+                        <button class="btn btn-primary" onclick="searchFlow()">查询</button>
+                        <button class="btn btn-default" onclick="resetSearch()">重置</button>
+                    </div>
+                </div>
+
+                <div class="toolbar">
+                    <div class="toolbar-left">
+                        <button class="btn btn-success" onclick="openModal('map')">+ 新增映射节点</button>
+                    </div>
+                    <div class="toolbar-right">共 6 条记录</div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>节点名称</th>
+                                <th>源字段</th>
+                                <th>目标字段</th>
+                                <th>转换规则</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>患者信息映射</td>
+                                <td>patient.name</td>
+                                <td>record.patientName</td>
+                                <td>直接映射</td>
+                                <td class="actions">
+                                    <button class="btn btn-sm btn-default" onclick="editItem('map')">编辑</button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('map')">删除</button>
                                 </td>
                             </tr>
                             <tr>
-                                <td>5</td>
-                                <td>X-Timestamp</td>
-                                <td>timestamp</td>
-                                <td>请求时间戳</td>
+                                <td>2</td>
+                                <td>诊断结果映射</td>
+                                <td>diagnosis.code</td>
+                                <td>result.diagnosisCode</td>
+                                <td>编码转换</td>
                                 <td class="actions">
-                                    <button class="btn btn-sm btn-default" onclick="editItem('head')">编辑</button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('head')">删除</button>
+                                    <button class="btn btn-sm btn-default" onclick="editItem('map')">编辑</button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('map')">删除</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>机构信息映射</td>
+                                <td>hospital.id</td>
+                                <td>facility.hospitalId</td>
+                                <td>直接映射</td>
+                                <td class="actions">
+                                    <button class="btn btn-sm btn-default" onclick="editItem('map')">编辑</button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('map')">删除</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination">
+                    <button class="page-btn" disabled>上一页</button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">下一页</button>
+                </div>
+            </div>
+
+            <!-- 待办任务节点 -->
+            <div id="tab-param-task" class="tab-content">
+                <div class="search-form">
+                    <div class="form-item">
+                        <span class="form-label">节点名称</span>
+                        <input type="text" class="form-input" placeholder="请输入节点名称">
+                    </div>
+                    <div class="form-item">
+                        <button class="btn btn-primary" onclick="searchFlow()">查询</button>
+                        <button class="btn btn-default" onclick="resetSearch()">重置</button>
+                    </div>
+                </div>
+
+                <div class="toolbar">
+                    <div class="toolbar-left">
+                        <button class="btn btn-success" onclick="openModal('task')">+ 新增待办任务节点</button>
+                    </div>
+                    <div class="toolbar-right">共 10 条记录</div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>节点名称</th>
+                                <th>待办标题</th>
+                                <th>责任人表达式</th>
+                                <th>处理表单路径</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>申请提交</td>
+                                <td>检查检验结果互认申请</td>
+                                <td>currentUser</td>
+                                <td>/form/mutual-apply</td>
+                                <td class="actions">
+                                    <button class="btn btn-sm btn-default" onclick="editItem('task')">编辑</button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('task')">删除</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>审核处理</td>
+                                <td>互认申请审核</td>
+                                <td>role.medicalStaff</td>
+                                <td>/form/mutual-review</td>
+                                <td class="actions">
+                                    <button class="btn btn-sm btn-default" onclick="editItem('task')">编辑</button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('task')">删除</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>结果确认</td>
+                                <td>互认结果确认</td>
+                                <td>currentUser</td>
+                                <td>/form/mutual-confirm</td>
+                                <td class="actions">
+                                    <button class="btn btn-sm btn-default" onclick="editItem('task')">编辑</button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('task')">删除</button>
                                 </td>
                             </tr>
                         </tbody>
@@ -586,21 +733,19 @@
                 </div>
             </div>
 
-            <!-- URL管理 -->
-            <div id="tab-url" class="tab-content">
+            <!-- 服务接口节点 -->
+            <div id="tab-param-service" class="tab-content">
                 <div class="search-form">
                     <div class="form-item">
-                        <span class="form-label">地址</span>
-                        <input type="text" class="form-input" placeholder="请输入URL地址">
+                        <span class="form-label">接口名称</span>
+                        <input type="text" class="form-input" placeholder="请输入接口名称">
                     </div>
                     <div class="form-item">
-                        <span class="form-label">请求方式</span>
+                        <span class="form-label">方法</span>
                         <select class="form-select">
                             <option value="">全部</option>
                             <option value="GET">GET</option>
                             <option value="POST">POST</option>
-                            <option value="PUT">PUT</option>
-                            <option value="DELETE">DELETE</option>
                         </select>
                     </div>
                     <div class="form-item">
@@ -611,9 +756,9 @@
 
                 <div class="toolbar">
                     <div class="toolbar-left">
-                        <button class="btn btn-success" onclick="openModal('url')">+ 新增URL</button>
+                        <button class="btn btn-success" onclick="openModal('service')">+ 新增服务接口</button>
                     </div>
-                    <div class="toolbar-right">共 8 条记录</div>
+                    <div class="toolbar-right">共 12 条记录</div>
                 </div>
 
                 <div class="table-container">
@@ -621,61 +766,45 @@
                         <thead>
                             <tr>
                                 <th>序号</th>
-                                <th>地址</th>
-                                <th>描述</th>
-                                <th>请求方式</th>
+                                <th>接口名称</th>
+                                <th>URL</th>
+                                <th>方法</th>
+                                <th>请求参数模板</th>
                                 <th>操作</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td>1</td>
-                                <td>/api/health/records</td>
-                                <td>健康档案查询接口</td>
+                                <td>结果互认接口</td>
+                                <td>/api/mutual/verify</td>
+                                <td><span class="tag tag-success">POST</span></td>
+                                <td>{ "recordId": "${record.id}" }</td>
+                                <td class="actions">
+                                    <button class="btn btn-sm btn-default" onclick="editItem('service')">编辑</button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('service')">删除</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>健康档案查询</td>
+                                <td>/api/records/query</td>
                                 <td><span class="tag tag-enable">GET</span></td>
+                                <td>{ "patientId": "${patient.id}" }</td>
                                 <td class="actions">
-                                    <button class="btn btn-sm btn-default" onclick="editItem('url')">编辑</button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('url')">删除</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>/api/health/mutual</td>
-                                <td>检查检验结果互认接口</td>
-                                <td><span class="tag tag-success">POST</span></td>
-                                <td class="actions">
-                                    <button class="btn btn-sm btn-default" onclick="editItem('url')">编辑</button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('url')">删除</button>
+                                    <button class="btn btn-sm btn-default" onclick="editItem('service')">编辑</button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('service')">删除</button>
                                 </td>
                             </tr>
                             <tr>
                                 <td>3</td>
-                                <td>/api/vaccine/appointment</td>
-                                <td>疫苗接种预约接口</td>
+                                <td>数据同步接口</td>
+                                <td>/api/sync/data</td>
                                 <td><span class="tag tag-success">POST</span></td>
+                                <td>{ "source": "${source}", "data": "${data}" }</td>
                                 <td class="actions">
-                                    <button class="btn btn-sm btn-default" onclick="editItem('url')">编辑</button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('url')">删除</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>4</td>
-                                <td>/api/appointment/register</td>
-                                <td>预约挂号接口</td>
-                                <td><span class="tag tag-success">POST</span></td>
-                                <td class="actions">
-                                    <button class="btn btn-sm btn-default" onclick="editItem('url')">编辑</button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('url')">删除</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>5</td>
-                                <td>/api/report/death</td>
-                                <td>死亡证明办理接口</td>
-                                <td><span class="tag tag-success">POST</span></td>
-                                <td class="actions">
-                                    <button class="btn btn-sm btn-default" onclick="editItem('url')">编辑</button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('url')">删除</button>
+                                    <button class="btn btn-sm btn-default" onclick="editItem('service')">编辑</button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('service')">删除</button>
                                 </td>
                             </tr>
                         </tbody>
@@ -686,100 +815,7 @@
                     <button class="page-btn" disabled>上一页</button>
                     <button class="page-btn active">1</button>
                     <button class="page-btn">2</button>
-                    <button class="page-btn">下一页</button>
-                </div>
-            </div>
-
-            <!-- BOD模板管理 -->
-            <div id="tab-bod" class="tab-content">
-                <div class="search-form">
-                    <div class="form-item">
-                        <span class="form-label">模板名称</span>
-                        <input type="text" class="form-input" placeholder="请输入模板名称">
-                    </div>
-                    <div class="form-item">
-                        <button class="btn btn-primary" onclick="searchFlow()">查询</button>
-                        <button class="btn btn-default" onclick="resetSearch()">重置</button>
-                    </div>
-                </div>
-
-                <div class="toolbar">
-                    <div class="toolbar-left">
-                        <button class="btn btn-success" onclick="openModal('bod')">+ 新增BOD模板</button>
-                    </div>
-                    <div class="toolbar-right">共 6 条记录</div>
-                </div>
-
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>序号</th>
-                                <th>模板名称</th>
-                                <th>内容类型</th>
-                                <th>内容预览</th>
-                                <th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>健康档案查询请求</td>
-                                <td>application/json</td>
-                                <td>{ "patientId": "", "queryType": "" }</td>
-                                <td class="actions">
-                                    <button class="btn btn-sm btn-default" onclick="editItem('bod')">编辑</button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('bod')">删除</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>互认申请请求</td>
-                                <td>application/json</td>
-                                <td>{ "hospitalCode": "", "recordId": "" }</td>
-                                <td class="actions">
-                                    <button class="btn btn-sm btn-default" onclick="editItem('bod')">编辑</button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('bod')">删除</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td>疫苗预约请求</td>
-                                <td>application/json</td>
-                                <td>{ "childId": "", "vaccineType": "" }</td>
-                                <td class="actions">
-                                    <button class="btn btn-sm btn-default" onclick="editItem('bod')">编辑</button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('bod')">删除</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>4</td>
-                                <td>预约挂号请求</td>
-                                <td>application/json</td>
-                                <td>{ "deptId": "", "doctorId": "", "date": "" }</td>
-                                <td class="actions">
-                                    <button class="btn btn-sm btn-default" onclick="editItem('bod')">编辑</button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('bod')">删除</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>5</td>
-                                <td>死亡证明请求</td>
-                                <td>application/json</td>
-                                <td>{ "name": "", "deathDate": "", "cause": "" }</td>
-                                <td class="actions">
-                                    <button class="btn btn-sm btn-default" onclick="editItem('bod')">编辑</button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteItem('bod')">删除</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="pagination">
-                    <button class="page-btn" disabled>上一页</button>
-                    <button class="page-btn active">1</button>
-                    <button class="page-btn">2</button>
+                    <button class="page-btn">3</button>
                     <button class="page-btn">下一页</button>
                 </div>
             </div>
@@ -790,22 +826,22 @@
     <div id="commonModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <span class="modal-title" id="modalTitle">新增Head参数</span>
+                <span class="modal-title" id="modalTitle">新增判断节点</span>
                 <button class="modal-close" onclick="closeModal('commonModal')">×</button>
             </div>
             <div class="modal-body">
                 <form id="modalForm">
                     <div class="form-group">
-                        <label>参数名</label>
-                        <input type="text" placeholder="请输入参数名">
+                        <label>节点名称</label>
+                        <input type="text" placeholder="请输入节点名称">
                     </div>
                     <div class="form-group">
-                        <label>参数值</label>
-                        <input type="text" placeholder="请输入参数值">
+                        <label>条件表达式</label>
+                        <textarea placeholder="请输入条件表达式"></textarea>
                     </div>
                     <div class="form-group">
-                        <label>描述</label>
-                        <input type="text" placeholder="请输入描述">
+                        <label>路由目标</label>
+                        <input type="text" placeholder="请输入路由目标">
                     </div>
                 </form>
             </div>
@@ -817,7 +853,7 @@
     </div>
 
     <script>
-        function switchTab(element, tabName) {
+        function switchParamTab(element, tabName) {
             document.querySelectorAll('.tab-item').forEach(tab => {
                 tab.classList.remove('active');
             });
@@ -827,7 +863,7 @@
                 content.classList.remove('active');
             });
 
-            const targetContent = document.getElementById('tab-' + tabName);
+            const targetContent = document.getElementById('tab-param-' + tabName);
             if (targetContent) {
                 targetContent.classList.add('active');
             }
