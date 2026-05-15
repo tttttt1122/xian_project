@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>索引拆分管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            overflow: hidden;
+        }
+
+        .header {
+            height: 64px;
+            background: url('./header-bg.png') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .header-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            color: #fff;
+        }
+
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .header-user:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1890ff;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 24px;
+            margin-top: 64px;
+            height: calc(100vh - 64px);
+            overflow: auto;
+            background: #f0f2f5;
+        }
+
+        .content-header {
+            background: #fff;
+            padding: 20px 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .content-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 8px;
+        }
+
+        .content-subtitle {
+            font-size: 14px;
+            color: #8c8c8c;
+        }
+
+        .content-body {
+            background: #fff;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .search-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 8px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .form-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            color: #595959;
+            white-space: nowrap;
+        }
+
+        .form-input,
+        .form-select {
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 180px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+        }
+
+        .btn-success {
+            background: #52c41a;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #73d13d;
+        }
+
+        .btn-danger {
+            background: #ff4d4f;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #ff7875;
+        }
+
+        .btn-default {
+            background: #fff;
+            color: #595959;
+            border: 1px solid #d9d9d9;
+        }
+
+        .btn-default:hover {
+            color: #40a9ff;
+            border-color: #40a9ff;
+        }
+
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 13px;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .toolbar-left {
+            display: flex;
+            gap: 12px;
+        }
+
+        .toolbar-right {
+            display: flex;
+            gap: 12px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .data-table th {
+            background: #fafafa;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .data-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .data-table .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: 16px;
+            gap: 8px;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #e8e8e8;
+            background: #fafafa;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .modal-close {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: #999;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .modal-body {
+            padding: 20px;
+            max-height: calc(80vh - 100px);
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 16px 20px;
+            border-top: 1px solid #e8e8e8;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            color: #595959;
+            margin-bottom: 8px;
+        }
+
+        .form-group .form-input,
+        .form-group .form-select {
+            width: 100%;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 24px;
+        }
+
+        .tab-item {
+            padding: 12px 24px;
+            cursor: pointer;
+            color: #595959;
+            font-size: 14px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-item:hover {
+            color: #1890ff;
+        }
+
+        .tab-item.active {
+            color: #1890ff;
+            border-bottom-color: #1890ff;
+            font-weight: 500;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tip {
+            font-size: 12px;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        .tip.warning {
+            color: #fa8c16;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- <div class="header">
+        <div class="header-title">全民健康信息平台</div>
+        <div class="header-right">
+            <div class="header-user">
+                <div class="user-avatar">管</div>
+                <span>省级管理员</span>
+            </div>
+        </div>
+    </div> -->
+
+    <!-- <div class="content"> -->
+        <!-- <div class="content-header">
+            <div class="content-title">索引拆分管理</div>
+            <div class="content-subtitle">管理主索引的拆分操作，将复合身份的主索引拆分为多个独立索引</div>
+        </div> -->
+
+        <div class="content-body">
+            <div class="tabs">
+                <div class="tab-item active" onclick="switchSplitTab(this, 'pending')">待拆分</div>
+                <div class="tab-item" onclick="switchSplitTab(this, 'split')">已拆分</div>
+            </div>
+
+            <div id="split-tab-pending" class="tab-content active">
+                <div class="search-form">
+                    <div class="form-item">
+                        <span class="form-label">主索引ID</span>
+                        <input type="text" class="form-input" id="split-master-id" placeholder="请输入主索引ID">
+                    </div>
+                    <div class="form-item">
+                        <span class="form-label">姓名</span>
+                        <input type="text" class="form-input" id="split-name" placeholder="请输入姓名">
+                    </div>
+                    <div class="form-item">
+                        <span class="form-label">身份证号</span>
+                        <input type="text" class="form-input" id="split-idcard" placeholder="请输入身份证号">
+                    </div>
+                    <div class="form-item">
+                        <button class="btn btn-primary" onclick="searchSplitList()">查询</button>
+                        <button class="btn btn-default" onclick="resetSplitSearch()">重置</button>
+                    </div>
+                </div>
+
+                <div class="toolbar">
+                    <div class="toolbar-left">
+                        <button class="btn btn-success" id="btn-split-master" disabled onclick="openSplitModal()">拆分主索引</button>
+                    </div>
+                </div>
+                <div class="tip warning">提示：只有包含多个子索引或复合身份的主索引允许拆分</div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 40px;">选择</th>
+                                <th>主索引ID</th>
+                                <th>姓名</th>
+                                <th>关联子索引数量</th>
+                                <th>最后更新时间</th>
+                            </tr>
+                        </thead>
+                        <tbody id="split-table-body">
+                            <tr>
+                                <td><input type="radio" name="split-radio" value="MI20240010"></td>
+                                <td>MI20240010</td>
+                                <td>赵晓华</td>
+                                <td>4</td>
+                                <td>2024-01-15 10:30:25</td>
+                            </tr>
+                            <tr>
+                                <td><input type="radio" name="split-radio" value="MI20240011"></td>
+                                <td>MI20240011</td>
+                                <td>孙美玲</td>
+                                <td>3</td>
+                                <td>2024-01-13 09:15:00</td>
+                            </tr>
+                            <tr>
+                                <td><input type="radio" name="split-radio" value="MI20240012"></td>
+                                <td>MI20240012</td>
+                                <td>刘海龙</td>
+                                <td>2</td>
+                                <td>2024-01-11 11:20:00</td>
+                            </tr>
+                            <tr>
+                                <td><input type="radio" name="split-radio" value="MI20240013"></td>
+                                <td>MI20240013</td>
+                                <td>周雅琴</td>
+                                <td>2</td>
+                                <td>2024-01-09 14:45:30</td>
+                            </tr>
+                            <tr>
+                                <td><input type="radio" name="split-radio" value="MI20240014"></td>
+                                <td>MI20240014</td>
+                                <td>吴建国</td>
+                                <td>3</td>
+                                <td>2024-01-07 16:20:00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination">
+                    <button class="btn btn-sm btn-default" disabled>上一页</button>
+                    <button class="btn btn-sm btn-primary">1</button>
+                    <button class="btn btn-sm btn-default">2</button>
+                    <button class="btn btn-sm btn-default">3</button>
+                    <button class="btn btn-sm btn-default">下一页</button>
+                    <span style="margin-left: 16px; font-size: 12px; color: #999;">共 30 条，每页 10 条</span>
+                </div>
+            </div>
+
+            <div id="split-tab-split" class="tab-content">
+                <div class="search-form">
+                    <div class="form-item">
+                        <span class="form-label">原主索引ID</span>
+                        <input type="text" class="form-input" id="origin-master-id" placeholder="请输入原主索引ID">
+                    </div>
+                    <div class="form-item">
+                        <button class="btn btn-primary" onclick="searchSplitRecord()">查询</button>
+                        <button class="btn btn-default" onclick="resetSplitRecordSearch()">重置</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>原主索引ID</th>
+                                <th>新生成的主索引ID列表</th>
+                                <th>拆分时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>MI20240007</td>
+                                <td>MI20240015, MI20240016, MI20240017</td>
+                                <td>2024-01-05 14:20:00</td>
+                                <td><button class="btn btn-sm btn-default">查看</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    <!-- </div> -->
+
+    <div id="splitModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <span class="modal-title">拆分主索引</span>
+                <button class="modal-close" onclick="closeModal('splitModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>当前主索引信息</label>
+                    <div style="border: 1px solid #e8e8e8; border-radius: 4px; padding: 12px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                            <div><strong>主索引ID：</strong>MI20240001</div>
+                            <div><strong>姓名：</strong>张三</div>
+                            <div><strong>身份证号：</strong>610101198505151234</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>子索引列表（勾选需要拆出去的子索引）</label>
+                    <div id="child-indexes" style="max-height: 200px; overflow-y: auto; border: 1px solid #e8e8e8; border-radius: 4px;">
+                        <div style="padding: 12px; border-bottom: 1px solid #f0f0f0;">
+                            <label>
+                                <input type="checkbox" name="child-index" value="SI001">
+                                <span style="margin-left: 8px;">SI001 - 健康档案数据 - 西安市第一医院</span>
+                            </label>
+                        </div>
+                        <div style="padding: 12px; border-bottom: 1px solid #f0f0f0;">
+                            <label>
+                                <input type="checkbox" name="child-index" value="SI002">
+                                <span style="margin-left: 8px;">SI002 - 诊疗记录数据 - 西安市第二医院</span>
+                            </label>
+                        </div>
+                        <div style="padding: 12px;">
+                            <label>
+                                <input type="checkbox" name="child-index" value="SI003">
+                                <span style="margin-left: 8px;">SI003 - 检验报告数据 - 西安市第三医院</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>新主索引基本信息</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <label>姓名</label>
+                            <input type="text" class="form-input" id="new-master-name" placeholder="请输入姓名">
+                        </div>
+                        <div>
+                            <label>身份证号</label>
+                            <input type="text" class="form-input" id="new-master-idcard" placeholder="请输入身份证号">
+                        </div>
+                    </div>
+                </div>
+                <div class="tip warning">拆分操作可将原索引拆分为 2 个或更多新索引</div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('splitModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmSplit()">确认拆分</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchSplitTab(el, tabName) {
+            const tabs = el.parentElement.querySelectorAll('.tab-item');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            el.classList.add('active');
+            
+            const contents = document.querySelectorAll('[id^="split-tab-"]');
+            contents.forEach(content => content.classList.remove('active'));
+            document.getElementById('split-tab-' + tabName).classList.add('active');
+        }
+
+        document.addEventListener('change', function(e) {
+            if (e.target.name === 'split-radio') {
+                document.getElementById('btn-split-master').disabled = false;
+            }
+        });
+
+        function searchSplitList() {
+            alert('查询条件：\n主索引ID：' + document.getElementById('split-master-id').value + '\n姓名：' + document.getElementById('split-name').value + '\n身份证号：' + document.getElementById('split-idcard').value);
+        }
+
+        function resetSplitSearch() {
+            document.getElementById('split-master-id').value = '';
+            document.getElementById('split-name').value = '';
+            document.getElementById('split-idcard').value = '';
+        }
+
+        function openSplitModal() {
+            const selectedRadio = document.querySelector('input[name="split-radio"]:checked');
+            if (selectedRadio) {
+                document.getElementById('splitModal').classList.add('show');
+            }
+        }
+
+        function confirmSplit() {
+            if (confirm('拆分操作不可逆，是否继续？')) {
+                alert('拆分成功');
+                closeModal('splitModal');
+            }
+        }
+
+        function searchSplitRecord() {
+            alert('查询拆分记录：' + document.getElementById('origin-master-id').value);
+        }
+
+        function resetSplitRecordSearch() {
+            document.getElementById('origin-master-id').value = '';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+    </script>
+</body>
+</html>
