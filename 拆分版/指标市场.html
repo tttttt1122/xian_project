@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>指标市场</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .content {
+            height: 100%;
+            overflow: auto;
+            padding: 24px;
+            background: #f0f2f5;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .search-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 24px;
+            background: #fafafa;
+            border-radius: 8px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .form-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            color: #595959;
+            white-space: nowrap;
+        }
+
+        .form-input,
+        .form-select {
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 180px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1);
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+        }
+
+        .btn-default {
+            background: #fff;
+            color: #595959;
+            border: 1px solid #d9d9d9;
+        }
+
+        .btn-default:hover {
+            color: #1890ff;
+            border-color: #1890ff;
+        }
+
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 12px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .data-table th {
+            background: #fafafa;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .data-table tr:hover {
+            background: #f0f2f5;
+        }
+
+        .data-table .actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .page-btn {
+            padding: 4px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            background: #fff;
+            color: #595959;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        .page-btn.active {
+            background: #1890ff;
+            color: #fff;
+            border-color: #1890ff;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            margin-left: 16px;
+            font-size: 13px;
+            color: #8c8c8c;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .tag-success {
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+            color: #52c41a;
+        }
+
+        .tag-blue {
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            color: #1890ff;
+        }
+
+        .tag-purple {
+            background: #f9f0ff;
+            border: 1px solid #d3adf7;
+            color: #722ed1;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .info-item {
+            padding: 12px;
+            background: #fafafa;
+            border-radius: 6px;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #8c8c8c;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 14px;
+            color: #262626;
+            font-weight: 500;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 250px;
+        }
+
+        .stats-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #f6ffed;
+            border-radius: 6px;
+        }
+
+        .stats-text {
+            font-size: 14px;
+            color: #52c41a;
+            font-weight: 500;
+        }
+
+        .usage-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .usage-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #fafafa;
+            border-radius: 6px;
+            border-left: 3px solid #1890ff;
+        }
+
+        .usage-info h4 {
+            font-size: 14px;
+            color: #262626;
+            margin-bottom: 4px;
+        }
+
+        .usage-info p {
+            font-size: 12px;
+            color: #8c8c8c;
+        }
+
+        .usage-count {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1890ff;
+        }
+
+        .lifecycle-timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .lifecycle-timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e8e8e8;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 24px;
+            transition: all 0.3s;
+        }
+
+        .timeline-item:hover {
+            transform: translateX(5px);
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -24px;
+            top: 0;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 3px solid #1890ff;
+            background: #fff;
+        }
+
+        .timeline-dot.completed {
+            background: #52c41a;
+            border-color: #52c41a;
+        }
+
+        .timeline-dot.in-progress {
+            background: #1890ff;
+            border-color: #1890ff;
+        }
+
+        .timeline-dot.pending {
+            background: #d9d9d9;
+            border-color: #d9d9d9;
+        }
+
+        .timeline-content {
+            background: #fafafa;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            padding: 14px;
+        }
+
+        .timeline-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timeline-status {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .timeline-status.completed {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+
+        .timeline-status.in-progress {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .timeline-status.pending {
+            background: #f5f5f5;
+            color: #8c8c8c;
+        }
+
+        .timeline-detail {
+            font-size: 13px;
+            color: #595959;
+            line-height: 1.6;
+        }
+
+        .timeline-time {
+            font-size: 12px;
+            color: #8c8c8c;
+            margin-top: 6px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e8e8e8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            color: #262626;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #8c8c8c;
+            cursor: pointer;
+            padding: 4px;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: #1890ff;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #e8e8e8;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .modal-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .modal-card-header {
+            font-size: 15px;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stats-cards {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: #fafafa;
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1890ff;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #8c8c8c;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <main class="content" id="mainContent">
+        <div class="card">
+            <div class="search-form">
+                <div class="form-item">
+                    <span class="form-label">指标名称：</span>
+                    <input type="text" class="form-input" id="searchName" placeholder="请输入指标名称">
+                </div>
+                <div class="form-item">
+                    <span class="form-label">指标类型：</span>
+                    <select class="form-select" id="filterType">
+                        <option value="">全部</option>
+                        <option value="atomic">原子指标</option>
+                        <option value="derived">派生指标</option>
+                        <option value="composite">复合指标</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <span class="form-label">业务域：</span>
+                    <select class="form-select" id="filterDomain">
+                        <option value="">全部</option>
+                        <option value="财务域">财务域</option>
+                        <option value="慢病管理域">慢病管理域</option>
+                    </select>
+                </div>
+                <div class="form-item" style="margin-left: auto;">
+                    <button class="btn btn-primary" onclick="searchIndicators()">查询</button>
+                    <button class="btn btn-default" onclick="resetFilter()">重置</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>指标名称</th>
+                            <th>指标类型</th>
+                            <th>业务域</th>
+                            <th>发布状态</th>
+                            <th>发布时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="indicatorList">
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <button class="page-btn" disabled>上一页</button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">3</button>
+                    <button class="page-btn">下一页</button>
+                    <span class="page-info">显示 1-5 条，共 12 条</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal-overlay" id="indicatorModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">指标详情</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const indicatorsData = [
+            {
+                id: 1,
+                name: '节约金额',
+                type: 'atomic',
+                typeName: '原子指标',
+                businessDomain: '财务域',
+                status: 'published',
+                businessCaliber: '统计周期内医疗机构的实际收入总额，包含门诊收入、住院收入等',
+                timeCycle: '月度',
+                modifier: '',
+                dataSource: 'his_financial_table',
+                aggregation: 'SUM',
+                etlStatus: 'success',
+                publishUser: '张三',
+                publishTime: '2025-03-10 14:30:00',
+                authRoles: ['数据分析师角色', '财务人员角色'],
+                authUsers: ['李四', '王五'],
+                accessCount: [120, 135, 148, 170, 225, 290, 310],
+                totalAccess: 14000,
+                sampleData: [
+                    { institution: '市人民医院', month: '2025-01', value: 1250000 },
+                    { institution: '区中医院', month: '2025-01', value: 850000 },
+                    { institution: '市第二人民医院', month: '2025-01', value: 980000 },
+                    { institution: '市人民医院', month: '2025-02', value: 1320000 },
+                    { institution: '区中医院', month: '2025-02', value: 920000 }
+                ],
+                usageList: [
+                    { app: '运营日报', type: 'API', lastCall: '2025-03-15', count: 450 },
+                    { app: '领导驾驶舱', type: '大屏', lastCall: '2025-03-14', count: 320 },
+                    { app: '财务报表系统', type: '数据库', lastCall: '2025-03-13', count: 280 }
+                ],
+                lifecycle: [
+                    { stage: '指标定义', status: 'completed', time: '2025-02-15', detail: '名称：节约金额\n口径：统计周期内医疗机构的实际收入总额' },
+                    { stage: '指标配置', status: 'completed', time: '2025-02-20', detail: '数据源：his_financial_table\n聚合方式：SUM' },
+                    { stage: '指标固化', status: 'completed', time: '2025-02-25', detail: '固化周期：每日\nETL任务状态：成功' },
+                    { stage: '指标发布', status: 'completed', time: '2025-03-10', detail: '发布人：张三\n发布时间：2025-03-10 14:30:00' },
+                    { stage: '指标授权', status: 'completed', time: '2025-03-11', detail: '已授权角色：数据分析师角色、财务人员角色\n已授权用户：李四、王五' },
+                    { stage: '指标下架', status: 'pending', time: '-', detail: '未下架' }
+                ]
+            },
+            {
+                id: 2,
+                name: '高血压规范管理人数',
+                type: 'derived',
+                typeName: '派生指标',
+                businessDomain: '慢病管理域',
+                status: 'published',
+                businessCaliber: '统计周期内按照规范要求进行管理的高血压患者人数',
+                timeCycle: '季度',
+                modifier: '规范管理',
+                dataSource: 'chronic_disease_management',
+                aggregation: 'COUNT',
+                etlStatus: 'success',
+                publishUser: '李华',
+                publishTime: '2025-03-12 10:15:00',
+                authRoles: ['公共卫生科角色', '慢病管理员角色'],
+                authUsers: ['赵六', '孙七'],
+                accessCount: [85, 92, 110, 125, 145, 168, 195],
+                totalAccess: 9200,
+                sampleData: [
+                    { institution: '社区卫生服务中心A', quarter: '2024-Q4', value: 1250 },
+                    { institution: '社区卫生服务中心B', quarter: '2024-Q4', value: 980 },
+                    { institution: '乡镇卫生院C', quarter: '2024-Q4', value: 750 },
+                    { institution: '社区卫生服务中心A', quarter: '2025-Q1', value: 1320 },
+                    { institution: '社区卫生服务中心B', quarter: '2025-Q1', value: 1050 }
+                ],
+                usageList: [
+                    { app: '慢病管理平台', type: 'API', lastCall: '2025-03-15', count: 380 },
+                    { app: '公卫考核系统', type: '报表', lastCall: '2025-03-12', count: 250 },
+                    { app: '健康档案系统', type: '数据库', lastCall: '2025-03-10', count: 180 }
+                ],
+                lifecycle: [
+                    { stage: '指标定义', status: 'completed', time: '2025-02-18', detail: '名称：高血压规范管理人数\n口径：按规范要求进行管理的高血压患者人数' },
+                    { stage: '指标配置', status: 'completed', time: '2025-02-22', detail: '数据源：chronic_disease_management\n聚合方式：COUNT' },
+                    { stage: '指标固化', status: 'completed', time: '2025-02-28', detail: '固化周期：每周\nETL任务状态：成功' },
+                    { stage: '指标发布', status: 'completed', time: '2025-03-12', detail: '发布人：李华\n发布时间：2025-03-12 10:15:00' },
+                    { stage: '指标授权', status: 'completed', time: '2025-03-13', detail: '已授权角色：公共卫生科角色、慢病管理员角色\n已授权用户：赵六、孙七' },
+                    { stage: '指标下架', status: 'pending', time: '-', detail: '未下架' }
+                ]
+            },
+            {
+                id: 3,
+                name: '高血压患者规范管理率',
+                type: 'composite',
+                typeName: '复合指标',
+                businessDomain: '慢病管理域',
+                status: 'published',
+                businessCaliber: '高血压规范管理人数 / 高血压登记患者总数 × 100%',
+                timeCycle: '季度',
+                modifier: '',
+                dataSource: 'composite_calculation',
+                aggregation: 'DIVISION',
+                etlStatus: 'success',
+                publishUser: '王芳',
+                publishTime: '2025-03-14 16:45:00',
+                authRoles: ['管理层角色', '质控科角色'],
+                authUsers: ['周八', '吴九'],
+                accessCount: [65, 78, 95, 112, 138, 165, 198],
+                totalAccess: 8500,
+                sampleData: [
+                    { institution: '全市平均', quarter: '2024-Q4', value: '68.5%' },
+                    { institution: '区域A', quarter: '2024-Q4', value: '72.3%' },
+                    { institution: '区域B', quarter: '2024-Q4', value: '65.8%' },
+                    { institution: '全市平均', quarter: '2025-Q1', value: '71.2%' },
+                    { institution: '区域A', quarter: '2025-Q1', value: '75.6%' }
+                ],
+                usageList: [
+                    { app: '绩效考核系统', type: 'API', lastCall: '2025-03-15', count: 320 },
+                    { app: '质量控制中心', type: '报表', lastCall: '2025-03-14', count: 280 },
+                    { app: '领导决策支持', type: '大屏', lastCall: '2025-03-13', count: 150 }
+                ],
+                lifecycle: [
+                    { stage: '指标定义', status: 'completed', time: '2025-02-20', detail: '名称：高血压患者规范管理率\n口径：规范管理人数/登记患者总数×100%' },
+                    { stage: '指标配置', status: 'completed', time: '2025-02-25', detail: '数据源：composite_calculation\n计算方式：除法运算' },
+                    { stage: '指标固化', status: 'completed', time: '2025-03-01', detail: '固化周期：每月\nETL任务状态：成功' },
+                    { stage: '指标发布', status: 'completed', time: '2025-03-14', detail: '发布人：王芳\n发布时间：2025-03-14 16:45:00' },
+                    { stage: '指标授权', status: 'completed', time: '2025-03-15', detail: '已授权角色：管理层角色、质控科角色\n已授权用户：周八、吴九' },
+                    { stage: '指标下架', status: 'pending', time: '-', detail: '未下架' }
+                ]
+            },
+            {
+                id: 4,
+                name: '门诊就诊人次',
+                type: 'atomic',
+                typeName: '原子指标',
+                businessDomain: '门诊域',
+                status: 'published',
+                businessCaliber: '统计周期内门诊就诊的总人次数',
+                timeCycle: '月度',
+                modifier: '',
+                dataSource: 'outpatient_visit_table',
+                aggregation: 'COUNT',
+                etlStatus: 'success',
+                publishUser: '陈丽',
+                publishTime: '2025-03-16 09:20:00',
+                authRoles: ['门诊管理角色', '信息科角色'],
+                authUsers: ['郑十', '刘十一'],
+                accessCount: [200, 235, 268, 295, 320, 355, 385],
+                totalAccess: 15600,
+                sampleData: [
+                    { institution: '市人民医院', month: '2025-01', value: 45000 },
+                    { institution: '区中医院', month: '2025-01', value: 28000 },
+                    { institution: '市第二人民医院', month: '2025-01', value: 32000 },
+                    { institution: '市人民医院', month: '2025-02', value: 48500 },
+                    { institution: '区中医院', month: '2025-02', value: 31000 }
+                ],
+                usageList: [
+                    { app: '门诊流量分析', type: 'API', lastCall: '2025-03-15', count: 520 },
+                    { app: '资源调配系统', type: '数据库', lastCall: '2025-03-14', count: 380 },
+                    { app: '运营监控大屏', type: '大屏', lastCall: '2025-03-13', count: 220 }
+                ],
+                lifecycle: [
+                    { stage: '指标定义', status: 'completed', time: '2025-02-22', detail: '名称：门诊就诊人次\n口径：统计周期内门诊就诊的总人次数' },
+                    { stage: '指标配置', status: 'completed', time: '2025-02-28', detail: '数据源：outpatient_visit_table\n聚合方式：COUNT' },
+                    { stage: '指标固化', status: 'completed', time: '2025-03-05', detail: '固化周期：每日\nETL任务状态：成功' },
+                    { stage: '指标发布', status: 'completed', time: '2025-03-16', detail: '发布人：陈丽\n发布时间：2025-03-16 09:20:00' },
+                    { stage: '指标授权', status: 'completed', time: '2025-03-17', detail: '已授权角色：门诊管理角色、信息科角色\n已授权用户：郑十、刘十一' },
+                    { stage: '指标下架', status: 'pending', time: '-', detail: '未下架' }
+                ]
+            },
+            {
+                id: 5,
+                name: '住院平均费用',
+                type: 'derived',
+                typeName: '派生指标',
+                businessDomain: '住院域',
+                status: 'published',
+                businessCaliber: '统计周期内住院患者的平均住院费用',
+                timeCycle: '月度',
+                modifier: '平均',
+                dataSource: 'inpatient_cost_table',
+                aggregation: 'AVG',
+                etlStatus: 'success',
+                publishUser: '赵伟',
+                publishTime: '2025-03-18 11:30:00',
+                authRoles: ['医保办角色', '财务科角色'],
+                authUsers: ['钱十二', '孙十三'],
+                accessCount: [75, 88, 105, 122, 145, 168, 192],
+                totalAccess: 11200,
+                sampleData: [
+                    { institution: '市人民医院', month: '2025-01', value: 12500 },
+                    { institution: '区中医院', month: '2025-01', value: 8800 },
+                    { institution: '市第二人民医院', month: '2025-01', value: 10200 },
+                    { institution: '市人民医院', month: '2025-02', value: 13200 },
+                    { institution: '区中医院', month: '2025-02', value: 9200 }
+                ],
+                usageList: [
+                    { app: '医保费用分析', type: 'API', lastCall: '2025-03-15', count: 420 },
+                    { app: '成本核算系统', type: '数据库', lastCall: '2025-03-14', count: 350 },
+                    { app: '价格监管平台', type: '报表', lastCall: '2025-03-12', count: 280 }
+                ],
+                lifecycle: [
+                    { stage: '指标定义', status: 'completed', time: '2025-02-25', detail: '名称：住院平均费用\n口径：统计周期内住院患者的平均住院费用' },
+                    { stage: '指标配置', status: 'completed', time: '2025-03-02', detail: '数据源：inpatient_cost_table\n聚合方式：AVG' },
+                    { stage: '指标固化', status: 'completed', time: '2025-03-08', detail: '固化周期：每日\nETL任务状态：成功' },
+                    { stage: '指标发布', status: 'completed', time: '2025-03-18', detail: '发布人：赵伟\n发布时间：2025-03-18 11:30:00' },
+                    { stage: '指标授权', status: 'completed', time: '2025-03-19', detail: '已授权角色：医保办角色、财务科角色\n已授权用户：钱十二、孙十三' },
+                    { stage: '指标下架', status: 'pending', time: '-', detail: '未下架' }
+                ]
+            },
+            {
+                id: 6,
+                name: '床位周转率',
+                type: 'composite',
+                typeName: '复合指标',
+                businessDomain: '住院域',
+                status: 'published',
+                businessCaliber: '出院人数 / 平均开放床位数 × 100%',
+                timeCycle: '季度',
+                modifier: '',
+                dataSource: 'composite_calculation',
+                aggregation: 'DIVISION',
+                etlStatus: 'success',
+                publishUser: '周敏',
+                publishTime: '2025-03-20 14:00:00',
+                authRoles: ['医务科角色', '护理部角色'],
+                authUsers: ['吴十四', '郑十五'],
+                accessCount: [58, 72, 88, 105, 125, 148, 172],
+                totalAccess: 9800,
+                sampleData: [
+                    { institution: '市人民医院', quarter: '2024-Q4', value: '85.6%' },
+                    { institution: '区中医院', quarter: '2024-Q4', value: '78.2%' },
+                    { institution: '市第二人民医院', quarter: '2024-Q4', value: '82.4%' },
+                    { institution: '市人民医院', quarter: '2025-Q1', value: '88.3%' },
+                    { institution: '区中医院', quarter: '2025-Q1', value: '81.5%' }
+                ],
+                usageList: [
+                    { app: '床位管理系统', type: 'API', lastCall: '2025-03-15', count: 380 },
+                    { app: '绩效考核系统', type: '报表', lastCall: '2025-03-14', count: 290 },
+                    { app: '资源配置分析', type: '数据库', lastCall: '2025-03-13', count: 210 }
+                ],
+                lifecycle: [
+                    { stage: '指标定义', status: 'completed', time: '2025-02-28', detail: '名称：床位周转率\n口径：出院人数/平均开放床位数×100%' },
+                    { stage: '指标配置', status: 'completed', time: '2025-03-05', detail: '数据源：composite_calculation\n计算方式：除法运算' },
+                    { stage: '指标固化', status: 'completed', time: '2025-03-10', detail: '固化周期：每周\nETL任务状态：成功' },
+                    { stage: '指标发布', status: 'completed', time: '2025-03-20', detail: '发布人：周敏\n发布时间：2025-03-20 14:00:00' },
+                    { stage: '指标授权', status: 'completed', time: '2025-03-21', detail: '已授权角色：医务科角色、护理部角色\n已授权用户：吴十四、郑十五' },
+                    { stage: '指标下架', status: 'pending', time: '-', detail: '未下架' }
+                ]
+            }
+        ];
+
+        let chartInstance = null;
+
+        function renderIndicatorList(filteredData = indicatorsData) {
+            const listContainer = document.getElementById('indicatorList');
+            listContainer.innerHTML = filteredData.map(indicator => `
+                <tr>
+                    <td>${indicator.name}</td>
+                    <td><span class="tag ${indicator.type === 'atomic' ? 'tag-blue' : indicator.type === 'derived' ? 'tag-purple' : 'tag-success'}">${indicator.typeName}</span></td>
+                    <td>${indicator.businessDomain}</td>
+                    <td><span class="tag tag-success">已发布</span></td>
+                    <td>${indicator.publishTime}</td>
+                    <td class="actions">
+                        <button class="btn btn-sm btn-primary" onclick="openIndicatorModal(${indicator.id})">详情</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function searchIndicators() {
+            const name = document.getElementById('searchName').value.toLowerCase();
+            const type = document.getElementById('filterType').value;
+            const domain = document.getElementById('filterDomain').value;
+
+            const filtered = indicatorsData.filter(indicator => {
+                const matchName = !name || indicator.name.toLowerCase().includes(name);
+                const matchType = !type || indicator.type === type;
+                const matchDomain = !domain || indicator.businessDomain === domain;
+                return matchName && matchType && matchDomain;
+            });
+
+            renderIndicatorList(filtered);
+        }
+
+        function resetFilter() {
+            document.getElementById('searchName').value = '';
+            document.getElementById('filterType').value = '';
+            document.getElementById('filterDomain').value = '';
+            renderIndicatorList();
+        }
+
+        function openIndicatorModal(id) {
+            const indicator = indicatorsData.find(i => i.id === id);
+            if (!indicator) return;
+
+            document.getElementById('modalTitle').textContent = `${indicator.name} - 指标详情`;
+            document.getElementById('modalBody').innerHTML = `
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <div class="stat-value">${indicator.totalAccess.toLocaleString()}</div>
+                        <div class="stat-label">累计调用次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${indicator.timeCycle}</div>
+                        <div class="stat-label">统计周期</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${indicator.authRoles.length}</div>
+                        <div class="stat-label">授权角色数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${indicator.authUsers.length}</div>
+                        <div class="stat-label">授权用户数</div>
+                    </div>
+                </div>
+
+                <div class="modal-card">
+                    <div class="modal-card-header">
+                        基本信息
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">指标名称</div>
+                            <div class="info-value">${indicator.name}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">指标类型</div>
+                            <div class="info-value">${indicator.typeName}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">业务域</div>
+                            <div class="info-value">${indicator.businessDomain}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">时间周期</div>
+                            <div class="info-value">${indicator.timeCycle}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">业务口径</div>
+                            <div class="info-value">${indicator.businessCaliber}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">数据源</div>
+                            <div class="info-value">${indicator.dataSource}</div>
+                        </div>
+                        ${indicator.modifier ? `
+                        <div class="info-item">
+                            <div class="info-label">修饰词</div>
+                            <div class="info-value">${indicator.modifier}</div>
+                        </div>
+                        ` : ''}
+                        <div class="info-item">
+                            <div class="info-label">聚合方式</div>
+                            <div class="info-value">${indicator.aggregation}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">发布人</div>
+                            <div class="info-value">${indicator.publishUser}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">发布时间</div>
+                            <div class="info-value">${indicator.publishTime}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-card">
+                    <div class="modal-card-header">
+                        访问次数统计
+                    </div>
+                    <div class="stats-summary">
+                        <span class="stats-text">
+                            累计调用${(indicator.totalAccess / 10000).toFixed(1)}万次
+                        </span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="accessChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="modal-card">
+                    <div class="modal-card-header">
+                        数据预览
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>机构名称</th>
+                                <th>${indicator.timeCycle === '月度' ? '月份' : '季度'}</th>
+                                <th>指标值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${indicator.sampleData.map(row => `
+                                <tr>
+                                    <td>${row.institution}</td>
+                                    <td>${row.month || row.quarter}</td>
+                                    <td>${typeof row.value === 'number' ? row.value.toLocaleString() : row.value}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="modal-card">
+                    <div class="modal-card-header">
+                        指标被调详情
+                    </div>
+                    <div class="usage-list">
+                        ${indicator.usageList.map(usage => `
+                            <div class="usage-item">
+                                <div class="usage-info">
+                                    <h4>${usage.app} (${usage.type})</h4>
+                                    <p>最后调用：${usage.lastCall}</p>
+                                </div>
+                                <div class="usage-count">${usage.count}次</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div class="modal-card">
+                    <div class="modal-card-header">
+                        指标全生命周期
+                    </div>
+                    <div class="lifecycle-timeline">
+                        ${indicator.lifecycle.map((stage) => `
+                            <div class="timeline-item">
+                                <div class="timeline-dot ${stage.status}"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">
+                                        ${stage.stage}
+                                        <span class="timeline-status ${stage.status}">
+                                            ${stage.status === 'completed' ? '已完成' : stage.status === 'in-progress' ? '进行中' : '未开始'}
+                                        </span>
+                                    </div>
+                                    <div class="timeline-detail">${stage.detail.replace(/\n/g, '<br>')}</div>
+                                    <div class="timeline-time">完成时间：${stage.time}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('indicatorModal').classList.add('show');
+
+            setTimeout(() => {
+                renderChart(indicator);
+            }, 100);
+        }
+
+        function closeModal() {
+            document.getElementById('indicatorModal').classList.remove('show');
+            if (chartInstance) {
+                chartInstance.destroy();
+                chartInstance = null;
+            }
+        }
+
+        function renderChart(indicator) {
+            const ctx = document.getElementById('accessChart');
+            if (!ctx) return;
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            const days = [];
+            const today = new Date();
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                days.push(`${date.getMonth() + 1}/${date.getDate()}`);
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: days,
+                    datasets: [{
+                        label: '调用次数',
+                        data: indicator.accessCount,
+                        borderColor: '#1890ff',
+                        backgroundColor: 'rgba(24, 144, 255, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#1890ff',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#f0f0f0'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        document.getElementById('indicatorModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        renderIndicatorList();
+    </script>
+</body>
+</html>
