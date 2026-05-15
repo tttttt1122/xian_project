@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>索引合并管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            overflow: hidden;
+        }
+
+        .header {
+            height: 64px;
+            background: url('./header-bg.png') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .header-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            color: #fff;
+        }
+
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .header-user:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1890ff;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 24px;
+            margin-top: 64px;
+            height: calc(100vh - 64px);
+            overflow: auto;
+            background: #f0f2f5;
+        }
+
+        .content-header {
+            background: #fff;
+            padding: 20px 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .content-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 8px;
+        }
+
+        .content-subtitle {
+            font-size: 14px;
+            color: #8c8c8c;
+        }
+
+        .content-body {
+            background: #fff;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .search-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 8px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .form-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            color: #595959;
+            white-space: nowrap;
+        }
+
+        .form-input,
+        .form-select {
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 180px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+        }
+
+        .btn-success {
+            background: #52c41a;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #73d13d;
+        }
+
+        .btn-danger {
+            background: #ff4d4f;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #ff7875;
+        }
+
+        .btn-default {
+            background: #fff;
+            color: #595959;
+            border: 1px solid #d9d9d9;
+        }
+
+        .btn-default:hover {
+            color: #40a9ff;
+            border-color: #40a9ff;
+        }
+
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 13px;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .toolbar-left {
+            display: flex;
+            gap: 12px;
+        }
+
+        .toolbar-right {
+            display: flex;
+            gap: 12px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .data-table th {
+            background: #fafafa;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .data-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .data-table .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: 16px;
+            gap: 8px;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #e8e8e8;
+            background: #fafafa;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .modal-close {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: #999;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .modal-body {
+            padding: 20px;
+            max-height: calc(80vh - 100px);
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 16px 20px;
+            border-top: 1px solid #e8e8e8;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            color: #595959;
+            margin-bottom: 8px;
+        }
+
+        .form-group .form-input,
+        .form-group .form-select {
+            width: 100%;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 24px;
+        }
+
+        .tab-item {
+            padding: 12px 24px;
+            cursor: pointer;
+            color: #595959;
+            font-size: 14px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-item:hover {
+            color: #1890ff;
+        }
+
+        .tab-item.active {
+            color: #1890ff;
+            border-bottom-color: #1890ff;
+            font-weight: 500;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tip {
+            font-size: 12px;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        .tip.warning {
+            color: #fa8c16;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- <div class="header">
+        <div class="header-title">全民健康信息平台</div>
+        <div class="header-right">
+            <div class="header-user">
+                <div class="user-avatar">管</div>
+                <span>省级管理员</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="content-header">
+            <div class="content-title">索引合并管理</div>
+            <div class="content-subtitle">管理主索引的合并操作，将多个相同身份的主索引合并为一个</div>
+        </div> -->
+
+        <div class="content-body">
+            <div class="tabs">
+                <div class="tab-item active" onclick="switchMergeTab(this, 'pending')">待合并</div>
+                <div class="tab-item" onclick="switchMergeTab(this, 'merged')">已合并</div>
+            </div>
+
+            <div id="merge-tab-pending" class="tab-content active">
+                <div class="search-form">
+                    <div class="form-item">
+                        <span class="form-label">主索引ID</span>
+                        <input type="text" class="form-input" id="merge-master-id" placeholder="请输入主索引ID">
+                    </div>
+                    <div class="form-item">
+                        <span class="form-label">姓名</span>
+                        <input type="text" class="form-input" id="merge-name" placeholder="请输入姓名">
+                    </div>
+                    <div class="form-item">
+                        <span class="form-label">身份证号</span>
+                        <input type="text" class="form-input" id="merge-idcard" placeholder="请输入身份证号">
+                    </div>
+                    <div class="form-item">
+                        <button class="btn btn-primary" onclick="searchMergeList()">查询</button>
+                        <button class="btn btn-default" onclick="resetMergeSearch()">重置</button>
+                    </div>
+                </div>
+
+                <div class="toolbar">
+                    <div class="toolbar-left">
+                        <button class="btn btn-success" id="btn-merge-master" disabled onclick="openMergeModal()">合并主索引</button>
+                    </div>
+                    <div class="toolbar-right">
+                        <span style="font-size: 12px; color: #999;" id="merge-selected-count">已选择 0 条记录</span>
+                    </div>
+                </div>
+                <div class="tip warning">提示：至少选择 2 个主索引才能合并</div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 40px;">
+                                    <input type="checkbox" onclick="toggleSelectAll(this, 'merge')">
+                                </th>
+                                <th>主索引ID</th>
+                                <th>姓名</th>
+                                <th>性别</th>
+                                <th>出生日期</th>
+                                <th>身份证号</th>
+                                <th>所属机构</th>
+                                <th>最后更新时间</th>
+                            </tr>
+                        </thead>
+                        <tbody id="merge-table-body">
+                            <tr>
+                                <td><input type="checkbox" class="merge-checkbox" data-id="MI20240001"></td>
+                                <td>MI20240001</td>
+                                <td>张建国</td>
+                                <td>男</td>
+                                <td>1965-08-20</td>
+                                <td>610101196508201234</td>
+                                <td>西安市第一医院</td>
+                                <td>2024-01-15 10:30:25</td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" class="merge-checkbox" data-id="MI20240002"></td>
+                                <td>MI20240002</td>
+                                <td>张建国</td>
+                                <td>男</td>
+                                <td>1965-08-20</td>
+                                <td>610101196508201235</td>
+                                <td>西安市中心医院</td>
+                                <td>2024-01-14 15:20:30</td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" class="merge-checkbox" data-id="MI20240003"></td>
+                                <td>MI20240003</td>
+                                <td>李秀英</td>
+                                <td>女</td>
+                                <td>1972-03-15</td>
+                                <td>610302197203155678</td>
+                                <td>宝鸡市人民医院</td>
+                                <td>2024-01-13 09:15:00</td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" class="merge-checkbox" data-id="MI20240004"></td>
+                                <td>MI20240004</td>
+                                <td>李秀英</td>
+                                <td>女</td>
+                                <td>1972-03-15</td>
+                                <td>610302197203155679</td>
+                                <td>宝鸡市中医医院</td>
+                                <td>2024-01-12 14:45:30</td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" class="merge-checkbox" data-id="MI20240005"></td>
+                                <td>MI20240005</td>
+                                <td>王志强</td>
+                                <td>男</td>
+                                <td>1980-11-05</td>
+                                <td>610403198011059012</td>
+                                <td>咸阳市第一人民医院</td>
+                                <td>2024-01-11 11:20:00</td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" class="merge-checkbox" data-id="MI20240006"></td>
+                                <td>MI20240006</td>
+                                <td>王志强</td>
+                                <td>男</td>
+                                <td>1980-11-05</td>
+                                <td>610403198011059013</td>
+                                <td>咸阳市中心医院</td>
+                                <td>2024-01-10 08:30:15</td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" class="merge-checkbox" data-id="MI20240007"></td>
+                                <td>MI20240007</td>
+                                <td>陈秀兰</td>
+                                <td>女</td>
+                                <td>1958-06-12</td>
+                                <td>610201195806123456</td>
+                                <td>铜川市人民医院</td>
+                                <td>2024-01-09 16:45:00</td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" class="merge-checkbox" data-id="MI20240008"></td>
+                                <td>MI20240008</td>
+                                <td>陈秀兰</td>
+                                <td>女</td>
+                                <td>1958-06-12</td>
+                                <td>610201195806123457</td>
+                                <td>铜川矿务局中心医院</td>
+                                <td>2024-01-08 14:20:30</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination">
+                    <button class="btn btn-sm btn-default" disabled>上一页</button>
+                    <button class="btn btn-sm btn-primary">1</button>
+                    <button class="btn btn-sm btn-default">2</button>
+                    <button class="btn btn-sm btn-default">3</button>
+                    <button class="btn btn-sm btn-default">4</button>
+                    <button class="btn btn-sm btn-default">5</button>
+                    <button class="btn btn-sm btn-default">下一页</button>
+                    <span style="margin-left: 16px; font-size: 12px; color: #999;">共 50 条，每页 10 条</span>
+                </div>
+            </div>
+
+            <div id="merge-tab-merged" class="tab-content">
+                <div class="search-form">
+                    <div class="form-item">
+                        <span class="form-label">合并后主索引ID</span>
+                        <input type="text" class="form-input" id="merged-master-id" placeholder="请输入合并后主索引ID">
+                    </div>
+                    <div class="form-item">
+                        <button class="btn btn-primary" onclick="searchMergedRecord()">查询</button>
+                        <button class="btn btn-default" onclick="resetMergedSearch()">重置</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>合并后主索引ID</th>
+                                <th>被合并的原主索引ID列表</th>
+                                <th>合并时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>MI20240001</td>
+                                <td>MI20240002, MI20240009</td>
+                                <td>2024-01-10 16:30:00</td>
+                                <td><button class="btn btn-sm btn-default">查看</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    <!-- </div> -->
+
+    <div id="mergeModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <span class="modal-title">合并主索引</span>
+                <button class="modal-close" onclick="closeModal('mergeModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>已选择的主索引（共 <span id="selected-count">2</span> 个）</label>
+                    <div id="selected-indexes" style="max-height: 150px; overflow-y: auto; border: 1px solid #e8e8e8; border-radius: 4px; padding: 12px;">
+                        <div style="padding: 8px; border-bottom: 1px solid #f0f0f0;">
+                            <div><strong>MI20240001</strong> - 张三 - 610101198505151234</div>
+                        </div>
+                        <div style="padding: 8px;">
+                            <div><strong>MI20240002</strong> - 张三 - 610101198505151235</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>合并规则：选择合并后保留的目标主索引</label>
+                    <select class="form-select" id="target-master-id">
+                        <option value="MI20240001">MI20240001 - 张三</option>
+                        <option value="MI20240002">MI20240002 - 张三</option>
+                    </select>
+                    <div class="tip">其余索引将合并到该索引下并注销</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('mergeModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmMerge()">确认合并</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchMergeTab(el, tabName) {
+            const tabs = el.parentElement.querySelectorAll('.tab-item');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            el.classList.add('active');
+            
+            const contents = document.querySelectorAll('[id^="merge-tab-"]');
+            contents.forEach(content => content.classList.remove('active'));
+            document.getElementById('merge-tab-' + tabName).classList.add('active');
+        }
+
+        function toggleSelectAll(el, type) {
+            const checkboxes = document.querySelectorAll('.' + type + '-checkbox');
+            checkboxes.forEach(cb => cb.checked = el.checked);
+            updateMergeButtonState();
+        }
+
+        function updateMergeButtonState() {
+            const checkedCount = document.querySelectorAll('.merge-checkbox:checked').length;
+            const btn = document.getElementById('btn-merge-master');
+            const countSpan = document.getElementById('merge-selected-count');
+            
+            countSpan.textContent = '已选择 ' + checkedCount + ' 条记录';
+            btn.disabled = checkedCount < 2;
+        }
+
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('merge-checkbox')) {
+                updateMergeButtonState();
+            }
+        });
+
+        function searchMergeList() {
+            alert('查询条件：\n主索引ID：' + document.getElementById('merge-master-id').value + '\n姓名：' + document.getElementById('merge-name').value + '\n身份证号：' + document.getElementById('merge-idcard').value + '\n合并状态：' + document.getElementById('merge-status').value);
+        }
+
+        function resetMergeSearch() {
+            document.getElementById('merge-master-id').value = '';
+            document.getElementById('merge-name').value = '';
+            document.getElementById('merge-idcard').value = '';
+            document.getElementById('merge-status').value = '';
+        }
+
+        function openMergeModal() {
+            const checkedBoxes = document.querySelectorAll('.merge-checkbox:checked');
+            const count = checkedBoxes.length;
+            document.getElementById('selected-count').textContent = count;
+            
+            const indexesDiv = document.getElementById('selected-indexes');
+            let html = '';
+            checkedBoxes.forEach(cb => {
+                const id = cb.getAttribute('data-id');
+                html += '<div style="padding: 8px; border-bottom: 1px solid #f0f0f0;"><div><strong>' + id + '</strong> - 张三 - 61010119850515****</div></div>';
+            });
+            indexesDiv.innerHTML = html;
+            
+            document.getElementById('mergeModal').classList.add('show');
+        }
+
+        function confirmMerge() {
+            if (confirm('合并操作不可逆，是否继续？')) {
+                alert('合并成功');
+                closeModal('mergeModal');
+            }
+        }
+
+        function searchMergedRecord() {
+            alert('查询合并记录：' + document.getElementById('merged-master-id').value);
+        }
+
+        function resetMergedSearch() {
+            document.getElementById('merged-master-id').value = '';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+    </script>
+</body>
+</html>
