@@ -18,65 +18,9 @@
             overflow: hidden;
         }
 
-        .header {
-            height: 64px;
-            background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-        }
-
-        .header-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #fff;
-            letter-spacing: 1px;
-        }
-
-        .header-right {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            color: #fff;
-        }
-
-        .header-user {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            padding: 8px 12px;
-            border-radius: 4px;
-            transition: background 0.3s;
-        }
-
-        .header-user:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #1890ff;
-            font-weight: bold;
-        }
-
         .content {
             padding: 24px;
-            margin-top: 64px;
-            height: calc(100vh - 64px);
+            height: 100vh;
             overflow: auto;
             background: #f0f2f5;
         }
@@ -132,8 +76,7 @@
         }
 
         .form-input,
-        .form-select,
-        .form-date {
+        .form-select {
             padding: 8px 12px;
             border: 1px solid #d9d9d9;
             border-radius: 4px;
@@ -144,8 +87,7 @@
         }
 
         .form-input:focus,
-        .form-select:focus,
-        .form-date:focus {
+        .form-select:focus {
             outline: none;
             border-color: #1890ff;
             box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1);
@@ -189,6 +131,20 @@
             font-size: 13px;
         }
 
+        .btn-info {
+            background: #13c2c2;
+            color: #fff;
+        }
+
+        .btn-danger {
+            background: #ff4d4f;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #ff7875;
+        }
+
         .table-container {
             overflow-x: auto;
         }
@@ -229,13 +185,7 @@
             font-weight: 500;
         }
 
-        .tag-processing {
-            background: #fff7e6;
-            color: #fa8c16;
-            border: 1px solid #ffd591;
-        }
-
-        .tag-completed {
+        .tag-success {
             background: #f6ffed;
             color: #52c41a;
             border: 1px solid #b7eb8f;
@@ -247,16 +197,28 @@
             border: 1px solid #ffa39e;
         }
 
-        .toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
+        .tag-running {
+            background: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
         }
 
-        .toolbar-right {
+        .tag-stagnant {
+            background: #fffbe6;
+            color: #faad14;
+            border: 1px solid #ffe58f;
+        }
+
+        .tag-pending {
+            background: #f5f5f5;
             color: #8c8c8c;
-            font-size: 13px;
+            border: 1px dashed #d9d9d9;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 12px rgba(250, 173, 20, 0.6); }
+            50% { box-shadow: 0 0 20px rgba(250, 173, 20, 0.8); }
+            100% { box-shadow: 0 0 12px rgba(250, 173, 20, 0.6); }
         }
 
         .pagination {
@@ -264,7 +226,7 @@
             justify-content: flex-end;
             align-items: center;
             gap: 8px;
-            margin-top: 24px;
+            margin-top: 16px;
             padding-top: 16px;
             border-top: 1px solid #f0f0f0;
         }
@@ -296,7 +258,6 @@
             opacity: 0.5;
         }
 
-        /* 弹窗样式 */
         .modal {
             display: none;
             position: fixed;
@@ -318,7 +279,7 @@
             background: #fff;
             border-radius: 8px;
             width: 90%;
-            max-width: 800px;
+            max-width: 600px;
             max-height: 90vh;
             overflow: auto;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
@@ -326,14 +287,8 @@
         }
 
         @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .modal-header {
@@ -417,81 +372,11 @@
             resize: vertical;
             min-height: 100px;
         }
-
-        .timeline {
-            position: relative;
-            padding-left: 24px;
-        }
-
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 6px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: #d9d9d9;
-        }
-
-        .timeline-item {
-            position: relative;
-            padding: 16px;
-            margin-bottom: 16px;
-            background: #fafafa;
-            border-radius: 8px;
-            border-left: 4px solid #1890ff;
-        }
-
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -28px;
-            top: 20px;
-            width: 12px;
-            height: 12px;
-            background: #1890ff;
-            border-radius: 50%;
-            border: 3px solid #fff;
-            box-shadow: 0 0 0 2px #e8e8e8;
-        }
-
-        .timeline-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .timeline-time {
-            font-size: 13px;
-            color: #8c8c8c;
-            margin-bottom: 8px;
-        }
-
-        .timeline-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #262626;
-            margin-bottom: 8px;
-        }
-
-        .timeline-desc {
-            font-size: 13px;
-            color: #595959;
-            line-height: 1.6;
-        }
     </style>
 </head>
 <body>
-    <!-- <header class="header">
-        <div class="header-title">全民健康信息平台</div>
-        <div class="header-right">
-            <div class="header-user">
-                <div class="user-avatar">管</div>
-                <span>管理员</span>
-            </div>
-        </div>
-    </header>
-
     <main class="content">
-        <div class="content-header">
+        <!-- <div class="content-header">
             <div class="content-title">业务流转记录</div>
             <div class="content-subtitle">查看业务流程的流转记录和状态变化</div>
         </div> -->
@@ -499,273 +384,740 @@
         <div class="content-body">
             <div class="search-form">
                 <div class="form-item">
-                    <span class="form-label">流程名称</span>
-                    <select class="form-select">
+                    <span class="form-label">流水号</span>
+                    <input type="text" class="form-input" id="recordSerialNo" placeholder="请输入流水号">
+                </div>
+                <div class="form-item">
+                    <span class="form-label">应用归属</span>
+                    <select class="form-select" id="recordApp归属">
                         <option value="">全部</option>
-                        <option value="MED-001">检查检验结果互认流程</option>
-                        <option value="MED-002">电子健康档案调阅流程</option>
-                        <option value="MED-003">预约挂号流程</option>
-                        <option value="PUB-001">疫苗接种登记流程</option>
-                        <option value="PUB-002">死亡证明办理流程</option>
+                        <option value="卫生健康智慧大脑">卫生健康智慧大脑</option>
+                        <option value="公共卫生系统">公共卫生系统</option>
+                        <option value="政务服务平台">政务服务平台</option>
+                        <option value="全民健康信息平台">全民健康信息平台</option>
                     </select>
+                </div>
+                <div class="form-item">
+                    <span class="form-label">应用名称</span>
+                    <input type="text" class="form-input" id="recordAppName" placeholder="请输入应用名称">
+                </div>
+                <div class="form-item">
+                    <span class="form-label">流程名称</span>
+                    <input type="text" class="form-input" id="recordFlowName" placeholder="请输入流程名称">
                 </div>
                 <div class="form-item">
                     <span class="form-label">流程状态</span>
-                    <select class="form-select">
+                    <select class="form-select" id="recordStatus">
                         <option value="">全部</option>
-                        <option value="processing">处理中</option>
-                        <option value="completed">已完成</option>
+                        <option value="success">成功</option>
                         <option value="failed">失败</option>
+                        <option value="running">执行中</option>
+                        <option value="stagnant">停滞中</option>
                     </select>
                 </div>
                 <div class="form-item">
-                    <span class="form-label">开始时间</span>
-                    <input type="date" class="form-date">
+                    <span class="form-label">执行开始时间</span>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="datetime-local" class="form-input" id="recordStartTimeFrom" placeholder="开始">
+                        <span style="color: #999;">-</span>
+                        <input type="datetime-local" class="form-input" id="recordStartTimeTo" placeholder="结束">
+                    </div>
                 </div>
                 <div class="form-item">
-                    <span class="form-label">结束时间</span>
-                    <input type="date" class="form-date">
+                    <span class="form-label">执行结束时间</span>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="datetime-local" class="form-input" id="recordEndTimeFrom" placeholder="开始">
+                        <span style="color: #999;">-</span>
+                        <input type="datetime-local" class="form-input" id="recordEndTimeTo" placeholder="结束">
+                    </div>
                 </div>
                 <div class="form-item">
-                    <button class="btn btn-primary" onclick="searchFlow()">查询</button>
-                    <button class="btn btn-default" onclick="resetSearch()">重置</button>
+                    <button class="btn btn-primary" onclick="searchFlowRecord()">查询</button>
+                    <button class="btn btn-default" onclick="resetFlowRecordSearch()">重置</button>
+                    <button class="btn btn-default" onclick="showRecordSearchSettingsModal()">设置</button>
                 </div>
             </div>
 
-            <div class="toolbar">
-                <div class="toolbar-right">共 25 条记录</div>
+            <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <button class="btn btn-sm btn-primary" onclick="showRecordTableSettingsModal()">表格设置</button>
+                </div>
+                <div style="font-size: 12px; color: #999;">共 50 条记录</div>
             </div>
 
             <div class="table-container">
-                <table class="data-table">
+                <table id="flowRecordTable" class="data-table">
                     <thead>
                         <tr>
                             <th>流程名称</th>
-                            <th>流程实例ID</th>
+                            <th>流水号</th>
+                            <th>应用归属</th>
+                            <th>应用名称</th>
+                            <th>执行状态</th>
+                            <th>执行时长</th>
+                            <th>当前停滞节点</th>
+                            <th>停滞时长</th>
+                            <th>执行错误信息</th>
+                            <th>执行开始时间</th>
+                            <th>执行结束时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="flowRecordBody">
+                        <tr>
+                            <td>检查检验结果互认流程</td>
+                            <td>LSH202401150001</td>
+                            <td>卫生健康智慧大脑</td>
+                            <td>全民健康信息平台</td>
+                            <td><span class="tag tag-success">成功</span></td>
+                            <td>28ms</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>2024-01-15 10:30:25</td>
+                            <td>2024-01-15 10:30:25</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-primary" onclick="showRecordDetail('LSH202401150001')">详情</button>
+                                <button class="btn btn-sm btn-default" onclick="showExecutionRecord('LSH202401150001')">执行记录</button>
+                                <button class="btn btn-sm btn-info" onclick="showRecordTestRecords('LSH202401150001')">测试记录</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>电子健康档案调阅流程</td>
+                            <td>LSH202401150002</td>
+                            <td>公共卫生系统</td>
+                            <td>政务服务平台</td>
+                            <td><span class="tag tag-running">执行中</span></td>
+                            <td>156ms</td>
+                            <td>数据校验节点</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>2024-01-15 10:32:10</td>
+                            <td>-</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-primary" onclick="showRecordDetail('LSH202401150002')">详情</button>
+                                <button class="btn btn-sm btn-default" onclick="showExecutionRecord('LSH202401150002')">执行记录</button>
+                                <button class="btn btn-sm btn-info" onclick="showRecordTestRecords('LSH202401150002')">测试记录</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>疫苗接种登记流程</td>
+                            <td>LSH202401150003</td>
+                            <td>公共卫生系统</td>
+                            <td>全民健康信息平台</td>
+                            <td><span class="tag tag-stagnant">停滞中</span></td>
+                            <td>320ms</td>
+                            <td>审批节点</td>
+                            <td>2小时35分</td>
+                            <td>-</td>
+                            <td>2024-01-15 09:00:00</td>
+                            <td>-</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-primary" onclick="showRecordDetail('LSH202401150003')">详情</button>
+                                <button class="btn btn-sm btn-default" onclick="showExecutionRecord('LSH202401150003')">执行记录</button>
+                                <button class="btn btn-sm btn-info" onclick="showRecordTestRecords('LSH202401150003')">测试记录</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>慢病管理随访流程</td>
+                            <td>LSH202401150004</td>
+                            <td>卫生健康智慧大脑</td>
+                            <td>公共卫生系统</td>
+                            <td><span class="tag tag-failed">失败</span></td>
+                            <td>45ms</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td style="color: #ff4d4f;">接口超时：慢病管理接口超30秒未返回结果</td>
+                            <td>2024-01-15 10:28:00</td>
+                            <td>2024-01-15 10:28:00</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-primary" onclick="showRecordDetail('LSH202401150004')">详情</button>
+                                <button class="btn btn-sm btn-default" onclick="showExecutionRecord('LSH202401150004')">执行记录</button>
+                                <button class="btn btn-sm btn-info" onclick="showRecordTestRecords('LSH202401150004')">测试记录</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>健康教育推送流程</td>
+                            <td>LSH202401150005</td>
+                            <td>政务服务平台</td>
+                            <td>全民健康信息平台</td>
+                            <td><span class="tag tag-success">成功</span></td>
+                            <td>18ms</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>2024-01-15 10:15:30</td>
+                            <td>2024-01-15 10:15:30</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-primary" onclick="showRecordDetail('LSH202401150005')">详情</button>
+                                <button class="btn btn-sm btn-default" onclick="showExecutionRecord('LSH202401150005')">执行记录</button>
+                                <button class="btn btn-sm btn-info" onclick="showRecordTestRecords('LSH202401150005')">测试记录</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>预约挂号流程</td>
+                            <td>LSH202401150006</td>
+                            <td>卫生健康智慧大脑</td>
+                            <td>政务服务平台</td>
+                            <td><span class="tag tag-failed">失败</span></td>
+                            <td>12ms</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td style="color: #ff4d4f;">数据校验失败：患者身份证号格式不正确</td>
+                            <td>2024-01-15 10:10:00</td>
+                            <td>2024-01-15 10:10:00</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-primary" onclick="showRecordDetail('LSH202401150006')">详情</button>
+                                <button class="btn btn-sm btn-default" onclick="showExecutionRecord('LSH202401150006')">执行记录</button>
+                                <button class="btn btn-sm btn-info" onclick="showRecordTestRecords('LSH202401150006')">测试记录</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="pagination">
+                    <button class="page-btn" disabled>上一页</button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">3</button>
+                    <button class="page-btn">4</button>
+                    <button class="page-btn">5</button>
+                    <button class="page-btn">下一页</button>
+                    <span style="margin-left: 16px; font-size: 12px; color: #999;">共 60 条，每页 10 条</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="recordSearchSettingsModal" class="modal">
+        <div class="modal-content" style="width: 450px;">
+            <div class="modal-header">
+                <span class="modal-title">查询条件设置</span>
+                <button class="modal-close" onclick="closeModal('recordSearchSettingsModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                    <label><input type="checkbox" checked>流水号</label>
+                    <label><input type="checkbox" checked>应用归属</label>
+                    <label><input type="checkbox" checked>应用名称</label>
+                    <label><input type="checkbox" checked>流程名称</label>
+                    <label><input type="checkbox" checked>流程状态</label>
+                    <label><input type="checkbox" checked>执行开始时间</label>
+                    <label><input type="checkbox" checked>执行结束时间</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('recordSearchSettingsModal')">关闭</button>
+                <button class="btn btn-primary" onclick="saveRecordSearchSettings()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="recordTableSettingsModal" class="modal">
+        <div class="modal-content" style="width: 700px;">
+            <div class="modal-header">
+                <span class="modal-title">表格设置</span>
+                <button class="modal-close" onclick="closeModal('recordTableSettingsModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 12px; color: #1890ff; font-size: 14px;">列显隐</h4>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                        <label><input type="checkbox" checked>流程名称</label>
+                        <label><input type="checkbox" checked>流水号</label>
+                        <label><input type="checkbox" checked>应用归属</label>
+                        <label><input type="checkbox" checked>应用名称</label>
+                        <label><input type="checkbox" checked>执行状态</label>
+                        <label><input type="checkbox" checked>执行时长</label>
+                        <label><input type="checkbox" checked>当前停滞节点</label>
+                        <label><input type="checkbox" checked>停滞时长</label>
+                        <label><input type="checkbox" checked>执行错误信息</label>
+                        <label><input type="checkbox" checked>执行开始时间</label>
+                        <label><input type="checkbox" checked>执行结束时间</label>
+                    </div>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 12px; color: #1890ff; font-size: 14px;">列冻结</h4>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                        <label><input type="checkbox">流程名称</label>
+                        <label><input type="checkbox">流水号</label>
+                        <label><input type="checkbox">应用归属</label>
+                        <label><input type="checkbox">应用名称</label>
+                        <label><input type="checkbox">执行状态</label>
+                        <label><input type="checkbox">执行时长</label>
+                        <label><input type="checkbox">当前停滞节点</label>
+                        <label><input type="checkbox">停滞时长</label>
+                        <label><input type="checkbox">执行错误信息</label>
+                        <label><input type="checkbox">执行开始时间</label>
+                        <label><input type="checkbox">执行结束时间</label>
+                    </div>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 12px; color: #1890ff; font-size: 14px;">状态过滤</h4>
+                    <div style="display: flex; gap: 16px;">
+                        <label><input type="checkbox" checked><span class="tag tag-success" style="display: inline-block; margin-right: 4px;">成功</span></label>
+                        <label><input type="checkbox" checked><span class="tag tag-failed" style="display: inline-block; margin-right: 4px;">失败</span></label>
+                        <label><input type="checkbox" checked><span class="tag tag-running" style="display: inline-block; margin-right: 4px;">执行中</span></label>
+                        <label><input type="checkbox" checked><span class="tag tag-stagnant" style="display: inline-block; margin-right: 4px;">停滞中</span></label>
+                    </div>
+                </div>
+                <div>
+                    <h4 style="margin-bottom: 12px; color: #1890ff; font-size: 14px;">默认排序</h4>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <select class="form-select" style="width: auto;">
+                            <option value="time">执行开始时间</option>
+                            <option value="name">流程名称</option>
+                            <option value="status">执行状态</option>
+                        </select>
+                        <select class="form-select" style="width: auto;">
+                            <option value="desc">降序</option>
+                            <option value="asc">升序</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('recordTableSettingsModal')">关闭</button>
+                <button class="btn btn-primary" onclick="closeModal('recordTableSettingsModal')">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="recordDetailModal" class="modal">
+        <div class="modal-content" style="width: 800px;">
+            <div class="modal-header">
+                <span class="modal-title">流转记录详情</span>
+                <button class="modal-close" onclick="closeModal('recordDetailModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 12px; color: #1890ff;">基本信息</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label>流程名称</label>
+                            <input type="text" readonly class="form-input" value="检查检验结果互认流程">
+                        </div>
+                        <div class="form-group">
+                            <label>流水号</label>
+                            <input type="text" readonly class="form-input" value="LSH202401150001">
+                        </div>
+                        <div class="form-group">
+                            <label>应用归属</label>
+                            <input type="text" readonly class="form-input" value="卫生健康智慧大脑">
+                        </div>
+                        <div class="form-group">
+                            <label>应用名称</label>
+                            <input type="text" readonly class="form-input" value="全民健康信息平台">
+                        </div>
+                        <div class="form-group">
+                            <label>执行状态</label>
+                            <input type="text" readonly class="form-input" value="成功">
+                        </div>
+                        <div class="form-group">
+                            <label>执行时长</label>
+                            <input type="text" readonly class="form-input" value="28ms">
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 12px; color: #1890ff;">时间信息</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label>执行开始时间</label>
+                            <input type="text" readonly class="form-input" value="2024-01-15 10:30:25">
+                        </div>
+                        <div class="form-group">
+                            <label>执行结束时间</label>
+                            <input type="text" readonly class="form-input" value="2024-01-15 10:30:25">
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h4 style="margin-bottom: 12px; color: #1890ff;">流程图</h4>
+                    <div style="padding: 16px; background: #f5f5f5; border-radius: 4px; min-height: 150px;">
+                        <div style="text-align: center;">
+                            <div style="display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap;">
+                                <span class="tag tag-success" style="padding: 8px 16px;">开始</span>
+                                <span>→</span>
+                                <span class="tag tag-success" style="padding: 8px 16px;">数据校验</span>
+                                <span>→</span>
+                                <span class="tag tag-success" style="padding: 8px 16px;">接口调用</span>
+                                <span>→</span>
+                                <span class="tag tag-success" style="padding: 8px 16px;">结果处理</span>
+                                <span>→</span>
+                                <span class="tag tag-success" style="padding: 8px 16px;">结束</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('recordDetailModal')">返回</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="executionRecordModal" class="modal">
+        <div class="modal-content" style="width: 95%; max-width: 1000px;">
+            <div class="modal-header">
+                <span class="modal-title">执行记录</span>
+                <button class="modal-close" onclick="closeModal('executionRecordModal')">×</button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 12px;">
+                    <button class="btn btn-sm btn-default" onclick="refreshExecutionRecord()">刷新</button>
+                </div>
+                <table class="data-table" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>步骤</th>
+                            <th>节点名称</th>
                             <th>状态</th>
-                            <th>创建时间</th>
-                            <th>开始时间</th>
-                            <th>结束时间</th>
-                            <th>耗时</th>
+                            <th>执行时间</th>
+                            <th>操作人员</th>
                             <th>操作</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>检查检验结果互认流程</td>
-                            <td>FLW-20240115-001</td>
-                            <td><span class="tag tag-completed">已完成</span></td>
-                            <td>2024-01-15 08:30:00</td>
-                            <td>2024-01-15 08:30:15</td>
-                            <td>2024-01-15 08:45:32</td>
-                            <td>15分17秒</td>
+                            <td>1</td>
+                            <td>开始</td>
+                            <td><span class="tag tag-success">成功</span></td>
+                            <td>2024-01-15 10:30:25</td>
+                            <td>系统</td>
                             <td class="actions">
-                                <button class="btn btn-sm btn-primary" onclick="viewFlowRecord('FLW-20240115-001')">查看详情</button>
+                                <button class="btn btn-sm btn-primary" onclick="showExecutionRecordDetail(1)">详情</button>
                             </td>
                         </tr>
                         <tr>
-                            <td>电子健康档案调阅流程</td>
-                            <td>FLW-20240115-002</td>
-                            <td><span class="tag tag-processing">处理中</span></td>
-                            <td>2024-01-15 09:15:00</td>
-                            <td>2024-01-15 09:15:08</td>
-                            <td>-</td>
-                            <td>3小时20分</td>
+                            <td>2</td>
+                            <td>数据校验</td>
+                            <td><span class="tag tag-success">成功</span></td>
+                            <td>2024-01-15 10:30:25</td>
+                            <td>系统</td>
                             <td class="actions">
-                                <button class="btn btn-sm btn-primary" onclick="viewFlowRecord('FLW-20240115-002')">查看详情</button>
+                                <button class="btn btn-sm btn-primary" onclick="showExecutionRecordDetail(2)">详情</button>
                             </td>
                         </tr>
                         <tr>
-                            <td>预约挂号流程</td>
-                            <td>FLW-20240115-003</td>
-                            <td><span class="tag tag-completed">已完成</span></td>
-                            <td>2024-01-15 10:00:00</td>
-                            <td>2024-01-15 10:00:05</td>
-                            <td>2024-01-15 10:05:12</td>
-                            <td>5分07秒</td>
+                            <td>3</td>
+                            <td>接口调用</td>
+                            <td><span class="tag tag-success">成功</span></td>
+                            <td>2024-01-15 10:30:25</td>
+                            <td>系统</td>
                             <td class="actions">
-                                <button class="btn btn-sm btn-primary" onclick="viewFlowRecord('FLW-20240115-003')">查看详情</button>
+                                <button class="btn btn-sm btn-primary" onclick="showExecutionRecordDetail(3)">详情</button>
                             </td>
                         </tr>
                         <tr>
-                            <td>疫苗接种登记流程</td>
-                            <td>FLW-20240115-004</td>
-                            <td><span class="tag tag-completed">已完成</span></td>
-                            <td>2024-01-15 11:30:00</td>
-                            <td>2024-01-15 11:30:10</td>
-                            <td>2024-01-15 11:38:45</td>
-                            <td>8分35秒</td>
+                            <td>4</td>
+                            <td>结果处理</td>
+                            <td><span class="tag tag-success">成功</span></td>
+                            <td>2024-01-15 10:30:25</td>
+                            <td>系统</td>
                             <td class="actions">
-                                <button class="btn btn-sm btn-primary" onclick="viewFlowRecord('FLW-20240115-004')">查看详情</button>
+                                <button class="btn btn-sm btn-primary" onclick="showExecutionRecordDetail(4)">详情</button>
                             </td>
                         </tr>
                         <tr>
-                            <td>检查检验结果互认流程</td>
-                            <td>FLW-20240115-005</td>
-                            <td><span class="tag tag-failed">失败</span></td>
-                            <td>2024-01-15 14:00:00</td>
-                            <td>2024-01-15 14:00:08</td>
-                            <td>2024-01-15 14:02:33</td>
-                            <td>2分25秒</td>
+                            <td>5</td>
+                            <td>结束</td>
+                            <td><span class="tag tag-success">成功</span></td>
+                            <td>2024-01-15 10:30:25</td>
+                            <td>系统</td>
                             <td class="actions">
-                                <button class="btn btn-sm btn-primary" onclick="viewFlowRecord('FLW-20240115-005')">查看详情</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>死亡证明办理流程</td>
-                            <td>FLW-20240115-006</td>
-                            <td><span class="tag tag-processing">处理中</span></td>
-                            <td>2024-01-15 15:30:00</td>
-                            <td>2024-01-15 15:30:12</td>
-                            <td>-</td>
-                            <td>1小时50分</td>
-                            <td class="actions">
-                                <button class="btn btn-sm btn-primary" onclick="viewFlowRecord('FLW-20240115-006')">查看详情</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>检查检验结果互认流程</td>
-                            <td>FLW-20240114-001</td>
-                            <td><span class="tag tag-completed">已完成</span></td>
-                            <td>2024-01-14 09:00:00</td>
-                            <td>2024-01-14 09:00:05</td>
-                            <td>2024-01-14 09:20:30</td>
-                            <td>20分25秒</td>
-                            <td class="actions">
-                                <button class="btn btn-sm btn-primary" onclick="viewFlowRecord('FLW-20240114-001')">查看详情</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>电子健康档案调阅流程</td>
-                            <td>FLW-20240114-002</td>
-                            <td><span class="tag tag-completed">已完成</span></td>
-                            <td>2024-01-14 10:30:00</td>
-                            <td>2024-01-14 10:30:10</td>
-                            <td>2024-01-14 10:45:22</td>
-                            <td>15分12秒</td>
-                            <td class="actions">
-                                <button class="btn btn-sm btn-primary" onclick="viewFlowRecord('FLW-20240114-002')">查看详情</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>预约挂号流程</td>
-                            <td>FLW-20240114-003</td>
-                            <td><span class="tag tag-completed">已完成</span></td>
-                            <td>2024-01-14 14:00:00</td>
-                            <td>2024-01-14 14:00:08</td>
-                            <td>2024-01-14 14:08:45</td>
-                            <td>8分37秒</td>
-                            <td class="actions">
-                                <button class="btn btn-sm btn-primary" onclick="viewFlowRecord('FLW-20240114-003')">查看详情</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>疫苗接种登记流程</td>
-                            <td>FLW-20240114-004</td>
-                            <td><span class="tag tag-failed">失败</span></td>
-                            <td>2024-01-14 16:30:00</td>
-                            <td>2024-01-14 16:30:05</td>
-                            <td>2024-01-14 16:35:18</td>
-                            <td>5分13秒</td>
-                            <td class="actions">
-                                <button class="btn btn-sm btn-primary" onclick="viewFlowRecord('FLW-20240114-004')">查看详情</button>
+                                <button class="btn btn-sm btn-primary" onclick="showExecutionRecordDetail(5)">详情</button>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-
-            <div class="pagination">
-                <button class="page-btn" disabled>上一页</button>
-                <button class="page-btn active">1</button>
-                <button class="page-btn">2</button>
-                <button class="page-btn">3</button>
-                <button class="page-btn">下一页</button>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('executionRecordModal')">关闭</button>
             </div>
         </div>
-    <!-- </main> -->
+    </div>
 
-    <!-- 查看流转记录弹窗 -->
-    <div id="viewRecordModal" class="modal">
-        <div class="modal-content">
+    <div id="executionRecordDetailModal" class="modal">
+        <div class="modal-content" style="width: 600px;">
             <div class="modal-header">
-                <span class="modal-title">流程流转详情</span>
-                <button class="modal-close" onclick="closeModal('viewRecordModal')">×</button>
+                <span class="modal-title">执行记录详情</span>
+                <button class="modal-close" onclick="closeModal('executionRecordDetailModal')">×</button>
             </div>
             <div class="modal-body">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                     <div class="form-group">
-                        <label>流程名称</label>
-                        <input type="text" value="检查检验结果互认流程" readonly>
+                        <label>步骤</label>
+                        <input type="text" readonly class="form-input" value="2">
                     </div>
                     <div class="form-group">
-                        <label>流程实例ID</label>
-                        <input type="text" value="FLW-20240115-001" readonly>
+                        <label>节点名称</label>
+                        <input type="text" readonly class="form-input" value="数据校验">
                     </div>
                     <div class="form-group">
                         <label>状态</label>
-                        <input type="text" value="已完成" readonly>
+                        <input type="text" readonly class="form-input" value="成功">
                     </div>
                     <div class="form-group">
-                        <label>总耗时</label>
-                        <input type="text" value="15分17秒" readonly>
+                        <label>执行时间</label>
+                        <input type="text" readonly class="form-input" value="2024-01-15 10:30:25">
+                    </div>
+                    <div class="form-group">
+                        <label>操作人员</label>
+                        <input type="text" readonly class="form-input" value="系统">
+                    </div>
+                    <div class="form-group">
+                        <label>耗时</label>
+                        <input type="text" readonly class="form-input" value="5ms">
                     </div>
                 </div>
-
-                <h3 style="margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #e8e8e8; color: #1890ff;">流转时间线</h3>
-                
-                <div class="timeline">
-                    <div class="timeline-item">
-                        <div class="timeline-time">2024-01-15 08:30:00</div>
-                        <div class="timeline-title">流程创建</div>
-                        <div class="timeline-desc">流程实例创建成功，等待启动执行</div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-time">2024-01-15 08:30:15</div>
-                        <div class="timeline-title">流程启动</div>
-                        <div class="timeline-desc">流程开始执行，进入第一个节点：申请提交</div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-time">2024-01-15 08:32:45</div>
-                        <div class="timeline-title">待办任务处理</div>
-                        <div class="timeline-desc">申请提交完成，等待资质审核</div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-time">2024-01-15 08:38:20</div>
-                        <div class="timeline-title">判断节点执行</div>
-                        <div class="timeline-desc">资质审核通过，进入业务服务节点</div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-time">2024-01-15 08:42:10</div>
-                        <div class="timeline-title">业务服务调用</div>
-                        <div class="timeline-desc">调用结果互认服务，检验报告比对成功</div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-time">2024-01-15 08:45:32</div>
-                        <div class="timeline-title">流程结束</div>
-                        <div class="timeline-desc">流程执行完成，结果已返回</div>
-                    </div>
+                <div class="form-group" style="margin-top: 16px;">
+                    <label>执行详情</label>
+                    <textarea readonly style="min-height: 80px; width: 100%; padding: 8px; border: 1px solid #d9d9d9; border-radius: 4px; resize: none;">校验通过：数据格式正确，字段完整，符合业务规则要求。</textarea>
+                </div>
+                <div class="form-group" style="margin-top: 16px;">
+                    <label>输入参数</label>
+                    <textarea readonly style="min-height: 60px; width: 100%; padding: 8px; border: 1px solid #d9d9d9; border-radius: 4px; resize: none; font-family: monospace; font-size: 12px;">{"patientId": "P202401150001", "checkItem": "血常规", "hospitalCode": "H001"}</textarea>
+                </div>
+                <div class="form-group" style="margin-top: 16px;">
+                    <label>输出结果</label>
+                    <textarea readonly style="min-height: 60px; width: 100%; padding: 8px; border: 1px solid #d9d9d9; border-radius: 4px; resize: none; font-family: monospace; font-size: 12px;">{"valid": true, "message": "校验通过"}</textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-default" onclick="closeModal('viewRecordModal')">关闭</button>
+                <button class="btn btn-default" onclick="closeModal('executionRecordDetailModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="recordTestRecordsModal" class="modal">
+        <div class="modal-content" style="width: 95%; max-width: 1100px; max-height: 85vh;">
+            <div class="modal-header">
+                <span class="modal-title">测试记录</span>
+                <button class="modal-close" onclick="closeModal('recordTestRecordsModal')">×</button>
+            </div>
+            <div class="modal-body" style="max-height: calc(85vh - 120px); overflow-y: auto;">
+                <div class="search-form" style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #e8e8e8;">
+                    <div class="form-item">
+                        <span class="form-label">执行状态</span>
+                        <select class="form-select" id="recordTestStatus">
+                            <option value="">全部</option>
+                            <option value="success">成功</option>
+                            <option value="failed">失败</option>
+                        </select>
+                    </div>
+                    <div class="form-item">
+                        <button class="btn btn-primary" onclick="searchRecordTestRecords()">查询</button>
+                        <button class="btn btn-default" onclick="resetRecordTestRecordsSearch()">重置</button>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <button class="btn btn-sm btn-primary" onclick="showRecordTestTableSettingsModal()">表格设置</button>
+                    <button class="btn btn-sm btn-default" onclick="refreshRecordTestRecords()">刷新</button>
+                </div>
+                <table class="data-table" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>流程名称</th>
+                            <th>流水号</th>
+                            <th>执行状态</th>
+                            <th>执行时间</th>
+                            <th>耗时</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recordTestRecordsBody">
+                        <tr>
+                            <td>检查检验结果互认流程</td>
+                            <td>LSH202401150001</td>
+                            <td><span class="tag tag-success">成功</span></td>
+                            <td>2024-01-15 10:35:20</td>
+                            <td>156ms</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-default" onclick="showRecordTestRecordDetail(1)">详情</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteRecordTestRecord(1)">删除</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>电子健康档案调阅流程</td>
+                            <td>LSH202401150002</td>
+                            <td><span class="tag tag-success">成功</span></td>
+                            <td>2024-01-15 10:38:15</td>
+                            <td>128ms</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-default" onclick="showRecordTestRecordDetail(2)">详情</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteRecordTestRecord(2)">删除</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>疫苗接种登记流程</td>
+                            <td>LSH202401150003</td>
+                            <td><span class="tag tag-success">成功</span></td>
+                            <td>2024-01-15 10:40:30</td>
+                            <td>98ms</td>
+                            <td class="actions">
+                                <button class="btn btn-sm btn-default" onclick="showRecordTestRecordDetail(3)">详情</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteRecordTestRecord(3)">删除</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('recordTestRecordsModal')">返回</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="recordTestRecordDetailModal" class="modal">
+        <div class="modal-content" style="width: 600px;">
+            <div class="modal-header">
+                <span class="modal-title">测试记录详情</span>
+                <button class="modal-close" onclick="closeModal('recordTestRecordDetailModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label>流程名称</label>
+                        <input type="text" readonly class="form-input" value="检查检验结果互认流程">
+                    </div>
+                    <div class="form-group">
+                        <label>流水号</label>
+                        <input type="text" readonly class="form-input" value="LSH202401150001">
+                    </div>
+                    <div class="form-group">
+                        <label>执行状态</label>
+                        <input type="text" readonly class="form-input" value="成功">
+                    </div>
+                    <div class="form-group">
+                        <label>执行时间</label>
+                        <input type="text" readonly class="form-input" value="2024-01-15 10:35:20">
+                    </div>
+                    <div class="form-group">
+                        <label>耗时</label>
+                        <input type="text" readonly class="form-input" value="156ms">
+                    </div>
+                    <div class="form-group">
+                        <label>测试人员</label>
+                        <input type="text" readonly class="form-input" value="系统测试员">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 16px;">
+                    <label>测试结果</label>
+                    <textarea readonly style="min-height: 80px; width: 100%; padding: 8px; border: 1px solid #d9d9d9; border-radius: 4px; resize: none;">测试通过：流程执行正常，数据处理正确，接口调用成功。</textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('recordTestRecordDetailModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="recordTestTableSettingsModal" class="modal">
+        <div class="modal-content" style="width: 450px;">
+            <div class="modal-header">
+                <span class="modal-title">表格设置</span>
+                <button class="modal-close" onclick="closeModal('recordTestTableSettingsModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                    <label><input type="checkbox" checked>流程名称</label>
+                    <label><input type="checkbox" checked>流水号</label>
+                    <label><input type="checkbox" checked>执行状态</label>
+                    <label><input type="checkbox" checked>执行时间</label>
+                    <label><input type="checkbox" checked>耗时</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('recordTestTableSettingsModal')">关闭</button>
+                <button class="btn btn-primary" onclick="closeModal('recordTestTableSettingsModal')">确定</button>
             </div>
         </div>
     </div>
 
     <script>
-        function searchFlow() {
-            alert('查询功能演示');
+        function searchFlowRecord() {
+            alert('查询业务流转记录');
         }
 
-        function resetSearch() {
-            document.querySelectorAll('.search-form input, .search-form select').forEach(el => {
-                el.value = '';
-            });
+        function resetFlowRecordSearch() {
+            document.getElementById('recordSerialNo').value = '';
+            document.getElementById('recordApp归属').value = '';
+            document.getElementById('recordAppName').value = '';
+            document.getElementById('recordFlowName').value = '';
+            document.getElementById('recordStatus').value = '';
+            document.getElementById('recordStartTimeFrom').value = '';
+            document.getElementById('recordStartTimeTo').value = '';
+            document.getElementById('recordEndTimeFrom').value = '';
+            document.getElementById('recordEndTimeTo').value = '';
         }
 
-        function viewFlowRecord(id) {
-            document.getElementById('viewRecordModal').classList.add('show');
+        function showRecordSearchSettingsModal() {
+            document.getElementById('recordSearchSettingsModal').classList.add('show');
+        }
+
+        function saveRecordSearchSettings() {
+            closeModal('recordSearchSettingsModal');
+        }
+
+        function showRecordTableSettingsModal() {
+            document.getElementById('recordTableSettingsModal').classList.add('show');
+        }
+
+        function showRecordDetail(serialNo) {
+            document.getElementById('recordDetailModal').classList.add('show');
+        }
+
+        function showExecutionRecord(serialNo) {
+            document.getElementById('executionRecordModal').classList.add('show');
+        }
+
+        function refreshExecutionRecord() {
+            alert('刷新执行记录');
+        }
+
+        function showExecutionRecordDetail(step) {
+            document.getElementById('executionRecordDetailModal').classList.add('show');
+        }
+
+        function showRecordTestRecords(serialNo) {
+            var flowNames = {
+                'LSH202401150001': '检查检验结果互认流程',
+                'LSH202401150002': '电子健康档案调阅流程',
+                'LSH202401150003': '疫苗接种登记流程',
+                'LSH202401150004': '慢病管理随访流程',
+                'LSH202401150005': '健康教育推送流程',
+                'LSH202401150006': '预约挂号流程'
+            };
+            var flowName = flowNames[serialNo] || serialNo;
+            document.querySelector('#recordTestRecordsModal .modal-title').textContent = '测试记录 - ' + flowName;
+            document.getElementById('recordTestRecordsModal').classList.add('show');
+        }
+
+        function searchRecordTestRecords() {
+            alert('查询测试记录');
+        }
+
+        function resetRecordTestRecordsSearch() {
+            document.getElementById('recordTestStatus').value = '';
+        }
+
+        function showRecordTestTableSettingsModal() {
+            document.getElementById('recordTestTableSettingsModal').classList.add('show');
+        }
+
+        function refreshRecordTestRecords() {
+            alert('刷新测试记录');
+        }
+
+        function showRecordTestRecordDetail(id) {
+            document.getElementById('recordTestRecordDetailModal').classList.add('show');
+        }
+
+        function deleteRecordTestRecord(id) {
+            if (confirm('确定要删除这条测试记录吗？')) {
+                alert('测试记录已删除');
+            }
         }
 
         function closeModal(modalId) {
