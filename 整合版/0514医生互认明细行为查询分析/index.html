@@ -1,0 +1,2379 @@
+NEW_FILE_CODE
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>检查检验互认系统 - 全民健康信息平台</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #f0f2f5;
+            overflow-x: hidden;
+        }
+
+        /* 顶部导航 */
+        .header {
+            height: 64px;
+            background: url('./header-bg.png') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+        }
+
+        .header-logo i {
+            font-size: 24px;
+        }
+
+        .header-logo h1 {
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .header-user:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1e5bb8;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* 左侧菜单 */
+        .sidebar {
+            width: 220px;
+            background: #fff;
+            overflow-y: auto;
+            overflow-x: hidden;
+            transition: width 0.3s;
+            border-right: 1px solid #e8e8e8;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #d9d9d9;
+            border-radius: 3px;
+        }
+
+        .menu-group {
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .menu-group-title {
+            padding: 12px 24px;
+            font-size: 14px;
+            color: #595959;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .menu-group-title:hover {
+            background-color: #f5f7fa;
+        }
+
+        .menu-group-title .icon {
+            font-size: 12px;
+            transition: transform 0.3s;
+        }
+
+        .menu-group-title.active .icon {
+            transform: rotate(180deg);
+        }
+
+        .menu-items {
+            display: none;
+        }
+
+        .menu-items.show {
+            display: block;
+        }
+
+        .menu-item {
+            padding: 10px 24px 10px 48px;
+            font-size: 14px;
+            color: #595959;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            white-space: normal;
+            word-break: break-all;
+        }
+
+        .menu-item:hover {
+            background-color: #f5f7fa;
+            color: #1890ff;
+        }
+
+        .menu-item.active {
+            background-color: #e6f7ff;
+            color: #1890ff;
+            border-left-color: #1890ff;
+            font-weight: 500;
+        }
+
+        .menu-group-title {
+            padding: 8px 16px;
+            font-size: 12px;
+            color: #8c8c8c;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            background: #fafafa;
+        }
+
+        .sidebar-menu .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+            font-weight: 500;
+            position: relative;
+            white-space: normal;
+            word-break: break-all;
+            overflow: visible;
+            text-overflow: clip;
+        }
+
+        .sidebar-menu .menu-item:hover {
+            color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .sidebar-menu .menu-item.active {
+            color: #1890ff;
+            background: #e6f7ff;
+            border-left: 3px solid #1890ff;
+        }
+
+        .sidebar-menu .menu-item .icon {
+            width: 14px;
+            height: 14px;
+            margin-right: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #666;
+            flex-shrink: 0;
+        }
+
+        .sidebar-menu .menu-item:hover .icon,
+        .sidebar-menu .menu-item.active .icon {
+            color: #1890ff;
+        }
+
+        .sidebar-menu .menu-item .arrow {
+            margin-left: auto;
+            font-size: 10px;
+            color: #999;
+            transition: transform 0.3s;
+            flex-shrink: 0;
+        }
+
+        .sidebar-menu .menu-item.expanded .arrow {
+            transform: rotate(90deg);
+        }
+
+        .sidebar-menu .submenu {
+            display: none;
+            background: #fafafa;
+        }
+
+        .sidebar-menu .submenu.show {
+            display: block;
+        }
+
+        .sidebar-menu .submenu-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px 8px 48px;
+            color: #595959;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px;
+            white-space: normal;
+            word-break: break-all;
+            overflow: visible;
+            text-overflow: clip;
+        }
+
+        .sidebar-menu .submenu-item:hover {
+            color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .sidebar-menu .submenu-item.active {
+            color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .sidebar-menu .submenu-item .arrow {
+            margin-left: auto;
+            font-size: 9px;
+            color: #bbb;
+            transition: transform 0.3s;
+        }
+
+        .sidebar-menu .submenu-item.expanded .arrow {
+            transform: rotate(90deg);
+        }
+
+        .sidebar-menu .third-menu {
+            display: none;
+            background: #fff;
+        }
+
+        .sidebar-menu .third-menu.show {
+            display: block;
+        }
+
+        .sidebar-menu .third-menu-item {
+            display: flex;
+            align-items: center;
+            padding: 6px 16px 6px 64px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px;
+            white-space: normal;
+            word-break: break-all;
+            overflow: visible;
+            text-overflow: clip;
+        }
+
+        .sidebar-menu .third-menu-item:hover {
+            color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .sidebar-menu .third-menu-item.active {
+            color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        /* 主体布局 */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 64px);
+            margin-top: 64px;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            overflow: auto;
+            padding: 24px;
+            background: #f0f2f5;
+        }
+
+        /* Tab 切换 */
+        .tab-container {
+            background: #fff;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .tab-header {
+            display: flex;
+            border-bottom: 2px solid #f0f0f0;
+            background: #fafafa;
+        }
+
+        .tab-btn {
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #595959;
+            border: none;
+            background: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: #1890ff;
+        }
+
+        .tab-btn.active {
+            color: #1890ff;
+            border-bottom-color: #1890ff;
+            background: #fff;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 24px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title i {
+            color: #1890ff;
+        }
+
+        /* 医生信息栏 */
+        .doctor-info-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #e6f7ff 0%, #f0f5ff 100%);
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .doctor-info-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .doctor-avatar-large {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #1890ff, #096dd9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .doctor-details h3 {
+            font-size: 18px;
+            color: #262626;
+            margin-bottom: 4px;
+        }
+
+        .doctor-details p {
+            font-size: 14px;
+            color: #595959;
+        }
+
+        .date-picker {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .date-picker input[type="date"] {
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        /* 患者卡片 */
+        .patient-card {
+            display: flex;
+            gap: 20px;
+            padding: 16px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #1890ff;
+        }
+
+        .patient-avatar {
+            width: 56px;
+            height: 56px;
+            background: #52c41a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .patient-info {
+            flex: 1;
+        }
+
+        .patient-info h4 {
+            font-size: 16px;
+            color: #262626;
+            margin-bottom: 8px;
+        }
+
+        .patient-info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .patient-info-item {
+            font-size: 14px;
+            color: #595959;
+        }
+
+        .patient-info-item span {
+            color: #8c8c8c;
+        }
+
+        /* 互认项目列表 */
+        .mutual-recognition-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .mr-item {
+            background: #fafafa;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            padding: 16px;
+            transition: all 0.3s;
+        }
+
+        .mr-item:hover {
+            border-color: #1890ff;
+            box-shadow: 0 2px 8px rgba(24, 144, 255, 0.15);
+        }
+
+        .mr-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .mr-item-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .mr-item-badge {
+            padding: 4px 12px;
+            background: #fff7e6;
+            border: 1px solid #ffd591;
+            border-radius: 4px;
+            color: #fa8c16;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .mr-item-body {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .mr-field {
+            font-size: 14px;
+            color: #595959;
+        }
+
+        .mr-field label {
+            color: #8c8c8c;
+            margin-right: 8px;
+        }
+
+        .mr-item-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+        }
+
+        .btn-success {
+            background: #52c41a;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #73d13d;
+        }
+
+        .btn-warning {
+            background: #faad14;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #ffc53d;
+        }
+
+        .btn-danger {
+            background: #ff4d4f;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #ff7875;
+        }
+
+        .btn-default {
+            background: #fff;
+            color: #595959;
+            border: 1px solid #d9d9d9;
+        }
+
+        .btn-default:hover {
+            color: #1890ff;
+            border-color: #1890ff;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #fff 0%, #f9f9f9 100%);
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            padding: 12px 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1890ff;
+            margin-bottom: 8px;
+        }
+
+        .stat-value.success {
+            color: #52c41a;
+        }
+
+        .stat-value.warning {
+            color: #faad14;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #8c8c8c;
+            margin-top: 4px;
+        }
+
+        /* 表格 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background: #fafafa;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 500;
+            color: #595959;
+            font-size: 14px;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .data-table td {
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #595959;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .data-table tbody tr:hover {
+            background: #e6f7ff;
+        }
+
+        /* 标签 */
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .tag-success {
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+            color: #52c41a;
+        }
+
+        .tag-error {
+            background: #fff1f0;
+            border: 1px solid #ffa39e;
+            color: #ff4d4f;
+        }
+
+        .tag-warning {
+            background: #fff7e6;
+            border: 1px solid #ffd591;
+            color: #fa8c16;
+        }
+
+        .tag-blue {
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            color: #1890ff;
+        }
+
+        /* 筛选区 */
+        .filter-section {
+            background: #fafafa;
+            border: 1px solid #e8e8e8;
+            border-radius: 4px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-label {
+            font-size: 14px;
+            color: #595959;
+            white-space: nowrap;
+        }
+
+        .filter-select,
+        .filter-input {
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 160px;
+        }
+
+        .filter-select:focus,
+        .filter-input:focus {
+            outline: none;
+            border-color: #40a9ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 8px;
+            width: 600px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e8e8e8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 16px;
+            color: #262626;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #8c8c8c;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #e8e8e8;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* 预警标记 */
+        .warning-alert {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: #fff1f0;
+            border: 1px solid #ffa39e;
+            border-radius: 4px;
+            color: #ff4d4f;
+            margin-top: 12px;
+        }
+
+        .warning-alert i {
+            font-size: 18px;
+        }
+
+        /* 指标卡片 */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1890ff;
+            margin-bottom: 4px;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #8c8c8c;
+        }
+
+        /* 完成提示 */
+        .completion-message {
+            text-align: center;
+            padding: 24px;
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+            border-radius: 8px;
+            color: #52c41a;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        /* 工具栏 */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .record-count {
+            font-size: 14px;
+            color: #8c8c8c;
+        }
+
+        /* 快捷入口 */
+        .quick-link {
+            position: fixed;
+            bottom: 24px;
+            left: 264px;
+            background: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #1890ff;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quick-link:hover {
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: #8c8c8c;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: #d9d9d9;
+        }
+
+        /* 详情查看模态框 */
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .detail-item {
+            padding: 12px;
+            background: #fafafa;
+            border-radius: 4px;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: #8c8c8c;
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            color: #262626;
+            font-weight: 500;
+        }
+
+        /* 详情头部状态 */
+        .detail-header {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .detail-header.header-success {
+            background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+        }
+
+        .detail-header.header-error {
+            background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%);
+        }
+
+        .status-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-right: 16px;
+        }
+
+        .status-info h4 {
+            margin: 0 0 4px 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .status-info p {
+            margin: 0;
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .savings-badge {
+            margin-left: auto;
+            background: rgba(255, 255, 255, 0.25);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* 详情区域 */
+        .detail-section {
+            margin-bottom: 20px;
+        }
+
+        .detail-section h5 {
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            color: #1f1f1f;
+            font-weight: 600;
+            padding-left: 12px;
+            border-left: 3px solid #1890ff;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        /* 结果框 */
+        .result-box {
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+            border-radius: 6px;
+            padding: 16px;
+            font-size: 13px;
+            line-height: 1.8;
+            color: #389e0d;
+            white-space: pre-wrap;
+        }
+
+        /* 决策框 */
+        .decision-box {
+            border-radius: 6px;
+            padding: 16px;
+        }
+
+        .decision-box.decision-success {
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+        }
+
+        .decision-box.decision-error {
+            background: #fff2f0;
+            border: 1px solid #ffccc7;
+        }
+
+        .decision-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .decision-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .decision-label {
+            color: #8c8c8c;
+            margin-right: 8px;
+        }
+
+        /* 评语框 */
+        .comment-box {
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            border-radius: 6px;
+            padding: 16px;
+            font-size: 13px;
+            line-height: 1.8;
+            color: #1890ff;
+        }
+
+        .comment-box p {
+            margin: 0;
+        }
+
+        /* 操作按钮 */
+        .detail-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+            justify-content: center;
+        }
+
+        /* 详情容器 */
+        .detail-container {
+            padding: 8px;
+        }
+
+        /* 主要信息区域 - 单列布局 */
+        .detail-main {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .detail-column {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* 详情卡片 */
+        .detail-card {
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background: #fafafa;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .card-icon {
+            font-size: 16px;
+            margin-right: 8px;
+        }
+
+        .card-header h5 {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f1f1f;
+        }
+
+        .card-body {
+            padding: 16px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px dashed #f0f0f0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row.highlight {
+            background: #fafafa;
+            margin: -16px -16px 0 -16px;
+            padding: 12px 16px;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .info-label {
+            font-size: 13px;
+            color: #8c8c8c;
+        }
+
+        .info-value {
+            font-size: 13px;
+            color: #262626;
+            font-weight: 500;
+        }
+
+        /* 决策卡片 */
+        .decision-card {
+            border-color: #b7eb8f;
+        }
+
+        .decision-card.decision-success {
+            border-color: #b7eb8f;
+            background: #f6ffed;
+        }
+
+        .decision-card.decision-success .card-header {
+            background: #d9f7be;
+            border-color: #b7eb8f;
+        }
+
+        .decision-card.decision-error {
+            border-color: #ffccc7;
+            background: #fff2f0;
+        }
+
+        .decision-card.decision-error .card-header {
+            background: #ffccc7;
+            border-color: #ffccc7;
+        }
+
+        /* 结果摘要 */
+        .result-summary .card-body {
+            padding: 0;
+        }
+
+        .result-content {
+            padding: 16px;
+            font-size: 13px;
+            line-height: 1.8;
+            color: #389e0d;
+            background: #f6ffed;
+            border-top: 1px solid #b7eb8f;
+        }
+
+        /* 评语卡片 */
+        .comment-card .card-body {
+            padding: 0;
+        }
+
+        .comment-content {
+            padding: 16px;
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.8;
+            color: #1890ff;
+            background: #e6f7ff;
+            border-top: 1px solid #91d5ff;
+        }
+
+        /* 图表容器 */
+        .chart-container {
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 16px;
+        }
+
+        /* 大数据分析提醒 */
+        .analysis-summary {
+            padding: 16px;
+            background: linear-gradient(135deg, #e6f7ff 0%, #f0f5ff 100%);
+            border-radius: 8px;
+        }
+
+        .analysis-stats {
+            display: flex;
+            gap: 24px;
+            margin-top: 16px;
+        }
+
+        .analysis-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 24px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .analysis-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1890ff;
+        }
+
+        .analysis-label {
+            font-size: 13px;
+            color: #8c8c8c;
+            margin-top: 4px;
+        }
+
+        /* 患者区分统计 */
+        .patient-summary {
+            display: flex;
+            gap: 16px;
+        }
+
+        .patient-summary-item {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: #fafafa;
+            border-radius: 8px;
+        }
+
+        .patient-summary-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #fff;
+        }
+
+        .patient-summary-icon.bg-success {
+            background: #52c41a;
+        }
+
+        .patient-summary-icon.bg-warning {
+            background: #faad14;
+        }
+
+        .patient-summary-icon.bg-info {
+            background: #1890ff;
+        }
+
+        .patient-summary-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .patient-summary-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .patient-summary-label {
+            font-size: 13px;
+            color: #8c8c8c;
+        }
+
+        /* SVG 图表 */
+        .trend-chart {
+            width: 100%;
+            height: 200px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header">
+        <div class="header-logo">
+            <h1>全民健康信息平台</h1>
+        </div>
+        <div class="header-user">
+            <div class="user-avatar">管</div>
+            <span>管理员</span>
+▼
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <nav class="sidebar-menu">
+                <div class="menu-group-title">2.4 检查检验结果互认系统（秦医互认）</div>
+
+                <div class="menu-item" onclick="toggleSubMenu(this)">
+                    <span class="icon">▸</span>
+                    <span>2.4.1 业务协同服务</span>
+                    <span class="arrow">▶</span>
+                </div>
+                <div class="submenu">
+                    <div class="submenu-item" onclick="handleMenuClick(this)">业务协同服务内容</div>
+                </div>
+
+                <div class="menu-item" onclick="toggleSubMenu(this)">
+                    <span class="icon">▸</span>
+                    <span>2.4.2 互认服务应用</span>
+                    <span class="arrow">▶</span>
+                </div>
+                <div class="submenu">
+                    <div class="submenu-item" onclick="handleMenuClick(this)">2.4.2.1 临床诊疗环节互认控制</div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">2.4.2.2 互认信息视窗</div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">2.4.2.3 互认消息提醒</div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">2.4.2.4 跨省提醒服务</div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">2.4.2.5 项目确认管理</div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">2.4.2.6 不互认理由管理</div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">2.4.2.7 项目列表管理</div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">2.4.2.8 项目精准管理</div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">2.4.2.9 阻断校验管理</div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">2.4.2.10 检验报告调阅</div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">2.4.2.11 检查报告调阅</div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">2.4.2.12 ▲互认影像调阅</div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">2.4.2.13 报告下载服务</div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">2.4.2.14 跨省列表管理</div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">2.4.2.15 跨省检验报告调阅</div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">2.4.2.16 跨省检查报告调阅</div>
+                </div>
+
+                <div class="menu-item" onclick="toggleSubMenu(this)">
+                    <span class="icon">▸</span>
+                    <span>2.4.3 互认服务支撑</span>
+                    <span class="arrow">▶</span>
+                </div>
+                <div class="submenu">
+                    <div class="submenu-item" onclick="handleMenuClick(this)">2.4.3.1 互认服务基础支撑与核心能力</div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">2.4.3.2 规则算法管理</div>
+                    <div class="submenu-item" onclick="toggleThirdMenu(this)">
+                        <span>2.4.3.3 系统首页概览</span>
+                        <span class="arrow">▶</span>
+                    </div>
+                    <div class="third-menu">
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">系统首页概览内容</div>
+                    </div>
+                    <div class="submenu-item" onclick="toggleThirdMenu(this)">
+                        <span>2.4.3.4 基础信息管理</span>
+                        <span class="arrow">▶</span>
+                    </div>
+                    <div class="third-menu">
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">基础信息管理内容</div>
+                    </div>
+                    <div class="submenu-item" onclick="toggleThirdMenu(this)">
+                        <span>2.4.3.5 互认规则管理</span>
+                        <span class="arrow">▶</span>
+                    </div>
+                    <div class="third-menu">
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">207. 医疗机构互认项目对照</div>
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">208. 医疗机构科室信息对照</div>
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">209. 不互认原因管理</div>
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">210. ▲项目包含关系管理</div>
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">211. 互认规则设置</div>
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">212. 医疗机构自定义配置</div>
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">213. 医疗机构科室自定义配置</div>
+                    </div>
+                    <div class="submenu-item" onclick="toggleThirdMenu(this)">
+                        <span>2.4.3.6 信息查询服务</span>
+                        <span class="arrow">▶</span>
+                    </div>
+                    <div class="third-menu">
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">信息查询服务内容</div>
+                    </div>
+                    <div class="submenu-item" onclick="toggleThirdMenu(this)">
+                        <span>2.4.3.7 影像中心对接</span>
+                        <span class="arrow">▶</span>
+                    </div>
+                    <div class="third-menu">
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">影像中心对接内容</div>
+                    </div>
+                    <div class="submenu-item" onclick="toggleThirdMenu(this)">
+                        <span>2.4.3.8 数据质控处理</span>
+                        <span class="arrow">▶</span>
+                    </div>
+                    <div class="third-menu">
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">数据质控处理内容</div>
+                    </div>
+                    <div class="submenu-item" onclick="toggleThirdMenu(this)">
+                        <span>2.4.3.9 系统信息管理</span>
+                        <span class="arrow">▶</span>
+                    </div>
+                    <div class="third-menu">
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">系统信息管理内容</div>
+                    </div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">2.4.3.10 基本信息设置</div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">2.4.3.11 资源管理</div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">2.4.3.12 权限管理</div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">2.4.3.13 系统日志管理</div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">2.4.3.14 互认加密管理</div>
+                    <div class="submenu-item" onclick="toggleThirdMenu(this)">
+                        <span>2.4.3.15 代理互认服务</span>
+                        <span class="arrow">▶</span>
+                    </div>
+                    <div class="third-menu">
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">代理互认服务内容</div>
+                    </div>
+                    <div class="submenu-item" onclick="toggleThirdMenu(this)">
+                        <span>2.4.3.16 互认全程监管</span>
+                        <span class="arrow">▶</span>
+                    </div>
+                    <div class="third-menu">
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">互认全程监管内容</div>
+                    </div>
+                    <div class="submenu-item" onclick="toggleThirdMenu(this)">
+                        <span>2.4.3.17 互认日志管理</span>
+                        <span class="arrow">▶</span>
+                    </div>
+                    <div class="third-menu">
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">互认日志管理内容</div>
+                    </div>
+                    <div class="submenu-item" onclick="toggleThirdMenu(this)">
+                        <span>2.4.3.18 互认接口升级</span>
+                        <span class="arrow">▶</span>
+                    </div>
+                    <div class="third-menu">
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">互认接口升级内容</div>
+                    </div>
+                    <div class="submenu-item" onclick="toggleThirdMenu(this)">
+                        <span>2.4.3.19 跨地市互认管理</span>
+                        <span class="arrow">▶</span>
+                    </div>
+                    <div class="third-menu">
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">跨地市互认管理内容</div>
+                    </div>
+                    <div class="submenu-item" onclick="toggleThirdMenu(this)">
+                        <span>2.4.3.20 跨省互通共享服务</span>
+                        <span class="arrow">▶</span>
+                    </div>
+                    <div class="third-menu">
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">跨省互通共享服务内容</div>
+                    </div>
+                </div>
+
+                <div class="menu-item" onclick="toggleSubMenu(this)">
+                    <span class="icon">▸</span>
+                    <span>2.4.4 智能监管分析</span>
+                    <span class="arrow">▶</span>
+                </div>
+                <div class="submenu">
+                    <div class="submenu-item expanded" onclick="toggleThirdMenu(this)">
+                        <span>2.4.4.1 互认统计分析</span>
+                        <span class="arrow">▶</span>
+                    </div>
+                    <div class="third-menu show">
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">254. 互认结果监控预警</div>
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">255. 区域内（机构内）5大互认指标</div>
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">256. 区域内（机构内）互认结果统计分析</div>
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">257. 区域内（机构内）互认项目统计分析</div>
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">258. 区域内（机构内）近期项目互认数量趋势</div>
+                        <div class="third-menu-item active" onclick="handleMenuClick(this)">259. ▲医生互认明细行为查询分析</div>
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">260. 自定义报表</div>
+                    </div>
+                    <div class="submenu-item" onclick="toggleThirdMenu(this)">
+                        <span>2.4.4.2 互认监管展示</span>
+                        <span class="arrow">▶</span>
+                    </div>
+                    <div class="third-menu">
+                        <div class="third-menu-item" onclick="handleMenuClick(this)">互认监管展示内容</div>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+        <div class="tab-container">
+        
+
+            <!-- Tab 1: 监管平台 - 医生互认行为分析 -->
+            <div class="tab-content active" id="tab1">
+                <!-- 筛选区 -->
+                <div class="filter-section">
+                    <div class="filter-row">
+                        <div class="filter-item">
+                            <span class="filter-label">机构：</span>
+                            <select class="filter-select" id="filterOrg" onchange="filterDoctors()">
+                                <option value="">所有机构</option>
+                                <option value="org1">市人民医院</option>
+                                <option value="org2">区中医院</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <span class="filter-label">科室：</span>
+                            <select class="filter-select" id="filterDept" onchange="filterDoctors()">
+                                <option value="">所有科室</option>
+                                <option value="dept1">呼吸内科</option>
+                                <option value="dept2">心内科</option>
+                                <option value="dept3">检验科</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <span class="filter-label">医生：</span>
+                            <select class="filter-select" id="filterDoctor">
+                                <option value="li">李明</option>
+                                <option value="wang">王芳</option>
+                                <option value="chen">陈强</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <span class="filter-label">日期范围：</span>
+                            <input type="date" class="filter-input" value="2026-04-13">
+                            <span>至</span>
+                            <input type="date" class="filter-input" value="2026-05-13">
+                        </div>
+                        <div class="filter-item" style="margin-left: auto;">
+                            <button class="btn btn-primary" onclick="queryData()">
+查询
+                            </button>
+                            <button class="btn btn-default" onclick="resetFilter()">
+重置
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 区域整体指标 -->
+                <div class="card">
+                    <div class="card-title">
+                        区域整体互认指标
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-value">100%</div>
+                            <div class="metric-label">接入率</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">98.2%</div>
+                            <div class="metric-label">提醒调阅率</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">67.5%</div>
+                            <div class="metric-label">项目互认率</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">70.2%</div>
+                            <div class="metric-label">检验项目互认率</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">62.1%</div>
+                            <div class="metric-label">检查项目互认率</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" style="color: #faad14;">32.5%</div>
+                            <div class="metric-label">不互认率</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" style="color: #52c41a;">8.2万</div>
+                            <div class="metric-label">节约金额总计</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 医生互认概览 -->
+                <div class="card">
+                    <div class="card-title">
+                        医生互认概览 <span id="currentDoctorName" style="color: #1890ff; font-size: 14px;">（李明）</span>
+                    </div>
+                    <div class="stats-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px;">
+                        <div class="stat-card" style="flex: 1; min-width: 0;">
+                            <div class="stat-value" id="regTotal">42</div>
+                            <div class="stat-label">总提醒项目人次</div>
+                        </div>
+                        <div class="stat-card" style="flex: 1; min-width: 0;">
+                            <div class="stat-value success" id="regRecognized">28</div>
+                            <div class="stat-label">互认人次</div>
+                        </div>
+                        <div class="stat-card" style="flex: 1; min-width: 0;">
+                            <div class="stat-value warning" id="regNotRecognized">14</div>
+                            <div class="stat-label">不互认人次</div>
+                        </div>
+                        <div class="stat-card" style="flex: 1; min-width: 0;">
+                            <div class="stat-value" id="regRate">66.7%</div>
+                            <div class="stat-label">互认率</div>
+                        </div>
+                        <div class="stat-card" style="flex: 1; min-width: 0;">
+                            <div class="stat-value" style="color: #52c41a;" id="regSavings">2860元</div>
+                            <div class="stat-label">节约金额</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 趋势图 -->
+                <div class="chart-container">
+                    <div class="chart-title">互认数量趋势（近30天）</div>
+                    <svg class="trend-chart" viewBox="0 0 800 200">
+                        <!-- 背景网格线 -->
+                        <line x1="10" y1="20" x2="10" y2="180" stroke="#e8e8e8" stroke-width="1"/>
+                        <line x1="10" y1="180" x2="790" y2="180" stroke="#e8e8e8" stroke-width="1"/>
+                        
+                        <!-- Y轴标签 -->
+                        <text x="5" y="25" font-size="11" fill="#8c8c8c">50</text>
+                        <text x="5" y="65" font-size="11" fill="#8c8c8c">40</text>
+                        <text x="5" y="105" font-size="11" fill="#8c8c8c">30</text>
+                        <text x="5" y="145" font-size="11" fill="#8c8c8c">20</text>
+                        <text x="5" y="185" font-size="11" fill="#8c8c8c">0</text>
+                        
+                        <!-- 互认趋势线 -->
+                        <polyline points="25,100 89,80 153,90 217,60 281,70 345,50 409,65 473,45 537,55 601,40 665,50 729,45 790,48" 
+                                  fill="none" stroke="#52c41a" stroke-width="3"/>
+                        
+                        <!-- 不互认趋势线 -->
+                        <polyline points="25,120 89,110 153,105 217,130 281,125 345,140 409,135 473,150 537,145 601,155 665,140 729,135 790,138" 
+                                  fill="none" stroke="#ff4d4f" stroke-width="3"/>
+                        
+                        <!-- 互认趋势线数据点 -->
+                        <circle cx="25" cy="100" r="4" fill="#52c41a"/>
+                        <circle cx="89" cy="80" r="4" fill="#52c41a"/>
+                        <circle cx="153" cy="90" r="4" fill="#52c41a"/>
+                        <circle cx="217" cy="60" r="4" fill="#52c41a"/>
+                        <circle cx="281" cy="70" r="4" fill="#52c41a"/>
+                        <circle cx="345" cy="50" r="4" fill="#52c41a"/>
+                        <circle cx="409" cy="65" r="4" fill="#52c41a"/>
+                        <circle cx="473" cy="45" r="4" fill="#52c41a"/>
+                        <circle cx="537" cy="55" r="4" fill="#52c41a"/>
+                        <circle cx="601" cy="40" r="4" fill="#52c41a"/>
+                        <circle cx="665" cy="50" r="4" fill="#52c41a"/>
+                        <circle cx="729" cy="45" r="4" fill="#52c41a"/>
+                        <circle cx="790" cy="48" r="4" fill="#52c41a"/>
+                        
+                        <!-- 不互认趋势线数据点 -->
+                        <circle cx="25" cy="120" r="4" fill="#ff4d4f"/>
+                        <circle cx="89" cy="110" r="4" fill="#ff4d4f"/>
+                        <circle cx="153" cy="105" r="4" fill="#ff4d4f"/>
+                        <circle cx="217" cy="130" r="4" fill="#ff4d4f"/>
+                        <circle cx="281" cy="125" r="4" fill="#ff4d4f"/>
+                        <circle cx="345" cy="140" r="4" fill="#ff4d4f"/>
+                        <circle cx="409" cy="135" r="4" fill="#ff4d4f"/>
+                        <circle cx="473" cy="150" r="4" fill="#ff4d4f"/>
+                        <circle cx="537" cy="145" r="4" fill="#ff4d4f"/>
+                        <circle cx="601" cy="155" r="4" fill="#ff4d4f"/>
+                        <circle cx="665" cy="140" r="4" fill="#ff4d4f"/>
+                        <circle cx="729" cy="135" r="4" fill="#ff4d4f"/>
+                        <circle cx="790" cy="138" r="4" fill="#ff4d4f"/>
+                        
+                        <!-- X轴日期标签 -->
+                        <text x="25" y="195" font-size="10" fill="#8c8c8c" text-anchor="middle">04-15</text>
+                        <text x="89" y="195" font-size="10" fill="#8c8c8c" text-anchor="middle">04-18</text>
+                        <text x="153" y="195" font-size="10" fill="#8c8c8c" text-anchor="middle">04-21</text>
+                        <text x="217" y="195" font-size="10" fill="#8c8c8c" text-anchor="middle">04-24</text>
+                        <text x="281" y="195" font-size="10" fill="#8c8c8c" text-anchor="middle">04-27</text>
+                        <text x="345" y="195" font-size="10" fill="#8c8c8c" text-anchor="middle">04-30</text>
+                        <text x="409" y="195" font-size="10" fill="#8c8c8c" text-anchor="middle">05-03</text>
+                        <text x="473" y="195" font-size="10" fill="#8c8c8c" text-anchor="middle">05-06</text>
+                        <text x="537" y="195" font-size="10" fill="#8c8c8c" text-anchor="middle">05-09</text>
+                        <text x="601" y="195" font-size="10" fill="#8c8c8c" text-anchor="middle">05-12</text>
+                        <text x="665" y="195" font-size="10" fill="#8c8c8c" text-anchor="middle">05-13</text>
+                        <text x="729" y="195" font-size="10" fill="#8c8c8c" text-anchor="middle">05-14</text>
+                        <text x="790" y="195" font-size="10" fill="#8c8c8c" text-anchor="middle">05-15</text>
+                        
+                        <!-- 图例 -->
+                        <circle cx="880" cy="30" r="5" fill="#52c41a"/>
+                        <text x="895" y="35" font-size="12" fill="#595959">互认人次</text>
+                        <circle cx="880" cy="55" r="5" fill="#ff4d4f"/>
+                        <text x="895" y="60" font-size="12" fill="#595959">不互认人次</text>
+                    </svg>
+                </div>
+
+                <!-- 工具栏 -->
+                <div class="toolbar">
+                    <div class="record-count" id="recordCount">共 8 条记录</div>
+                    <button class="btn btn-success" onclick="exportReport()">
+导出报表
+                    </button>
+                </div>
+
+                <!-- 互认行为明细列表 -->
+                <div class="card" style="padding: 0;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>患者姓名</th>
+                                <th>病历号</th>
+                                <th>就诊日期</th>
+                                <th>项目名称</th>
+                                <th>决策结果</th>
+                                <th>不互认原因</th>
+                                <th>原始报告机构</th>
+                                <th>原始报告时间</th>
+                                <th>操作医生</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="regDetailTable">
+                            <!-- 动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+    </div>
+
+    <!-- 不互认原因模态框 -->
+    <div class="modal-overlay" id="rejectModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>不互认原因</h3>
+                <button class="modal-close" onclick="closeRejectModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 16px; color: #595959;">请选择不互认的原因（必填）：</p>
+                <select id="rejectReason" class="filter-select" style="width: 100%;">
+                    <option value="">请选择原因</option>
+                    <option value="病情变化">病情变化</option>
+                    <option value="结果时效性差">结果时效性差</option>
+                    <option value="检查质量不满足">检查质量不满足</option>
+                    <option value="患者要求">患者要求</option>
+                    <option value="其他">其他</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeRejectModal()">取消</button>
+                <button class="btn btn-danger" onclick="confirmReject()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 互认成功提示模态框 -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal" style="width: 400px;">
+            <div class="modal-body" style="text-align: center; padding: 40px 20px;">
+✓
+                <h3 style="color: #262626; margin-bottom: 8px;">已互认该结果</h3>
+                <p style="color: #595959; font-size: 14px;">该检查结果已成功互认</p>
+            </div>
+            <div class="modal-footer" style="justify-content: center;">
+                <button class="btn btn-success" onclick="closeSuccessModal()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查看详情模态框 -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal" style="width: 900px; max-height: 90vh;">
+            <div class="modal-header">
+                <h3>互认信息详情</h3>
+                <button class="modal-close" onclick="closeDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="overflow-y: auto; max-height: calc(90vh - 120px);">
+                <div class="detail-container" id="detailContent">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeDetailModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleMenu(element) {
+            element.classList.toggle('active');
+            const items = element.nextElementSibling;
+            items.classList.toggle('show');
+        }
+
+        function toggleSubMenu(el) {
+            el.classList.toggle('expanded');
+            const nextEl = el.nextElementSibling;
+            if (nextEl && nextEl.classList.contains('submenu')) {
+                nextEl.classList.toggle('show');
+            }
+        }
+
+        function toggleThirdMenu(el) {
+            el.classList.toggle('expanded');
+            const nextEl = el.nextElementSibling;
+            if (nextEl && nextEl.classList.contains('third-menu')) {
+                nextEl.classList.toggle('show');
+            }
+        }
+
+        function handleMenuClick(el) {
+            const menuText = el.textContent.trim();
+            if (menuText.includes('医生互认明细行为查询分析')) {
+                document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+                document.querySelectorAll('.submenu-item').forEach(item => item.classList.remove('active'));
+                document.querySelectorAll('.third-menu-item').forEach(item => item.classList.remove('active'));
+                el.classList.add('active');
+            } else if (menuText.includes('互认影像调阅')) {
+                window.location.href = '../0513互认影像调阅_调整/index.html';
+            } else if (menuText.includes('项目包含关系管理')) {
+                window.location.href = '../0513项目包含关系管理/index.html';
+            }
+        }
+
+        function switchTab(tabNum) {
+            document.querySelectorAll('.tab-btn').forEach((btn, index) => {
+                btn.classList.toggle('active', index + 1 === tabNum);
+            });
+            document.querySelectorAll('.tab-content').forEach((content, index) => {
+                content.classList.toggle('active', index + 1 === tabNum);
+            });
+        }
+
+        let currentRejectIndex = null;
+        let recognizedCount = 0;
+        let notRecognizedCount = 0;
+        let savings = 0;
+        const itemPrices = {
+            '血常规': 30,
+            '胸部CT平扫': 200,
+            '肝功能': 50
+        };
+
+        const mrItems = [
+            {
+                id: 1,
+                name: '血常规',
+                institution: '市第一人民医院',
+                date: '2026-04-10',
+                result: 'WBC: 7.2×10^9/L (参考: 3.5-9.5)',
+                status: 'pending',
+                reason: ''
+            },
+            {
+                id: 2,
+                name: '胸部CT平扫',
+                institution: '区中心医院',
+                date: '2026-04-12',
+                result: '双肺纹理清晰，未见明显异常',
+                status: 'pending',
+                reason: ''
+            },
+            {
+                id: 3,
+                name: '肝功能',
+                institution: '市第二人民医院',
+                date: '2026-04-08',
+                result: 'ALT: 35 U/L (参考: 9-50)',
+                status: 'pending',
+                reason: ''
+            }
+        ];
+
+        // 渲染互认项目列表
+        function renderMRList() {
+            const container = document.getElementById('mrList');
+            container.innerHTML = mrItems.map((item, index) => `
+                <div class="mr-item" id="mrItem${index}">
+                    <div class="mr-item-header">
+                        <div class="mr-item-title">${item.name}</div>
+                        <div class="mr-item-badge">可互认</div>
+                    </div>
+                    <div class="mr-item-body">
+                        <div class="mr-field"><label>历史报告机构：</label>${item.institution}</div>
+                        <div class="mr-field"><label>历史检查时间：</label>${item.date}</div>
+                        <div class="mr-field" style="grid-column: span 2;"><label>结果值及参考范围：</label>${item.result}</div>
+                    </div>
+                    <div class="mr-item-actions">
+                        ${item.status === 'pending' ? `
+                            <button class="btn btn-success" onclick="recognizeItem(${index})">
+✓ 互认
+                            </button>
+                            <button class="btn btn-danger" onclick="openRejectModal(${index})">
+✕ 不互认
+                            </button>
+                        ` : `
+                            <button class="btn btn-default" disabled>
+                                ${item.status === 'recognized' ? '✓ 已互认' : '✗ 不互认'}
+                            </button>
+                        `}
+                    </div>
+                </div>
+            `).join('');
+
+            // 检查是否全部完成
+            const allCompleted = mrItems.every(item => item.status !== 'pending');
+            document.getElementById('completionMessage').style.display = allCompleted ? 'block' : 'none';
+            document.getElementById('reminderCount').textContent = `（共 ${mrItems.length} 条）`;
+        }
+
+        // 互认操作
+        function recognizeItem(index) {
+            mrItems[index].status = 'recognized';
+            recognizedCount++;
+            savings += itemPrices[mrItems[index].name] || 0;
+            
+            updateStats();
+            addToResultTable(mrItems[index], '互认', '');
+            renderMRList();
+            
+            // 显示成功提示
+            document.getElementById('successModal').classList.add('show');
+        }
+
+        // 打开不互认模态框
+        function openRejectModal(index) {
+            currentRejectIndex = index;
+            document.getElementById('rejectModal').classList.add('show');
+            document.getElementById('rejectReason').value = '';
+        }
+
+        // 关闭不互认模态框
+        function closeRejectModal() {
+            document.getElementById('rejectModal').classList.remove('show');
+            currentRejectIndex = null;
+        }
+
+        // 确认不互认
+        function confirmReject() {
+            const reason = document.getElementById('rejectReason').value;
+            if (!reason) {
+                alert('请选择不互认原因');
+                return;
+            }
+
+            mrItems[currentRejectIndex].status = 'not_recognized';
+            mrItems[currentRejectIndex].reason = reason;
+            notRecognizedCount++;
+
+            updateStats();
+            addToResultTable(mrItems[currentRejectIndex], '不互认', reason);
+            renderMRList();
+            closeRejectModal();
+        }
+
+        // 关闭成功模态框
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.remove('show');
+        }
+
+        // 更新统计数据
+        function updateStats() {
+            document.getElementById('statTotal').textContent = mrItems.length;
+            document.getElementById('statRecognized').textContent = recognizedCount;
+            document.getElementById('statNotRecognized').textContent = notRecognizedCount;
+            document.getElementById('statSavings').textContent = savings + '元';
+            
+            // 更新患者区分统计
+            document.getElementById('summaryRecognized').textContent = recognizedCount > 0 ? '1' : '0';
+            document.getElementById('summaryNotRecognized').textContent = notRecognizedCount > 0 ? '1' : '0';
+            const pendingCount = mrItems.some(item => item.status === 'pending') ? 1 : 0;
+            document.getElementById('summaryPending').textContent = pendingCount;
+        }
+
+        // 添加到结果表格
+        function addToResultTable(item, decision, reason) {
+            const table = document.getElementById('resultTable');
+            const emptyRow = table.querySelector('tr td[colspan]');
+            if (emptyRow) emptyRow.parentElement.remove();
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>张翠花</td>
+                <td>MZ00123</td>
+                <td>${item.name}</td>
+                <td><span class="tag ${decision === '互认' ? 'tag-success' : 'tag-error'}">${decision}</span></td>
+                <td>${reason || '-'}</td>
+                <td>${item.institution}</td>
+                <td>${item.date}</td>
+                <td>李明</td>
+            `;
+            table.appendChild(row);
+        }
+
+        // 监管平台数据
+        const doctorData = {
+            li: {
+                name: '李明',
+                total: 42,
+                recognized: 28,
+                notRecognized: 14,
+                rate: 66.7,
+                savings: 2860,
+                warning: false
+            },
+            wang: {
+                name: '王芳',
+                total: 35,
+                recognized: 25,
+                notRecognized: 10,
+                rate: 71.4,
+                savings: 2150,
+                warning: false
+            },
+            chen: {
+                name: '陈强',
+                total: 38,
+                recognized: 17,
+                notRecognized: 21,
+                rate: 44.7,
+                savings: 1680,
+                warning: true
+            }
+        };
+
+        const regDetails = [
+            { patient: '张翠花', id: 'MZ00123', date: '2026-05-10', item: '血常规', decision: '互认', reason: '-', institution: '市第一人民医院', time: '2026-04-10', doctor: '李明', 
+              resultSummary: '白细胞: 6.5×10^9/L, 红细胞: 4.2×10^12/L, 血红蛋白: 125g/L, 血小板: 220×10^9/L', 
+              reportNo: 'BG20260410001', department: '检验科', fee: 30, savings: 30, 
+              doctorComment: '检查结果正常，符合互认条件，予以互认。' },
+            { patient: '李建国', id: 'MZ00124', date: '2026-05-09', item: '胸部CT平扫', decision: '不互认', reason: '病情变化', institution: '区中心医院', time: '2026-04-05', doctor: '李明', 
+              resultSummary: '右肺下叶可见结节影，大小约1.5cm×1.2cm，边界欠清晰', 
+              reportNo: 'CT20260405002', department: '放射科', fee: 200, savings: 0, 
+              doctorComment: '距上次检查已超过1个月，患者近期咳嗽加重，建议重新检查明确病情变化。' },
+            { patient: '王秀兰', id: 'MZ00125', date: '2026-05-08', item: '肝功能', decision: '互认', reason: '-', institution: '市第二人民医院', time: '2026-04-08', doctor: '李明', 
+              resultSummary: '谷丙转氨酶: 45U/L, 谷草转氨酶: 38U/L, 胆红素: 15μmol/L, 白蛋白: 42g/L', 
+              reportNo: 'HG20260408003', department: '检验科', fee: 50, savings: 50, 
+              doctorComment: '肝功能指标基本正常，检查时间在有效期内，予以互认。' },
+            { patient: '赵明华', id: 'MZ00126', date: '2026-05-07', item: '血常规', decision: '互认', reason: '-', institution: '市第一人民医院', time: '2026-04-07', doctor: '李明', 
+              resultSummary: '白细胞: 7.2×10^9/L, 红细胞: 4.5×10^12/L, 血红蛋白: 132g/L, 血小板: 195×10^9/L', 
+              reportNo: 'BG20260407004', department: '检验科', fee: 30, savings: 30, 
+              doctorComment: '血常规检查结果正常，符合互认标准。' },
+            { patient: '刘芳', id: 'MZ00127', date: '2026-05-06', item: '心电图', decision: '不互认', reason: '结果时效性差', institution: '区中医院', time: '2026-03-20', doctor: '李明', 
+              resultSummary: '窦性心律，心率72次/分，ST段无明显异常', 
+              reportNo: 'ECG20260320005', department: '心电图室', fee: 40, savings: 0, 
+              doctorComment: '心电图检查时间已超过6周，对于心律失常患者时效性不足，建议重新检查。' },
+            { patient: '陈晓燕', id: 'MZ00128', date: '2026-05-05', item: '尿常规', decision: '互认', reason: '-', institution: '市第一人民医院', time: '2026-04-15', doctor: '李明', 
+              resultSummary: '尿蛋白: -, 尿糖: -, 白细胞: 2-3/HP, 红细胞: 0-1/HP', 
+              reportNo: 'NC20260415006', department: '检验科', fee: 25, savings: 25, 
+              doctorComment: '尿常规检查结果正常，在互认有效期内。' },
+            { patient: '周伟', id: 'MZ00129', date: '2026-05-04', item: '血脂检查', decision: '互认', reason: '-', institution: '区中心医院', time: '2026-04-12', doctor: '李明', 
+              resultSummary: '总胆固醇: 5.2mmol/L, 甘油三酯: 1.8mmol/L, HDL-C: 1.2mmol/L, LDL-C: 3.1mmol/L', 
+              reportNo: 'XZ20260412007', department: '检验科', fee: 60, savings: 60, 
+              doctorComment: '血脂检查结果稳定，符合互认条件。' },
+            { patient: '吴婷', id: 'MZ00130', date: '2026-05-03', item: '腹部B超', decision: '不互认', reason: '检查设备不同', institution: '市第二人民医院', time: '2026-03-28', doctor: '李明', 
+              resultSummary: '肝、胆、胰、脾未见明显异常回声', 
+              reportNo: 'B超20260328008', department: '超声科', fee: 80, savings: 0, 
+              doctorComment: '外院B超设备型号与本院差异较大，图像质量评估标准不一致，建议本院复查。' }
+        ];
+
+        // 渲染监管平台详情表格
+        function renderRegTable() {
+            try {
+                const table = document.getElementById('regDetailTable');
+                console.log('renderRegTable called, table element:', table);
+                console.log('regDetails data:', regDetails);
+                if (!table) {
+                    console.error('regDetailTable element not found!');
+                    return;
+                }
+                if (!regDetails || regDetails.length === 0) {
+                    console.error('regDetails is empty!');
+                    return;
+                }
+                const html = regDetails.map((item, index) => {
+                    console.log('Rendering item:', item);
+                    return `<tr>
+                        <td>${item.patient || ''}</td>
+                        <td>${item.id || ''}</td>
+                        <td>${item.date || ''}</td>
+                        <td>${item.item || ''}</td>
+                        <td><span class="tag ${item.decision === '互认' ? 'tag-success' : 'tag-error'}">${item.decision || ''}</span></td>
+                        <td>${item.reason || ''}</td>
+                        <td>${item.institution || ''}</td>
+                        <td>${item.time || ''}</td>
+                        <td>${item.doctor || ''}</td>
+                        <td>
+                            <button class="btn btn-primary" style="padding: 4px 12px; font-size: 12px;" onclick="viewDetail(${index})">查看详情</button>
+                        </td>
+                    </tr>`;
+                }).join('');
+                console.log('Generated HTML:', html);
+                table.innerHTML = html;
+                console.log('Table updated successfully');
+            } catch (error) {
+                console.error('Error in renderRegTable:', error);
+            }
+        }
+
+        // 更新监管平台数据
+        function updateRegData() {
+            const doctorId = document.getElementById('filterDoctor').value;
+            const data = doctorData[doctorId];
+
+            document.getElementById('currentDoctorName').textContent = `（${data.name}）`;
+            document.getElementById('regTotal').textContent = data.total;
+            document.getElementById('regRecognized').textContent = data.recognized;
+            document.getElementById('regNotRecognized').textContent = data.notRecognized;
+            document.getElementById('regRate').textContent = data.rate + '%';
+            document.getElementById('regSavings').textContent = data.savings + '元';
+
+            const warningDiv = document.getElementById('regWarning');
+            if (data.warning) {
+                warningDiv.innerHTML = `
+                    <div class="warning-alert">
+⚠
+                        <span>不互认率偏高（${(100 - data.rate).toFixed(1)}%），建议关注医生互认行为</span>
+                    </div>
+                `;
+            } else {
+                warningDiv.innerHTML = '';
+            }
+        }
+
+        // 查看详细信息
+        function viewDetail(index) {
+            const item = regDetails[index];
+            const content = document.getElementById('detailContent');
+            content.innerHTML = `
+                <!-- 互认状态头部 -->
+                <div class="detail-header ${item.decision === '互认' ? 'header-success' : 'header-error'}">
+                    <div class="status-icon">${item.decision === '互认' ? '✓' : '✗'}</div>
+                    <div class="status-info">
+                        <h4>${item.decision === '互认' ? '已互认' : '未互认'}</h4>
+                        <p>${item.decision === '互认' ? '该检查报告已通过互认，无需重复检查' : '该检查报告未通过互认，需重新检查'}</p>
+                    </div>
+                    ${item.decision === '互认' ? `<div class="savings-badge">节省费用 ¥${item.savings}</div>` : ''}
+                </div>
+
+                <!-- 主要信息区域 - 单列布局 -->
+                <div class="detail-main">
+                    <!-- 患者信息 -->
+                    <div class="detail-card">
+                        <div class="card-header">
+                            <h5>患者信息</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-row">
+                                <span class="info-label">姓名</span>
+                                <span class="info-value">${item.patient}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">病历号</span>
+                                <span class="info-value">${item.id}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">就诊日期</span>
+                                <span class="info-value">${item.date}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 检查信息 -->
+                    <div class="detail-card">
+                        <div class="card-header">
+                            <h5>检查信息</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-row">
+                                <span class="info-label">项目名称</span>
+                                <span class="info-value">${item.item}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">报告编号</span>
+                                <span class="info-value">${item.reportNo}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">检查科室</span>
+                                <span class="info-value">${item.department}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">检查费用</span>
+                                <span class="info-value">¥${item.fee}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 原始报告信息 -->
+                    <div class="detail-card">
+                        <div class="card-header">
+                            <h5>原始报告信息</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-row">
+                                <span class="info-label">报告机构</span>
+                                <span class="info-value">${item.institution}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">报告时间</span>
+                                <span class="info-value">${item.time}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 互认决策 -->
+                    <div class="detail-card decision-card ${item.decision === '互认' ? 'decision-success' : 'decision-error'}">
+                        <div class="card-header">
+                            <h5>互认决策</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-row highlight">
+                                <span class="info-label">决策结果</span>
+                                <span class="info-value"><span class="tag ${item.decision === '互认' ? 'tag-success' : 'tag-error'}">${item.decision}</span></span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">不互认原因</span>
+                                <span class="info-value">${item.reason === '-' ? '无' : item.reason}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">操作医生</span>
+                                <span class="info-value">${item.doctor}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 检查结果摘要 -->
+                <div class="detail-card result-summary">
+                    <div class="card-header">
+                        <h5>检查结果摘要</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="result-content">${item.resultSummary}</div>
+                    </div>
+                </div>
+
+                <!-- 医生评语 -->
+                <div class="detail-card comment-card">
+                    <div class="card-header">
+                        <h5>医生评语</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="comment-content">${item.doctorComment}</p>
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="detail-actions">
+                    <button class="btn btn-primary" onclick="printReport(${index})">打印报告</button>
+                    <button class="btn btn-default" onclick="exportReport(${index})">导出报告</button>
+                    
+                </div>
+            `;
+            document.getElementById('detailModal').classList.add('show');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.remove('show');
+        }
+
+        function printReport(index) {
+            const item = regDetails[index];
+            alert(`正在打印报告：\n患者: ${item.patient}\n项目: ${item.item}\n报告编号: ${item.reportNo}\n\n打印功能已触发！`);
+        }
+
+        function exportReport(index) {
+            const item = regDetails[index];
+            const data = `患者姓名,病历号,就诊日期,项目名称,决策结果,报告机构,报告时间,操作医生\n${item.patient},${item.id},${item.date},${item.item},${item.decision},${item.institution},${item.time},${item.doctor}`;
+            const blob = new Blob([data], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `报告_${item.reportNo}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            alert('报告已导出！');
+        }
+
+        // 筛选功能
+        function filterDoctors() {
+            // 可以根据机构、科室联动更新医生列表
+            console.log('Filter changed');
+        }
+
+        function queryData() {
+            updateRegData();
+            alert('查询成功！已更新医生互认数据');
+        }
+
+        function resetFilter() {
+            document.getElementById('filtesrOrg').value = '';
+            document.getElementById('filterDept').value = '';
+            document.getElementById('filterDoctor').value = 'li';
+            updateRegData();
+        }
+
+        function exportReport() {
+            alert('已导出 Excel 报表（演示模式）');
+        }
+
+        // 初始化
+        function initPage() {
+            console.log('initPage called');
+            try {
+                renderMRList();
+                console.log('renderMRList completed');
+            } catch (e) {
+                console.error('Error in renderMRList:', e);
+            }
+            
+            try {
+                renderRegTable();
+                console.log('renderRegTable completed');
+            } catch (e) {
+                console.error('Error in renderRegTable:', e);
+            }
+            
+            try {
+                updateRegData();
+                console.log('updateRegData completed');
+            } catch (e) {
+                console.error('Error in updateRegData:', e);
+            }
+            
+            // 监听医生下拉变化
+            try {
+                document.getElementById('filterDoctor').addEventListener('change', updateRegData);
+                console.log('Event listener added');
+            } catch (e) {
+                console.error('Error adding event listener:', e);
+            }
+            
+            console.log('initPage completed');
+        }
+
+        // 使用DOMContentLoaded或直接在页面加载完成后执行
+        if (document.readyState === 'loading') {
+            console.log('DOM is loading, waiting for DOMContentLoaded');
+            document.addEventListener('DOMContentLoaded', initPage);
+        } else {
+            console.log('DOM already loaded, calling initPage directly');
+            initPage();
+        }
+    </script>
+</body>
+</html>
