@@ -649,7 +649,7 @@
     <!-- 顶部导航栏 -->
     <header class="header">
 
-        <div class="header-title">全民健康信息平台</div>
+        <div class="header-title">全民健康信息平台-数字管理与决策分析系统（秦医辅政）</div>
         <div class="header-right">
             <div class="header-user">
                 <div class="user-avatar">管</div>
@@ -663,15 +663,93 @@
         <!-- 左侧菜单 -->
         <aside class="sidebar">
             <nav class="menu">
+                <!-- 综合监管概览(可展开) -->
                 <div class="menu-item">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">☰</span>
-                        <span>指标管理</span>
+                        
+                        <span>综合监管概览</span>
+                        <span class="menu-arrow">▶</span>
+                    </div>
+                    <div class="submenu">
+                        <div class="submenu-item">子菜单1</div>
+                        <div class="submenu-item">子菜单2</div>
+                    </div>
+                </div>
+                
+                <!-- 运营决策分析(可展开) -->
+                <div class="menu-item">
+                    <div class="menu-parent" onclick="toggleMenu(this)">
+                        
+                        <span>运营决策分析</span>
+                        <span class="menu-arrow">▶</span>
+                    </div>
+                    <div class="submenu">
+                        <div class="submenu-item">子菜单1</div>
+                        <div class="submenu-item">子菜单2</div>
+                    </div>
+                </div>
+                
+                <!-- 智能预警监测 -->
+                <div class="menu-item">
+                    <div class="menu-parent" onclick="handleMenuClick(this)">
+                        
+                        <span>智能预警监测</span>
+                    </div>
+                </div>
+                
+                <!-- 卫生执业预警 -->
+                <div class="menu-item">
+                    <div class="menu-parent" onclick="handleMenuClick(this)">
+                        
+                        <span>卫生执业预警</span>
+                    </div>
+                </div>
+                
+                <!-- 多源数据比对 -->
+                <div class="menu-item">
+                    <div class="menu-parent expanded" onclick="toggleMenu(this)">
+                    
+                        <span>多源数据比对</span>
                         <span class="menu-arrow">▶</span>
                     </div>
                     <div class="submenu expanded">
                         <div class="submenu-item active" onclick="switchMenu(this, 'select')">指标选择功能</div>
-                        <div class="submenu-item" onclick="switchMenu(this, 'compare')">指标结果对比</div>
+                        <div class="submenu-item" onclick="switchMenu(this, 'compare')">指标结果比对</div>
+                        <div class="submenu-item" onclick="handleSubmenuClick(this)">指标多源数据比对</div>
+                    </div>
+                </div>
+                
+                <!-- 综合信用监管(可展开) -->
+                <div class="menu-item">
+                    <div class="menu-parent" onclick="toggleMenu(this)">
+                        
+                        <span>综合信用监管</span>
+                        <span class="menu-arrow">▶</span>
+                    </div>
+                    <div class="submenu">
+                        <div class="submenu-item">子菜单1</div>
+                        <div class="submenu-item">子菜单2</div>
+                    </div>
+                </div>
+                
+                <!-- AI辅政(可展开) -->
+                <div class="menu-item">
+                    <div class="menu-parent" onclick="toggleMenu(this)">
+                        
+                        <span>AI辅政</span>
+                        <span class="menu-arrow">▶</span>
+                    </div>
+                    <div class="submenu">
+                        <div class="submenu-item">子菜单1</div>
+                        <div class="submenu-item">子菜单2</div>
+                    </div>
+                </div>
+                
+                <!-- 接口设计及集成 -->
+                <div class="menu-item">
+                    <div class="menu-parent" onclick="handleMenuClick(this)">
+                        
+                        <span>接口设计及集成</span>
                     </div>
                 </div>
             </nav>
@@ -890,8 +968,23 @@
         // 已选择的指标
         let selectedIndexes = [];
 
+        // 清除所有菜单的选中状态
+        function clearAllActive() {
+            document.querySelectorAll('.menu-parent').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelectorAll('.submenu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+        }
+
         // 切换菜单展开/收起
         function toggleMenu(element) {
+            // 清除所有菜单的选中状态
+            clearAllActive();
+            // 设置当前菜单为选中状态
+            element.classList.add('active');
+            // 切换展开状态
             element.classList.toggle('expanded');
             const submenu = element.nextElementSibling;
             if (submenu) {
@@ -899,13 +992,38 @@
             }
         }
 
+        // 处理普通菜单点击（非可展开菜单）
+        function handleMenuClick(element) {
+            // 清除所有菜单的选中状态
+            clearAllActive();
+            // 设置当前菜单为选中状态
+            element.classList.add('active');
+        }
+
+        // 处理子菜单点击（非指标选择/对比）
+        function handleSubmenuClick(element) {
+            // 清除所有菜单的选中状态
+            clearAllActive();
+            // 设置当前子菜单为选中状态
+            element.classList.add('active');
+            // 激活父菜单
+            const parentItem = element.closest('.menu-item').querySelector('.menu-parent');
+            if (parentItem) {
+                parentItem.classList.add('active');
+            }
+        }
+
         // 切换页面
         function switchMenu(element, page) {
-            // 更新菜单状态
-            document.querySelectorAll('.submenu-item').forEach(item => {
-                item.classList.remove('active');
-            });
+            // 清除所有菜单的选中状态
+            clearAllActive();
+            // 设置当前子菜单为选中状态
             element.classList.add('active');
+            // 激活父菜单
+            const parentItem = element.closest('.menu-item').querySelector('.menu-parent');
+            if (parentItem) {
+                parentItem.classList.add('active');
+            }
 
             // 切换页面显示
             document.getElementById('selectPage').style.display = 'none';
