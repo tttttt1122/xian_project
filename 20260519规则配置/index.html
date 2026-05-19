@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据质量规则配置 - 全民健康信息平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            padding: 24px;
+        }
+
+        .page-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+        }
+
+        .btn-success {
+            background: #52c41a;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #73d13d;
+        }
+
+        .btn-default {
+            background: #f5f5f5;
+            color: #595959;
+        }
+
+        .btn-default:hover {
+            background: #e8e8e8;
+        }
+
+        .btn-danger {
+            background: #ff4d4f;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #ff7875;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        /* 数据表格 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table th {
+            background: #fafafa;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 500;
+            color: #595959;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .data-table td {
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #595959;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .data-table tbody tr:hover {
+            background: #e6f7ff;
+        }
+
+        /* 表单输入 */
+        .form-input {
+            padding: 6px 10px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 150px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #1890ff;
+        }
+
+        .form-select {
+            padding: 6px 10px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 150px;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #1890ff;
+        }
+
+        .form-textarea {
+            padding: 6px 10px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 200px;
+            min-height: 60px;
+            resize: vertical;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #1890ff;
+        }
+
+        /* 开关 */
+        .switch {
+            position: relative;
+            width: 40px;
+            height: 22px;
+            background: #d9d9d9;
+            border-radius: 11px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .switch.active {
+            background: #1890ff;
+        }
+
+        .switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 18px;
+            height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            transition: left 0.3s;
+        }
+
+        .switch.active::after {
+            left: 20px;
+        }
+
+        /* 复选框 */
+        .checkbox {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: #fff;
+            border-radius: 8px;
+            width: 800px;
+            max-width: 90%;
+            max-height: 85vh;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .modal-close {
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+            background: none;
+            border: none;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: #666;
+        }
+
+        /* 标签页 */
+        .modal-tabs {
+            display: flex;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            font-size: 14px;
+            color: #595959;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #1890ff;
+            border-bottom-color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .tab:hover {
+            color: #1890ff;
+        }
+
+        .modal-body {
+            padding: 20px;
+            max-height: calc(85vh - 130px);
+            overflow-y: auto;
+        }
+
+        .modal-body .tab-content {
+            display: none;
+        }
+
+        .modal-body .tab-content.active {
+            display: block;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 16px 20px;
+            border-top: 1px solid #e8e8e8;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #595959;
+        }
+
+        /* 维度权重配置 */
+        .weight-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .weight-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .weight-label {
+            width: 80px;
+            font-size: 14px;
+            color: #595959;
+        }
+
+        .weight-input {
+            width: 100px;
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .weight-input:focus {
+            outline: none;
+            border-color: #1890ff;
+        }
+
+        .weight-note {
+            margin-top: 16px;
+            font-size: 12px;
+            color: #8c8c8c;
+            padding-top: 12px;
+            border-top: 1px dashed #e8e8e8;
+        }
+
+        /* 标签 */
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .tag-success {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+
+        .tag-info {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        /* 操作列 */
+        .action-btns {
+            display: flex;
+            gap: 6px;
+        }
+
+        .action-btn {
+            padding: 4px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .action-btn.edit {
+            background: #1890ff;
+            color: #fff;
+        }
+
+        .action-btn.edit:hover {
+            background: #40a9ff;
+        }
+
+        .action-btn.delete {
+            background: #ff4d4f;
+            color: #fff;
+        }
+
+        .action-btn.delete:hover {
+            background: #ff7875;
+        }
+
+        /* 规则表格在弹窗中 */
+        .rule-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 16px;
+        }
+
+        .rule-table th {
+            background: #fafafa;
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 500;
+            color: #595959;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .rule-table td {
+            padding: 10px 12px;
+            font-size: 13px;
+            color: #595959;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .rule-table tbody tr:hover {
+            background: #e6f7ff;
+        }
+
+        /* 筛选条件样式 */
+        .search-form {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 16px;
+            background: #fafafa;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+
+        .form-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            color: #595959;
+            white-space: nowrap;
+        }
+
+        /* 底部操作栏 */
+        .bottom-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 16px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        /* 规则统计信息 */
+        .rule-stats {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            background: #fafafa;
+            border-radius: 4px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #8c8c8c;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1890ff;
+        }
+    </style>
+</head>
+<body>
+    <!-- 页面标题 -->
+    <div class="page-title">数据质量规则配置</div>
+
+    <!-- 评分任务列表（主模块） -->
+    <div class="card">
+        <div class="card-title">评分任务配置</div>
+        
+        <!-- 筛选条件 -->
+        <div class="search-form">
+            <div class="form-item">
+                <span class="form-label">任务名称：</span>
+                <input type="text" id="taskSearchInput" class="form-input" placeholder="请输入任务名称" style="width: 200px;">
+            </div>
+            <div class="form-item">
+                <span class="form-label">启用状态：</span>
+                <select id="taskStatusSelect" class="form-select" style="width: 150px;">
+                    <option value="">全部</option>
+                    <option value="enabled">已启用</option>
+                    <option value="disabled">已禁用</option>
+                </select>
+            </div>
+            <div class="form-item">
+                <span class="form-label">规则数量：</span>
+                <select id="ruleCountSelect" class="form-select" style="width: 150px;">
+                    <option value="">全部</option>
+                    <option value="1-3">1-3条</option>
+                    <option value="4-6">4-6条</option>
+                    <option value="7+">7条以上</option>
+                </select>
+            </div>
+            <div class="form-item" style="margin-left: auto;">
+                <button class="btn btn-primary" onclick="searchTasks()">查询</button>
+                <button class="btn btn-default" onclick="clearTaskSearch()">重置</button>
+            </div>
+        </div>
+        
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="showAddTaskModal()">新增任务</button>
+        </div>
+        
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>任务名称</th>
+                    <th>维度配置</th>
+                    <th>规则数量</th>
+                    <th>启用状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="tasksTable">
+                <!-- 动态生成 -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 任务配置弹窗（包含三个标签页） -->
+    <div class="modal-overlay" id="taskModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title" id="taskModalTitle">新增评分任务</span>
+                <button class="modal-close" onclick="closeTaskModal()">&times;</button>
+            </div>
+            
+            <!-- 标签页导航 -->
+            <div class="modal-tabs">
+                <div class="tab active" onclick="switchTab('basic')">基本信息</div>
+                <div class="tab" onclick="switchTab('weights')">维度权重</div>
+                <div class="tab" onclick="switchTab('rules')">规则配置</div>
+            </div>
+            
+            <div class="modal-body">
+                <input type="hidden" id="taskId">
+                
+                <!-- 标签页1：基本信息 -->
+                <div class="tab-content active" id="basicTab">
+                    <div class="form-group">
+                        <label>任务名称 <span style="color: #ff4d4f;">*</span></label>
+                        <input type="text" id="taskName" class="form-input" placeholder="请输入任务名称" style="width: 100%; max-width: 400px;">
+                    </div>
+                    <div class="form-group">
+                        <label>任务描述</label>
+                        <textarea id="taskDesc" class="form-textarea" placeholder="请输入任务描述（可选）" style="width: 100%; max-width: 400px;"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>启用状态</label>
+                        <div class="switch" id="taskEnabled" onclick="toggleSwitch(this)" style="margin-top: 8px;"></div>
+                    </div>
+                </div>
+                
+                <!-- 标签页2：维度权重配置 -->
+                <div class="tab-content" id="weightsTab">
+                    <div class="weight-grid">
+                        <div class="weight-item">
+                            <span class="weight-label">完整性</span>
+                            <input type="number" id="weight-completeness" class="weight-input" value="25" min="0">
+                        </div>
+                        <div class="weight-item">
+                            <span class="weight-label">规范性</span>
+                            <input type="number" id="weight-normative" class="weight-input" value="25" min="0">
+                        </div>
+                        <div class="weight-item">
+                            <span class="weight-label">一致性</span>
+                            <input type="number" id="weight-consistency" class="weight-input" value="15" min="0">
+                        </div>
+                        <div class="weight-item">
+                            <span class="weight-label">准确性</span>
+                            <input type="number" id="weight-accuracy" class="weight-input" value="15" min="0">
+                        </div>
+                        <div class="weight-item">
+                            <span class="weight-label">唯一性</span>
+                            <input type="number" id="weight-uniqueness" class="weight-input" value="10" min="0">
+                        </div>
+                        <div class="weight-item">
+                            <span class="weight-label">时效性</span>
+                            <input type="number" id="weight-timeliness" class="weight-input" value="10" min="0">
+                        </div>
+                    </div>
+                    <div class="weight-note">
+                        注：权重之和不必为100，系统会在任务计算时自动归一化。
+                    </div>
+                </div>
+                
+                <!-- 标签页3：规则配置 -->
+                <div class="tab-content" id="rulesTab">
+                    <div class="rule-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">规则总数：</span>
+                            <span class="stat-value" id="ruleCount">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">已启用：</span>
+                            <span class="stat-value" id="enabledCount">0</span>
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="showAddRuleModal()">新增规则</button>
+                    </div>
+                    <table class="rule-table">
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>规则名称</th>
+                                <th>所属维度</th>
+                                <th>启用</th>
+                                <th>备注</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rulesTableInModal">
+                            <!-- 动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeTaskModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveTask()">保存任务</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增/编辑规则弹窗 -->
+    <div class="modal-overlay" id="ruleModal">
+        <div class="modal" style="width: 450px;">
+            <div class="modal-header">
+                <span class="modal-title" id="ruleModalTitle">新增规则</span>
+                <button class="modal-close" onclick="closeRuleModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="ruleId">
+                <input type="hidden" id="ruleIndex">
+                <div class="form-group">
+                    <label>规则名称 <span style="color: #ff4d4f;">*</span></label>
+                    <input type="text" id="ruleName" class="form-input" placeholder="请输入规则名称" style="width: 100%;">
+                </div>
+                <div class="form-group">
+                    <label>所属维度</label>
+                    <select id="ruleDimension" class="form-select">
+                        <option value="完整性">完整性</option>
+                        <option value="规范性">规范性</option>
+                        <option value="一致性">一致性</option>
+                        <option value="准确性">准确性</option>
+                        <option value="唯一性">唯一性</option>
+                        <option value="时效性">时效性</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>启用状态</label>
+                    <div class="switch" id="ruleEnabled" onclick="toggleSwitch(this)" style="margin-top: 8px;"></div>
+                </div>
+                <div class="form-group">
+                    <label>备注</label>
+                    <textarea id="ruleRemark" class="form-textarea" placeholder="请输入规则描述（可选）" style="width: 100%;"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeRuleModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveRuleInModal()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 成功提示弹窗 -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">操作成功</span>
+                <button class="modal-close" onclick="closeSuccessModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="text-align: center; padding: 30px;">
+                <div style="font-size: 48px; margin-bottom: 16px;">✓</div>
+                <p id="successMessage">操作成功！</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeSuccessModal()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 默认维度权重
+        const defaultWeights = {
+            completeness: 25,
+            normative: 25,
+            consistency: 15,
+            accuracy: 15,
+            uniqueness: 10,
+            timeliness: 10
+        };
+
+        // 默认规则模板
+        const defaultRules = [
+            { id: 'R001', name: '日期格式检验', dimension: '规范性', enabled: true, remark: '字段birth_date格式YYYY-MM-DD' },
+            { id: 'R002', name: '数值范围检验', dimension: '规范性', enabled: true, remark: '字段age范围0-120' },
+            { id: 'R003', name: '空值检验', dimension: '准确性', enabled: true, remark: '关键字段不允许为空' },
+            { id: 'R004', name: '重复值检验', dimension: '唯一性', enabled: true, remark: '主键字段唯一' },
+            { id: 'R005', name: '字段非空', dimension: '完整性', enabled: true, remark: '某字段非空' }
+        ];
+
+        // 任务数据（每个任务包含：基本信息、维度权重、规则列表）
+        let tasks = [
+            {
+                id: 'T001',
+                name: '任务1（示例）',
+                desc: '示例评分任务，包含常用数据质量检查规则',
+                enabled: true,
+                weights: { ...defaultWeights },
+                rules: [
+                    { id: 'R001', name: '日期格式检验', dimension: '规范性', enabled: true, remark: '字段birth_date格式YYYY-MM-DD' },
+                    { id: 'R002', name: '数值范围检验', dimension: '规范性', enabled: true, remark: '字段age范围0-120' },
+                    { id: 'R003', name: '空值检验', dimension: '准确性', enabled: true, remark: '关键字段不允许为空' },
+                    { id: 'R004', name: '重复值检验', dimension: '唯一性', enabled: true, remark: '主键字段唯一' }
+                ]
+            },
+            {
+                id: 'T002',
+                name: '客户核心表检查',
+                desc: '针对客户核心数据表的质量检查任务',
+                enabled: true,
+                weights: {
+                    completeness: 30,
+                    normative: 20,
+                    consistency: 15,
+                    accuracy: 20,
+                    uniqueness: 10,
+                    timeliness: 5
+                },
+                rules: [
+                    { id: 'R003', name: '空值检验', dimension: '准确性', enabled: true, remark: '关键字段不允许为空' },
+                    { id: 'R004', name: '重复值检验', dimension: '唯一性', enabled: true, remark: '主键字段唯一' },
+                    { id: 'R005', name: '字段非空', dimension: '完整性', enabled: true, remark: '某字段非空' }
+                ]
+            },
+            {
+                id: 'T003',
+                name: '医疗服务质量评估',
+                desc: '评估医疗服务相关数据的质量指标',
+                enabled: true,
+                weights: {
+                    completeness: 20,
+                    normative: 25,
+                    consistency: 20,
+                    accuracy: 20,
+                    uniqueness: 10,
+                    timeliness: 5
+                },
+                rules: [
+                    { id: 'R001', name: '日期格式检验', dimension: '规范性', enabled: true, remark: '字段birth_date格式YYYY-MM-DD' },
+                    { id: 'R002', name: '数值范围检验', dimension: '规范性', enabled: true, remark: '字段age范围0-120' },
+                    { id: 'R003', name: '空值检验', dimension: '准确性', enabled: true, remark: '关键字段不允许为空' },
+                    { id: 'R004', name: '重复值检验', dimension: '唯一性', enabled: true, remark: '主键字段唯一' },
+                    { id: 'R005', name: '字段非空', dimension: '完整性', enabled: true, remark: '某字段非空' }
+                ]
+            },
+            {
+                id: 'T004',
+                name: '财务数据校验',
+                desc: '对财务相关数据进行质量校验',
+                enabled: false,
+                weights: {
+                    completeness: 15,
+                    normative: 15,
+                    consistency: 25,
+                    accuracy: 25,
+                    uniqueness: 10,
+                    timeliness: 10
+                },
+                rules: [
+                    { id: 'R002', name: '数值范围检验', dimension: '规范性', enabled: true, remark: '金额字段范围校验' },
+                    { id: 'R003', name: '空值检验', dimension: '准确性', enabled: true, remark: '关键财务字段非空' },
+                    { id: 'R004', name: '重复值检验', dimension: '唯一性', enabled: true, remark: '交易流水号唯一' }
+                ]
+            },
+            {
+                id: 'T005',
+                name: '患者满意度调查',
+                desc: '患者满意度调查数据质量检查',
+                enabled: true,
+                weights: {
+                    completeness: 30,
+                    normative: 15,
+                    consistency: 15,
+                    accuracy: 20,
+                    uniqueness: 10,
+                    timeliness: 10
+                },
+                rules: [
+                    { id: 'R001', name: '日期格式检验', dimension: '规范性', enabled: true, remark: '调查日期格式校验' },
+                    { id: 'R003', name: '空值检验', dimension: '准确性', enabled: true, remark: '必填选项非空' },
+                    { id: 'R005', name: '字段非空', dimension: '完整性', enabled: true, remark: '患者ID非空' }
+                ]
+            }
+        ];
+
+        // 当前编辑的任务索引
+        let currentTaskIndex = -1;
+
+        // 渲染任务表格
+        function renderTasksTable() {
+            const table = document.getElementById('tasksTable');
+            table.innerHTML = tasks.map((task, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${task.name}</td>
+                    <td>
+                        <span class="tag tag-info">完整性 ${task.weights.completeness}</span>
+                        <span class="tag tag-info">规范性 ${task.weights.normative}</span>
+                        <span class="tag tag-info">一致性 ${task.weights.consistency}</span>
+                        <span class="tag tag-info">准确性 ${task.weights.accuracy}</span>
+                        <span class="tag tag-info">唯一性 ${task.weights.uniqueness}</span>
+                        <span class="tag tag-info">时效性 ${task.weights.timeliness}</span>
+                    </td>
+                    <td><span class="tag tag-success">${task.rules.length} 条</span></td>
+                    <td>${task.enabled ? '<span class="tag tag-success">已启用</span>' : '<span class="tag tag-error">已禁用</span>'}</td>
+                    <td class="action-btns">
+                        <button class="action-btn edit" onclick="showEditTaskModal(${index})">编辑</button>
+                        <button class="action-btn delete" onclick="deleteTask(${index})">删除</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 切换全选任务
+        function toggleSelectAllTasks() {
+            const checked = document.getElementById('selectAllTasks').checked;
+            document.querySelectorAll('.task-checkbox').forEach(cb => cb.checked = checked);
+        }
+
+        // 删除选中任务
+        function deleteSelectedTasks() {
+            const selectedIndexes = Array.from(document.querySelectorAll('.task-checkbox:checked'))
+                .map(cb => parseInt(cb.value));
+            if (selectedIndexes.length === 0) {
+                alert('请先选择要删除的任务');
+                return;
+            }
+            if (confirm(`确定删除选中的 ${selectedIndexes.length} 个任务吗？`)) {
+                // 从大到小删除，避免索引混乱
+                selectedIndexes.sort((a, b) => b - a);
+                selectedIndexes.forEach(index => {
+                    tasks.splice(index, 1);
+                });
+                renderTasksTable();
+                showSuccessMessage('删除成功！');
+            }
+        }
+
+        // 删除单条任务
+        function deleteTask(index) {
+            if (confirm('确定删除这个任务吗？')) {
+                tasks.splice(index, 1);
+                renderTasksTable();
+                showSuccessMessage('删除成功！');
+            }
+        }
+
+        // 显示新增任务弹窗
+        function showAddTaskModal() {
+            currentTaskIndex = -1;
+            document.getElementById('taskModalTitle').textContent = '新增评分任务';
+            document.getElementById('taskId').value = '';
+            document.getElementById('taskName').value = '';
+            document.getElementById('taskDesc').value = '';
+            
+            // 设置默认权重
+            setWeightsToForm(defaultWeights);
+            
+            // 设置默认规则（复制默认规则模板）
+            currentTaskRules = JSON.parse(JSON.stringify(defaultRules));
+            
+            // 设置启用状态
+            const switchEl = document.getElementById('taskEnabled');
+            switchEl.classList.add('active');
+            
+            // 切换到基本信息标签页
+            switchTab('basic');
+            
+            // 渲染规则表格
+            renderRulesTableInModal();
+            
+            document.getElementById('taskModal').classList.add('show');
+        }
+
+        // 显示编辑任务弹窗
+        function showEditTaskModal(index) {
+            currentTaskIndex = index;
+            const task = tasks[index];
+            
+            document.getElementById('taskModalTitle').textContent = '编辑评分任务';
+            document.getElementById('taskId').value = task.id;
+            document.getElementById('taskName').value = task.name;
+            document.getElementById('taskDesc').value = task.desc || '';
+            
+            // 设置权重
+            setWeightsToForm(task.weights);
+            
+            // 设置规则
+            currentTaskRules = JSON.parse(JSON.stringify(task.rules));
+            
+            // 设置启用状态
+            const switchEl = document.getElementById('taskEnabled');
+            if (task.enabled) {
+                switchEl.classList.add('active');
+            } else {
+                switchEl.classList.remove('active');
+            }
+            
+            // 切换到基本信息标签页
+            switchTab('basic');
+            
+            // 渲染规则表格
+            renderRulesTableInModal();
+            
+            document.getElementById('taskModal').classList.add('show');
+        }
+
+        // 设置权重到表单
+        function setWeightsToForm(weights) {
+            document.getElementById('weight-completeness').value = weights.completeness || 25;
+            document.getElementById('weight-normative').value = weights.normative || 25;
+            document.getElementById('weight-consistency').value = weights.consistency || 15;
+            document.getElementById('weight-accuracy').value = weights.accuracy || 15;
+            document.getElementById('weight-uniqueness').value = weights.uniqueness || 10;
+            document.getElementById('weight-timeliness').value = weights.timeliness || 10;
+        }
+
+        // 获取表单中的权重
+        function getWeightsFromForm() {
+            return {
+                completeness: parseInt(document.getElementById('weight-completeness').value) || 0,
+                normative: parseInt(document.getElementById('weight-normative').value) || 0,
+                consistency: parseInt(document.getElementById('weight-consistency').value) || 0,
+                accuracy: parseInt(document.getElementById('weight-accuracy').value) || 0,
+                uniqueness: parseInt(document.getElementById('weight-uniqueness').value) || 0,
+                timeliness: parseInt(document.getElementById('weight-timeliness').value) || 0
+            };
+        }
+
+        // 切换标签页
+        function switchTab(tabName) {
+            // 更新标签状态
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            
+            // 更新内容显示
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`${tabName}Tab`).classList.add('active');
+        }
+
+        // 当前任务的规则列表
+        let currentTaskRules = [];
+
+        // 渲染弹窗中的规则表格
+        function renderRulesTableInModal() {
+            const table = document.getElementById('rulesTableInModal');
+            const enabledCount = currentTaskRules.filter(r => r.enabled).length;
+            
+            document.getElementById('ruleCount').textContent = currentTaskRules.length;
+            document.getElementById('enabledCount').textContent = enabledCount;
+            
+            table.innerHTML = currentTaskRules.map((rule, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${rule.name}</td>
+                    <td><span class="tag tag-info">${rule.dimension}</span></td>
+                    <td><div class="switch ${rule.enabled ? 'active' : ''}" onclick="toggleRuleEnabledInModal(${index})"></div></td>
+                    <td>${rule.remark || '-'}</td>
+                    <td class="action-btns">
+                        <button class="action-btn edit" onclick="showEditRuleModal(${index})">编辑</button>
+                        <button class="action-btn delete" onclick="deleteRuleInModal(${index})">删除</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 切换规则启用状态
+        function toggleRuleEnabledInModal(index) {
+            currentTaskRules[index].enabled = !currentTaskRules[index].enabled;
+            renderRulesTableInModal();
+        }
+
+        // 删除单条规则
+        function deleteRuleInModal(index) {
+            if (confirm('确定删除这条规则吗？')) {
+                currentTaskRules.splice(index, 1);
+                renderRulesTableInModal();
+            }
+        }
+
+        // 显示新增规则弹窗
+        function showAddRuleModal() {
+            document.getElementById('ruleModalTitle').textContent = '新增规则';
+            document.getElementById('ruleId').value = '';
+            document.getElementById('ruleIndex').value = '-1';
+            document.getElementById('ruleName').value = '';
+            document.getElementById('ruleDimension').value = '完整性';
+            document.getElementById('ruleRemark').value = '';
+            const switchEl = document.getElementById('ruleEnabled');
+            switchEl.classList.add('active');
+            document.getElementById('ruleModal').classList.add('show');
+        }
+
+        // 显示编辑规则弹窗
+        function showEditRuleModal(index) {
+            const rule = currentTaskRules[index];
+            if (rule) {
+                document.getElementById('ruleModalTitle').textContent = '编辑规则';
+                document.getElementById('ruleId').value = rule.id;
+                document.getElementById('ruleIndex').value = index;
+                document.getElementById('ruleName').value = rule.name;
+                document.getElementById('ruleDimension').value = rule.dimension;
+                document.getElementById('ruleRemark').value = rule.remark || '';
+                const switchEl = document.getElementById('ruleEnabled');
+                if (rule.enabled) {
+                    switchEl.classList.add('active');
+                } else {
+                    switchEl.classList.remove('active');
+                }
+                document.getElementById('ruleModal').classList.add('show');
+            }
+        }
+
+        // 关闭规则弹窗
+        function closeRuleModal() {
+            document.getElementById('ruleModal').classList.remove('show');
+        }
+
+        // 保存规则（在弹窗中）
+        function saveRuleInModal() {
+            const index = parseInt(document.getElementById('ruleIndex').value);
+            const name = document.getElementById('ruleName').value.trim();
+            const dimension = document.getElementById('ruleDimension').value;
+            const enabled = document.getElementById('ruleEnabled').classList.contains('active');
+            const remark = document.getElementById('ruleRemark').value.trim();
+
+            if (!name) {
+                alert('请输入规则名称');
+                return;
+            }
+
+            if (index >= 0) {
+                // 编辑现有规则
+                currentTaskRules[index] = {
+                    id: currentTaskRules[index].id,
+                    name,
+                    dimension,
+                    enabled,
+                    remark
+                };
+            } else {
+                // 新增规则
+                const newId = 'R' + String(currentTaskRules.length + 1).padStart(3, '0');
+                currentTaskRules.push({ id: newId, name, dimension, enabled, remark });
+            }
+
+            renderRulesTableInModal();
+            closeRuleModal();
+        }
+
+        // 关闭任务弹窗
+        function closeTaskModal() {
+            document.getElementById('taskModal').classList.remove('show');
+        }
+
+        // 保存任务
+        function saveTask() {
+            const name = document.getElementById('taskName').value.trim();
+            const desc = document.getElementById('taskDesc').value.trim();
+            const enabled = document.getElementById('taskEnabled').classList.contains('active');
+            const weights = getWeightsFromForm();
+            const rules = JSON.parse(JSON.stringify(currentTaskRules));
+
+            if (!name) {
+                alert('请输入任务名称');
+                return;
+            }
+
+            if (rules.length === 0) {
+                alert('请至少添加一条规则');
+                return;
+            }
+
+            const taskData = {
+                id: currentTaskIndex >= 0 ? tasks[currentTaskIndex].id : 'T' + String(tasks.length + 1).padStart(3, '0'),
+                name,
+                desc,
+                enabled,
+                weights,
+                rules
+            };
+
+            if (currentTaskIndex >= 0) {
+                // 编辑现有任务
+                tasks[currentTaskIndex] = taskData;
+            } else {
+                // 新增任务
+                tasks.push(taskData);
+            }
+
+            renderTasksTable();
+            closeTaskModal();
+            showSuccessMessage('任务保存成功！');
+        }
+
+        // 保存任务配置
+        function saveTasks() {
+            showSuccessMessage('任务配置保存成功！');
+        }
+
+        // 保存所有配置
+        function saveAllConfig() {
+            localStorage.setItem('dataQualityConfig', JSON.stringify(tasks));
+            showSuccessMessage('所有配置已保存！');
+        }
+
+        // 导出配置
+        function exportConfig() {
+            const blob = new Blob([JSON.stringify(tasks, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'data_quality_config.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showSuccessMessage('配置导出成功！');
+        }
+
+        // 显示成功消息
+        function showSuccessMessage(message) {
+            document.getElementById('successMessage').textContent = message;
+            document.getElementById('successModal').classList.add('show');
+        }
+
+        // 关闭成功弹窗
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.remove('show');
+        }
+
+        // 切换开关状态
+        function toggleSwitch(element) {
+            element.classList.toggle('active');
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTasksTable();
+        });
+    </script>
+</body>
+</html>
