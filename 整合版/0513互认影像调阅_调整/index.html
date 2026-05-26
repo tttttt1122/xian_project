@@ -856,7 +856,7 @@
 <body>
     <!-- 顶部导航栏 -->
     <header class="header">
-        <div class="header-title">陕西省全民健康信息平台-检查检验结果互认系统（秦医互认）</div>
+        <div class="header-title">全民健康信息平台-检查检验结果互认系统</div>
         <div class="header-right">
             <div class="header-user">
                 <div class="user-avatar">管</div>
@@ -888,21 +888,13 @@
                 </div>
                 <div class="submenu show">
                     <div class="submenu-item" onclick="handleMenuClick(this)">临床诊疗环节互认控制</div>
-                    <div class="submenu-item" onclick="handleMenuClick(this)">互认信息视窗</div>
-                    <div class="submenu-item" onclick="handleMenuClick(this)">互认消息提醒</div>
-                    <div class="submenu-item" onclick="handleMenuClick(this)">跨省提醒服务</div>
-                    <div class="submenu-item" onclick="handleMenuClick(this)">项目确认管理</div>
-                    <div class="submenu-item" onclick="handleMenuClick(this)">不互认理由管理</div>
-                    <div class="submenu-item" onclick="handleMenuClick(this)">项目列表管理</div>
-                    <div class="submenu-item" onclick="handleMenuClick(this)">项目精准管理</div>
-                    <div class="submenu-item" onclick="handleMenuClick(this)">阻断校验管理</div>
-                    <div class="submenu-item" onclick="handleMenuClick(this)">检验报告调阅</div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">跨省互通配置</div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">检阅报告调阅</div>
                     <div class="submenu-item" onclick="handleMenuClick(this)">检查报告调阅</div>
                     <div class="submenu-item active" onclick="handleMenuClick(this)">互认影像调阅</div>
-                    <div class="submenu-item" onclick="handleMenuClick(this)">报告下载服务</div>
-                    <div class="submenu-item" onclick="handleMenuClick(this)">跨省列表管理</div>
-                    <div class="submenu-item" onclick="handleMenuClick(this)">跨省检验报告调阅</div>
-                    <div class="submenu-item" onclick="handleMenuClick(this)">跨省检查报告调阅</div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">项目列表管理</div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">项目精准管理</div>
+                    <div class="submenu-item" onclick="handleMenuClick(this)">跨省项目列表管理</div>
                 </div>
 
                 <!-- 互认服务支撑 -->
@@ -1038,12 +1030,8 @@
                         <div class="third-menu-item" onclick="handleMenuClick(this)">医生互认明细行为查询分析</div>
                         <div class="third-menu-item" onclick="handleMenuClick(this)">自定义报表</div>
                     </div>
-                    <div class="submenu-item" onclick="toggleThirdMenu(this)">
+                    <div class="submenu-item" onclick="handleMenuClick(this)">
                         <span>互认监管展示</span>
-                        <span class="arrow">▶</span>
-                    </div>
-                    <div class="third-menu">
-                        <div class="third-menu-item" onclick="handleMenuClick(this)">互认监管展示内容</div>
                     </div>
                 </div>
             </nav>
@@ -1188,8 +1176,23 @@
                     <span class="page-info">显示 1-6 条，共 6 条</span>
                 </div>
             </div>
-            </div>
         </div>
+    </div>
+    <!-- Figma内容容器 -->
+    <div id="figmaFrameContainer" style="display: none; width: 100%; height: calc(100vh - 180px);">
+        <iframe 
+            style="width: 100%; height: 100%; border: none;"
+            src="https://www.figma.com/embed?embed_host=share&url=https%3A%2F%2Fwww.figma.com%2Fmake%2F8FcUnLieNVPJhuOysXXdva%2F%25E8%25A5%25BF%25E5%25AE%2589-%25E6%258E%25A5%25E8%25AF%258A%25E4%25BA%2592%25E8%25AE%25A4%25E6%258F%2590%25E9%2586%2592%3Ft%3DSknIAIYQ983wL90S-20%26fullscreen%3D1"
+            allowfullscreen>
+        </iframe>
+    </div>
+    <!-- 互认监管展示Figma容器 -->
+    <div id="figmaFrameContainer2" style="display: none; width: 100%; height: calc(100vh - 180px);">
+        <iframe 
+            style="width: 100%; height: 100%; border: none;"
+            src="https://www.figma.com/embed?embed_host=share&url=https%3A%2F%2Fwww.figma.com%2Fmake%2F4xAdAVmhgyPB2xATX4xzk8%2F%25E8%25A5%25BF%25E5%25AE%2589-%25E5%A4%25A7%25E5%B1%2580%3Ft%3DGkgmUnxSeFgOczhA-20%26fullscreen%3D1"
+            allowfullscreen>
+        </iframe>
     </div>
 
     <!-- 查看影像弹窗 -->
@@ -1387,10 +1390,53 @@
                 document.querySelectorAll('.submenu-item').forEach(item => item.classList.remove('active'));
                 document.querySelectorAll('.third-menu-item').forEach(item => item.classList.remove('active'));
                 el.classList.add('active');
+                showFigmaContent(false);
+                showFigmaContent2(false);
             } else if (menuText.includes('项目包含关系管理')) {
                 window.location.href = '../0513项目包含关系管理/index.html';
             } else if (menuText.includes('医生互认明细行为查询分析')) {
                 window.location.href = '../0514医生互认明细行为查询分析/index.html';
+            } else if (menuText.includes('临床诊疗环节互认控制')) {
+                document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+                document.querySelectorAll('.submenu-item').forEach(item => item.classList.remove('active'));
+                document.querySelectorAll('.third-menu-item').forEach(item => item.classList.remove('active'));
+                el.classList.add('active');
+                showFigmaContent(true);
+                showFigmaContent2(false);
+            } else if (menuText.includes('互认监管展示')) {
+                document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+                document.querySelectorAll('.submenu-item').forEach(item => item.classList.remove('active'));
+                document.querySelectorAll('.third-menu-item').forEach(item => item.classList.remove('active'));
+                el.classList.add('active');
+                showFigmaContent(false);
+                showFigmaContent2(true);
+            }
+        }
+
+        // 显示/隐藏Figma内容
+        function showFigmaContent(show) {
+            const mainContent = document.querySelector('.main-content');
+            const figmContainer = document.getElementById('figmaFrameContainer');
+            if (show) {
+                mainContent.style.display = 'none';
+                if (figmContainer) figmContainer.style.display = 'block';
+            } else {
+                mainContent.style.display = 'block';
+                if (figmContainer) figmContainer.style.display = 'none';
+            }
+        }
+
+        function showFigmaContent2(show) {
+            const mainContent = document.querySelector('.main-content');
+            const figmContainer = document.getElementById('figmaFrameContainer');
+            const figmContainer2 = document.getElementById('figmaFrameContainer2');
+            if (show) {
+                mainContent.style.display = 'none';
+                if (figmContainer) figmContainer.style.display = 'none';
+                if (figmContainer2) figmContainer2.style.display = 'block';
+            } else {
+                mainContent.style.display = 'block';
+                if (figmContainer2) figmContainer2.style.display = 'none';
             }
         }
 
